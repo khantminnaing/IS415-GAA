@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "IS415 - Khant"
+  title: "IS415 - Geospatial with Khant"
   navbar:
     right:
       - href: index.qmd
