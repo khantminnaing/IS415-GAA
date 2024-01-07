@@ -1,16 +1,37 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "IS415: Geospatial Analytics and Application",
-    "section": "",
-    "text": "Hello"
-  },
-  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
     "section": "",
     "text": "Hi!\nI am a undergraduate student at Singapore Management University. This course website is developed to document my learning journey at IS415: Geospatial Analytics and Applications under Professor Kam Tin Seong."
+  },
+  {
+    "objectID": "Hands-on_Ex/hands_on1.html",
+    "href": "Hands-on_Ex/hands_on1.html",
+    "title": "Hands-On Exercise 02",
+    "section": "",
+    "text": "Geospatial Data Science is a process of importing, wrangling, integrating, and processing geographically referenced data sets. In this hands-on exercise, you will learn how to perform geospatial data science tasks in R by using sf package.\nBy the end of this hands-on exercise, you should acquire the following competencies:\n\ninstalling and loading sf and tidyverse packages into R environment,\nimporting geospatial data by using appropriate functions of sf package,\nimporting aspatial data by using appropriate function of readr package,\nexploring the content of simple feature data frame by using appropriate Base R and sf functions,\nassigning or transforming coordinate systems by using using appropriate sf functions,\nconverting an aspatial data into a sf data frame by using appropriate function of sf package,\nperforming geoprocessing tasks by using appropriate functions of sf package,\nperforming data wrangling tasks by using appropriate functions of dplyr package and\nperforming Exploratory Data Analysis (EDA) by using appropriate functions from ggplot2 package."
+  },
+  {
+    "objectID": "Hands-on_Ex/hands_on1.html#overview",
+    "href": "Hands-on_Ex/hands_on1.html#overview",
+    "title": "Hands-On Exercise 02",
+    "section": "",
+    "text": "Geospatial Data Science is a process of importing, wrangling, integrating, and processing geographically referenced data sets. In this hands-on exercise, you will learn how to perform geospatial data science tasks in R by using sf package.\nBy the end of this hands-on exercise, you should acquire the following competencies:\n\ninstalling and loading sf and tidyverse packages into R environment,\nimporting geospatial data by using appropriate functions of sf package,\nimporting aspatial data by using appropriate function of readr package,\nexploring the content of simple feature data frame by using appropriate Base R and sf functions,\nassigning or transforming coordinate systems by using using appropriate sf functions,\nconverting an aspatial data into a sf data frame by using appropriate function of sf package,\nperforming geoprocessing tasks by using appropriate functions of sf package,\nperforming data wrangling tasks by using appropriate functions of dplyr package and\nperforming Exploratory Data Analysis (EDA) by using appropriate functions from ggplot2 package."
+  },
+  {
+    "objectID": "Hands-on_Ex/hands_on1.html#setup",
+    "href": "Hands-on_Ex/hands_on1.html#setup",
+    "title": "Hands-On Exercise 02",
+    "section": "2.0 Setup",
+    "text": "2.0 Setup\n\n2.1 Data Acquisition\nData are key to data analytics including geospatial analytics. Hence, before analysing, I extract the necessary data sets from the following sources:\n\nMaster Plan 2014 Subzone Boundary (Web) from data.gov.sg\nPre-Schools Location from data.gov.sg\nCycling Path from LTADataMall\nLatest version of Singapore Airbnb listing data from Inside Airbnb\n\n\n\nInstalling R-Packages\nIn this exercise, I will be using two R packages will be used. They are:\n\nsf for importing, managing, and processing geospatial data, and\ntidyverse for performing data science tasks such as importing, wrangling and visualising data.\n\nTidyverse consists of a family of R packages. In this hands-on exercise, the following packages will be used:\n\nreadr for importing csv data,\nreadxl for importing Excel worksheet,\ntidyr for manipulating data,\ndplyr for transforming data, and\nggplot2 for visualising data\n\nI install the required packages using the code chunk below.\n\npacman::p_load(sf, tidyverse)"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "IS415: Geospatial Analytics and Application",
+    "section": "",
+    "text": "Hello"
   }
 ]

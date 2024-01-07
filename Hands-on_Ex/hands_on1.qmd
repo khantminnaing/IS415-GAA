@@ -1,0 +1,66 @@
+---
+title: "Hands-On Exercise 02"
+description: |
+ Geospatial Data Wrangling with R!
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 01-07-2024
+categories:
+  - Hands-On Exercise
+  - R
+  - sf
+  - ggplot2
+output:
+  distill::distill_article:
+    code_folding: false
+    toc: true
+    self_contained: false
+---
+
+## 1.0 Overview
+
+Geospatial Data Science is a process of importing, wrangling, integrating, and processing geographically referenced data sets.  In this hands-on exercise, you will learn how to perform geospatial data science tasks in R by using **sf** package.
+
+By the end of this hands-on exercise, you should acquire the following competencies:
+
+-   installing and loading [sf](https://r-spatial.github.io/sf/) and [tidyverse](https://www.tidyverse.org/) packages into R environment,
+-   importing geospatial data by using appropriate functions of **sf** package,
+-   importing aspatial data by using appropriate function of **readr** package,
+-   exploring the content of simple feature data frame by using appropriate **Base R** and **sf** functions,
+-   assigning or transforming coordinate systems by using using appropriate *sf* functions,
+-   converting an aspatial data into a sf data frame by using appropriate function of **sf** package,
+-   performing geoprocessing tasks by using appropriate functions of **sf** package,
+-   performing data wrangling tasks by using appropriate functions of **dplyr** package and
+-   performing Exploratory Data Analysis (EDA) by using appropriate functions from **ggplot2** package.
+
+## 2.0 Setup
+### 2.1 Data Acquisition
+
+Data are key to data analytics including geospatial analytics. Hence, before analysing, I extract the necessary data sets from the following sources:
+
+-   Master Plan 2014 Subzone Boundary (Web) from [data.gov.sg](https://data.gov.sg/)
+-   Pre-Schools Location from [data.gov.sg](https://data.gov.sg/)
+-   Cycling Path from [LTADataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html)
+-   Latest version of Singapore Airbnb listing data from [Inside Airbnb](http://insideairbnb.com/get-the-data.html)
+
+### Installing R-Packages
+In this exercise, I will be using two R packages will be used. They are:
+
+-   **sf** for importing, managing, and processing geospatial data, and
+-   **tidyverse** for performing data science tasks such as importing, wrangling and visualising data.
+
+Tidyverse consists of a family of R packages. In this hands-on exercise, the following packages will be used:
+
+-   **readr** for importing csv data,
+-   **readxl** for importing Excel worksheet,
+-   **tidyr** for manipulating data,
+-   **dplyr** for transforming data, and
+-   **ggplot2** for visualising data
+
+I install the required packages using the code chunk below.
+
+```{r, code_folding=FALSE}
+pacman::p_load(sf, tidyverse)
+```
+

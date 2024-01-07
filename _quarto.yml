@@ -10,7 +10,7 @@ website:
       - about.qmd
       - text: "Hands-On Exercises"
         menu:
-        - href: hands_on_exercises/hands_on1.qmd
+        - href: Hands-on_Ex/hands_on1.qmd
           text: "Hands-On Exercise 1"
 
 page-footer:
