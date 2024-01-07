@@ -1,0 +1,26 @@
+project:
+  type: website
+
+website:
+  title: "IS415 - Khant"
+  navbar:
+    right:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+      - text: "Hands-On Exercises"
+        menu:
+        - text: "Hands-On Exercise1"
+
+page-footer:
+    background: primary
+    left: "Geosaptial Analytics - Where Data Meets Geograpyhy"
+
+format:
+  html:
+    theme: pulse
+    css: styles.css
+    toc: true
+    
+editor: visual
+

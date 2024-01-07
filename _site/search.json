@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Hi!\nI am a undergraduate student at Singapore Management University. This course website is developed to document my learning journey at IS415: Geospatial Analytics and Applications under Professor Kam Tin Seong."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "IS415-GAA",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
+  }
+]
