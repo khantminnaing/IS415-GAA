@@ -2,6 +2,4 @@
 title: "About"
 ---
 
-Hi!
-
-I am a undergraduate student at **Singapore Management University.** This course website is developed to document my learning journey at **IS415: Geospatial Analytics and Applications** under Professor Kam Tin Seong.
+Hi! I am a undergraduate student at **Singapore Management University.** This course website is developed to document my learning journey at **IS415: Geospatial Analytics and Applications** under Professor Kam Tin Seong.

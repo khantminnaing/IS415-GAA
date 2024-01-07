@@ -1,5 +1,6 @@
 ---
 title: "IS415: Geospatial Analytics and Application"
+listing: Hands-on_Ex
 ---
 
 ::: {style="color: #e8541e;"}

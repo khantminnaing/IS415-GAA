@@ -44,7 +44,7 @@ Data are key to data analytics including geospatial analytics. Hence, before ana
 -   Cycling Path from [LTADataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html)
 -   Latest version of Singapore Airbnb listing data from [Inside Airbnb](http://insideairbnb.com/get-the-data.html)
 
-### Installing R-Packages
+### 2.2 Installing R-Packages
 In this exercise, I will be using two R packages will be used. They are:
 
 -   **sf** for importing, managing, and processing geospatial data, and
@@ -63,4 +63,45 @@ I install the required packages using the code chunk below.
 ```{r, code_folding=FALSE}
 pacman::p_load(sf, tidyverse)
 ```
+
+## 3.0 Importing Geospatial Data into R
+
+In this section, I will import the following geospatial data into R by using [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package:
+
+-   `MP14_SUBZONE_WEB_PL`, a polygon feature layer in ESRI shapefile format,
+-   `CyclingPath`, a line feature layer in ESRI shapefile format, and
+-   `PreSchool`, a point feature layer in kml file format.
+
+### 3.1 Importing polygon feature data in shapefile format
+
+Dataset used: `MP14_SUBZONE_WEB_PL` File format: shapefile Data frame type: polygon feature
+```{r, code_folding=FALSE}
+mpsz = st_read(dsn = "Ex01/data/geospatial", 
+               layer = "MP14_SUBZONE_WEB_PL")
+cyclingpath = st_read(dsn = "Ex01/data/geospatial", 
+                      layer = "CyclingPathGazette")
+preschool = st_read("Ex01/data/geospatial/PreSchoolsLocation.kml")
+```
+
+From the output message, we can see that in our `mpsz` simple feature data frame, there are 323 multipolygon features, 15 fields and is in the **svy21** projected coordinates system.
+
+### 3.2 Importing polyline feature data in shapefile form
+
+Dataset used: `CyclingPathGazette` File format: shapefile Data frame type: line feature
+
+```{r, code_folding=FALSE}
+cyclingpath = st_read(dsn = "Ex01/data/geospatial", 
+                      layer = "CyclingPathGazette")
+```
+
+From the output message, we can see that in our `cyclingpath` linestring feature data frame, there are 1625 linestring features, 2 fields and is in the **svy21** projected coordinates system.
+
+### 3.3 Importing GIS data in kml format
+
+Dataset used: `pre-schools-location-kml` File format: kml Data frame type: point feature
+
+```{r, code_folding=FALSE}
+preschool = st_read("Ex01/data/geospatial/PreSchoolsLocation.kml")
+```
+
 
