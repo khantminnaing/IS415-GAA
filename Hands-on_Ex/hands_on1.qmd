@@ -1,5 +1,5 @@
 ---
-title: "Hands-On Exercise 02"
+title: "Hands-On Exercise 01"
 description: |
  Geospatial Data Wrangling with R!
 author:
@@ -107,7 +107,6 @@ Dataset used: `pre-schools-location-kml` File format: kml Data frame type: point
 preschool = st_read("Ex01/data/geospatial/PreSchoolsLocation.kml")
 ```
 
-
 From the output message, we can see that in our `preschool` point feature data frame, there are 1359 linestring features, 2 fields and is in the **wgs84** projected coordinates system.
 
 ## 4.0 Importing + Converting Aspatial Data into R
@@ -146,7 +145,6 @@ glimpse(listings_sf)
 
 > Note that a new column called `geometry` has been added! In addition, `longtitude` and `latitude` have both been dropped.
 
-
 ## 5.0 Checking the Content of A Simple Feature Data Frame
 
 In this sub-section, you will learn different ways to retrieve information related to the content of a simple feature data frame.
@@ -181,7 +179,6 @@ head(mpsz, n=5)
 ```
 
 > Note: One of the useful argument of *head()* is it allows user to select the numbers of record to display (i.e. the n argument).
-
 
 ## 6.0 Plotting the Geospatial Data
 
