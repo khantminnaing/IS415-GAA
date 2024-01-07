@@ -2,4 +2,10 @@
 title: "About"
 ---
 
-Hi! I am a undergraduate student at **Singapore Management University.** This course website is developed to document my learning journey at **IS415: Geospatial Analytics and Applications** under Professor Kam Tin Seong.
+![](images/is415_profile-01.png){fig-align="center" width="200"}
+
+Welcome! I am **Khant Min Naing**, an undergraduate student at **Singapore Management University.** This course website is developed to document my learning journey at **IS415: Geospatial Analytics and Applications** under Professor Kam Tin Seong. Follow my journey as I venture into the world of big data, geospatial analysis and urban planning.
+
+Connect with me!
+
+[![](images/LinkedIn_logo.png){fig-align="left" width="20"}](https://www.linkedin.com/in/khantminnaing/)
