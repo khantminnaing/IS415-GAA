@@ -182,7 +182,7 @@ head(mpsz, n=5)
 
 ## 6.0 Plotting the Geospatial Data
 
-In geospatial data science, by looking at the feature information is not enough. We are also interested to visualise the geospatial features. This is the time you will find *plot()* of R Graphic comes in very handy as shown in the code chunk below.
+In geospatial data science, by looking at the feature information is not enough. We are also interested to visualise the geospatial features. I use *plot()* to quickly plot a sf object as shown in the code chunk below.
 
 ```{r}
 plot(mpsz)
@@ -200,25 +200,23 @@ Alternatively, we can also choose the plot the sf object by using a specific att
 plot(mpsz["PLN_AREA_N"])
 ```
 
-> Note: *plot()* is mean for plotting the geospatial object for quick look. For high cartographic quality plot, other R package such as tmap should be used.
-
 ## 7.0 Working with Projection
 
 Map projection is an important property of a geospatial data. In order to perform geoprocessing using two geospatial data, we need to ensure that both geospatial data are projected using similar coordinate system.
 
-In this section, you will learn how to project a simple feature data frame from one coordinate system to another coordinate system. The technical term of this process is called **projection transformation**.
+In this section, I project a simple feature data frame from one coordinate system to another coordinate system. The technical term of this process is called **projection transformation**.
 
 ### 7.1 Assigning EPSG code to a simple feature data frame
 
 One of the common issue that can happen during importing geospatial data into R is that the coordinate system of the source data was either missing (such as due to missing .proj for ESRI shapefile) or wrongly assigned during the importing process.
 
-This is an example the coordinate system of `mpsz` simple feature data frame by using *st_crs()* of *sf* package as shown in the code chunk below.
+To check the coordinate system of `mpsz` simple feature data frame, I use *st_crs()* of *sf* package as shown in the code chunk below.
 
 ```{r}
 st_crs(mpsz)
 ```
 
-Although `mpsz` data frame is projected in svy21 but when we read until the end of the print, it indicates that the EPSG is 9001. This is a wrong EPSG code because the correct EPSG code for svy21 should be [3414](https://epsg.io/3414).
+Although `mpsz` data frame is projected in SVY21 but when we read until the end of the print, it indicates that the EPSG is 9001. This is a wrong EPSG code because the correct EPSG code for SVY21 should be [3414](https://epsg.io/3414).
 
 In order to assign the correct EPSG code to `mpsz` data frame, *st_set_crs()* of **sf** package is used as shown in the code chunk below.
 
@@ -238,7 +236,7 @@ Notice that the EPSG code is 3414 now.
 
 In geospatial analytics, it is very common for us to transform the original data from geographic coordinate system to projected coordinate system. This is because geographic coordinate system is not appropriate if the analysis need to use distance or/and area measurements.
 
-Let us take preschool simple feature data frame as an example. The print below reveals that it is in wgs84 coordinate system.
+I take preschool simple feature data frame as an example. The print below reveals that it is in wgs84 coordinate system.
 
 ```{r echo=FALSE}
 st_geometry(preschool)
@@ -296,8 +294,6 @@ Lastly, sum() of Base R will be used to derive the total land involved
 sum(buffer_cycling$AREA)
 ```
 
-**Mission Accomplished!**
-
 ### 8.2 Point-in-polygon count
 
 The scenario:
@@ -312,8 +308,6 @@ The code chunk below performs two operations at one go. Firstly, identify pre-sc
 mpsz3414$`PreSch Count`<- lengths(st_intersects(mpsz3414, preschool3414))
 ```
 
-> **Warning**: You should not confuse with [st_intersection()](https://r-spatial.github.io/sf/reference/geos_binary_ops.html).
-
 You can check the summary statistics of the newly derived *PreSch Count* field by using *summary()* as shown in the code chunk below.
 
 ```{r}
@@ -326,9 +320,7 @@ To list the planning subzone with the most number of pre-school, the [*top_n()*]
 top_n(mpsz3414, 1, `PreSch Count`)
 ```
 
-> **DIY: Calculate the density of pre-school by planning subzone.**
-
-The solution:
+Next, I calculate the density of pre-school by planning subzone.
 
 Firstly, the code chunk below uses [*st_area()*](https://r-spatial.github.io/sf/reference/geos_measures.html) of **sf** package to derive the area of each planning subzone.
 
@@ -370,9 +362,7 @@ ggplot(data=mpsz3414,
       y = "Frequency")
 ```
 
-> **DIY: Using ggplot2 method, plot a scatterplot showing the relationship between Pre-school Density and Pre-school Count.**
-
-The solution:
+Using ggplot2 method, I plot a scatterplot showing the relationship between Pre-school Density and Pre-school Count.
 
 ```{r}
 ggplot(data=mpsz3414, 

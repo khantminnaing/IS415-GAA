@@ -14,8 +14,8 @@ website:
           text: "Hands-On Exercise 1"
 
 page-footer:
-    background: primary
-    left: "Geosaptial Analytics - Where Data Meets Geograpyhy"
+  background: primary
+  left: "Geosaptial Analytics - Where Data Meets Geograpyhy"
 
 format:
   html:

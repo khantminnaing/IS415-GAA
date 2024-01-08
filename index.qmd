@@ -2,4 +2,3 @@
 title: "IS415: Geospatial Analytics and Application"
 listing: Hands-on_Ex
 ---
-
