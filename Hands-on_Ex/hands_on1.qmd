@@ -80,11 +80,8 @@ In this section, I will import the following geospatial data into R by using [*s
 Dataset used: `MP14_SUBZONE_WEB_PL` File format: shapefile Data frame type: polygon feature
 
 ```{r, code_folding=FALSE}
-mpsz = st_read(dsn = "Ex01/data/geospatial", 
+mpsz = st_read(dsn = "~/IS415-GAA/data/geospatial", 
                layer = "MP14_SUBZONE_WEB_PL")
-cyclingpath = st_read(dsn = "Ex01/data/geospatial", 
-                      layer = "CyclingPathGazette")
-preschool = st_read("Ex01/data/geospatial/PreSchoolsLocation.kml")
 ```
 
 From the output message, we can see that in our `mpsz` simple feature data frame, there are 323 multipolygon features, 15 fields and is in the **svy21** projected coordinates system.
@@ -94,7 +91,7 @@ From the output message, we can see that in our `mpsz` simple feature data frame
 Dataset used: `CyclingPathGazette` File format: shapefile Data frame type: line feature
 
 ```{r, code_folding=FALSE}
-cyclingpath = st_read(dsn = "Ex01/data/geospatial", 
+cyclingpath = st_read(dsn = "~/IS415-GAA/data/geospatial", 
                       layer = "CyclingPathGazette")
 ```
 
@@ -105,7 +102,7 @@ From the output message, we can see that in our `cyclingpath` linestring feature
 Dataset used: `pre-schools-location-kml` File format: kml Data frame type: point feature
 
 ```{r, code_folding=FALSE}
-preschool = st_read("Ex01/data/geospatial/PreSchoolsLocation.kml")
+preschool = st_read("~/IS415-GAA/data/geospatial/PreSchoolsLocation.kml")
 ```
 
 From the output message, we can see that in our `preschool` point feature data frame, there are 1359 linestring features, 2 fields and is in the **wgs84** projected coordinates system.
@@ -119,7 +116,7 @@ For aspatial data, such as the `listings` Airbnb datset, there's an extra step i
 Since our `listings` data set is in a csv file format, we'll use the *read_csv()* function from the **readr** package, like so:
 
 ```{r}
-listings <- read_csv("Ex01/data/aspatial/listings.csv")
+listings <- read_csv("~/IS415-GAA/data/aspatial/listings.csv")
 glimpse(listings) 
 ```
 

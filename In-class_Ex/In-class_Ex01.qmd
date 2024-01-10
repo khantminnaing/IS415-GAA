@@ -1,0 +1,16 @@
+---
+title: "R for Geospatial Data Science"
+format: html
+editor: visual
+---
+
+##Getting Started
+```{r}
+pacman::p_load(arrow,lubridate,tidyverse,sf)
+```
+
+
+
+```{r}
+
+```
