@@ -497,47 +497,49 @@ To visualise the fields in **`SDF`**, we need to first covert it into **sf** dat
 ```{r}
 condo_resale.sf.adaptive <- st_as_sf(gwr.adaptive$SDF) %>%
   st_transform(crs=3414)
-tableHTML(glimpse(condo_resale.sf.adaptive))
+glimpse(condo_resale.sf.adaptive)
 summary(gwr.adaptive$SDF$yhat)
 ```
 
 We will now visualise the local R2 value as below.
 
 ```{r}
-
 tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
   tm_dots(col = "Local_R2",
-          palette = "Plasma",
-          alpha = 0.6,
-          size = 0.5) +
+          palette="Plasma",
+          size = 0.3,
+          alpha = 0.5) +
+  tm_view(set.zoom.limits = c(11,14))
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+```{= 1) +}
   tm_view(set.zoom.limits = c(11,14))
 ```
 
 Next, we will visualise the coefficient estimates
 
 ```{r}
-
 AREA_SQM_SE <- tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
   tm_dots(col = "AREA_SQM_SE",
-          palette = "Plasma",
-          alpha = 0.6,
-          size = 0.5
-          ) +
-  tm_view(set.zoom.limits = c(11,14))
+          palette="Plasma",
+          size = 0.3,
+          alpha = 0.5)
 
 AREA_SQM_TV <- tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
   tm_dots(col = "AREA_SQM_TV",
-          palette = "Plasma",
-          alpha = 0.6,
-          size = 0.5
-          ) +
-  tm_view(set.zoom.limits = c(11,14))
+          palette="Plasma",
+          size = 0.3,
+          alpha = 0.5)
 
 tmap_arrange(AREA_SQM_SE, AREA_SQM_TV, 
              asp=1, ncol=2,
