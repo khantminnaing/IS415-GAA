@@ -15,6 +15,8 @@ website:
         menu:
         - href: Hands-on_Ex/hands_on1.qmd
           text: "Hands-On Exercise 1"
+        - href: Hands-on_Ex/hands_on08.qmd
+          text: "Hands-On Exercise 8"
 
 page-footer:
   background: primary
