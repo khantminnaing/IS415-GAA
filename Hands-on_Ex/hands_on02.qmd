@@ -29,6 +29,10 @@ Geovisualisation, on the other hand, works by providing graphical ideation to re
 
 In this exercise, we will explore how to plot functional and truthful choropleth maps by using `tmap` package.
 
+The output of this exercise is to create maps like this.
+
+![](images/example.png){width="1344"}
+
 ## 2.0 Importing Packages
 
 Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
@@ -156,7 +160,8 @@ The easiest and quickest to draw a choropleth map using **tmap** is using *qtm()
 ```{r warning=FALSE, message=FALSE}
 tmap_mode("plot")
 qtm(mpsz_pop2020, 
-    fill = "DEPENDENCY")
+    fill = "DEPENDENCY",
+    fill.palette ="Plasma")
 ```
 
 ### 5.2 **Plotting a choropleth map quickly by using *qtm()***
@@ -388,6 +393,16 @@ Before we get started, it is always a good practice to get some descriptive stat
 
 ```{r warning=FALSE, message=FALSE}
 summary(mpsz_pop2020$DEPENDENCY)
+ggplot(data=mpsz_pop2020, aes(x=`DEPENDENCY`)) +
+  geom_bar(color="black", fill="#e9531e")+
+  scale_x_binned(n.breaks=10)
+
+#Try to remove outliers
+mpsz_pop2020_no_outlier <- subset(mpsz_pop2020, mpsz_pop2020$DEPENDENCY <3)
+
+ggplot(data=mpsz_pop2020_no_outlier, aes(x=`DEPENDENCY`)) +
+  geom_bar(color="black", fill="#e9531e")+
+  scale_x_binned(n.breaks=10)
 ```
 
 With reference to the results above, we set break point at 0.60, 0.70, 0.80, and 0.90. In addition, we also need to include a minimum and maximum, which we set at 0 and 100. Our *breaks* vector is thus c(0, 0.60, 0.70, 0.80, 0.90, 1.00)
@@ -426,22 +441,22 @@ Map layout refers to the combination of all map elements into a cohensive map. M
 In **tmap**, several *legend* options are provided to change the placement, format and appearance of the legend.
 
 ```{r warning=FALSE, message=FALSE}
-#tm_shape(mpsz_pop2020)+
-#  tm_polygons(fill="DEPENDENCY", 
-#          style = "jenks", 
-#          palette = "SunsetDark", 
-#          legend.hist = TRUE, 
-#          legend.is.portrait = TRUE,
-#          legend.hist.z = 0.1) +
-#  tm_layout(main.title = "Distribution of Dependency Ratio by planning subzone \n(Jenks classification)",
-#            main.title.position = "center",
-#            main.title.size = 1,
-#            legend.height = 0.45, 
-#            legend.width = 0.35,
-#            legend.outside = FALSE,
-#            legend.position = c("right", "bottom"),
-#            frame = FALSE) +
-#  tm_borders(alpha = 0.5)
+tm_shape(mpsz_pop2020)+
+  tm_fill("DEPENDENCY", 
+          style = "jenks", 
+          palette = "DarkSunset", 
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Distribution of Dependency Ratio by planning subzone \n(Jenks classification)",
+            main.title.position = "center",
+            main.title.size = 1,
+            #legend.height = 0.45, 
+            #legend.width = 0.35,
+            legend.outside = TRUE,
+            legend.position = c("right", "bottom"),
+            frame = FALSE) +
+  tm_borders(alpha = 0.5)
 ```
 
 ### 7.2 Map Style
@@ -512,7 +527,17 @@ tm_shape(mpsz_pop2020)+
 In this example, small multiple choropleth maps are created by assigning multiple values to at least one of the aesthetic arguments.
 
 ```{r warning=FALSE, message=FALSE}
-# Error 
+tm_shape(mpsz_pop2020) +
+  tm_fill("DEPENDENCY",
+          style = "quantile",
+          palette = "Plasma",
+          thres.poly = 0) + 
+  tm_facets(by="REGION_N", 
+            free.coords=TRUE) +
+  tm_layout(legend.show = FALSE,
+            title.position = c("center", "center"), 
+            title.size = 20) +
+  tm_borders(alpha = 0.5)
 ```
 
 ### 8.2 By defining a group-by variable in *tm_facets()*
@@ -520,18 +545,17 @@ In this example, small multiple choropleth maps are created by assigning multipl
 In this example, multiple small choropleth maps are created by using **`tm_facets()`**
 
 ```{r warning=FALSE, message=FALSE}
-#tm_shape(mpsz_pop2020) +
-#  tm_fill("DEPENDENCY",
-#          style = "quantile",
-#          palette = "Sunset",
-#          thres.poly = 0) + 
-#  tm_facets(by="REGION_N", 
-#            free.coords=TRUE, 
-#            drop.shapes=TRUE) +
-#  tm_layout(legend.show = FALSE,
-#            title.position = c("center", "center"), 
-#            title.size = 20) +
-#  tm_borders(alpha = 0.5)
+tm_shape(mpsz_pop2020) +
+  tm_fill("DEPENDENCY",
+          style = "quantile",
+          palette = "Plasma",
+          thres.poly = 0) + 
+  tm_facets(by="REGION_N", 
+            free.coords=TRUE) +
+  tm_layout(legend.show = FALSE,
+            title.position = c("center", "center"), 
+            title.size = 20) +
+  tm_borders(alpha = 0.5)
 ```
 
 ### 8.3 By creating multiple stand-alone maps with *tmap_arrange()*
@@ -559,19 +583,17 @@ Instead of creating small multiple choropleth map, we can also use selection fun
 For example, we have select the central region and *DEPENDENCY* column to plot.
 
 ```{r warning=FALSE, message=FALSE}
-#tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
-#  tm_fill("DEPENDENCY", 
-#          style = "quantile", 
-#          palette = "SunsetDark", 
-#          legend.hist = TRUE, 
-#          legend.is.portrait = TRUE,
-#          legend.hist.z = 0.1) +
-#  tm_layout(legend.outside = TRUE,
-#            legend.height = 0.45, 
-#            legend.width = 5.0,
-#            legend.position = c("right", "bottom"),
-#            frame = FALSE) +
-#  tm_borders(alpha = 0.5)
+tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
+  tm_fill("DEPENDENCY", 
+          style = "quantile", 
+          palette = "Plasma", 
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(legend.outside = TRUE,
+            legend.position = c("right", "bottom"),
+            frame = FALSE) +
+  tm_borders(alpha = 0.5)
 ```
 
 ## 10. References
@@ -608,4 +630,4 @@ Reference: <https://r4gdsa.netlify.app/chap02.html>
 
 -   [Tidy data](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html)
 
--   [tidyr: Easily Tidy Data with \'spread()\' and \'gather()\' Functions](https://cran.r-project.org/web/packages/tidyr/tidyr.pdf)
+-   [tidyr: Easily Tidy Data with 'spread()' and 'gather()' Functions](https://cran.r-project.org/web/packages/tidyr/tidyr.pdf)
