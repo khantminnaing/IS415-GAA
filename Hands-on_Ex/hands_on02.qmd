@@ -49,6 +49,8 @@ Since **`readr`**, **`tidyr`** and **`dplyr`** are part of **`tidyverse`** packa
 
 ```{r}
 pacman::p_load(sf, tmap, tidyverse)
+devtools::install_github("thomasp85/patchwork")
+library(patchwork)
 ```
 
 ## 3.0 Importing Datasets into R Environment
@@ -389,23 +391,34 @@ tm_shape(mpsz_pop2020)+
 
 For all the built-in styles, the category breaks are computed internally. In order to override these defaults, the breakpoints can be set explicitly by means of the breaks argument to the `tm_fill()`. It is important to note that, in **tmap** the breaks include a minimum and maximum. As a result, in order to end up with n categories, n+1 elements must be specified in the breaks option (the values must be in increasing order).
 
-Before we get started, it is always a good practice to get some descriptive statistics on the variable before setting the break points. Code chunk below will be used to compute and display the descriptive statistics of **DEPENDENCY** field.
+Before we get started, it is always a good practice to get some descriptive statistics on the variable before setting the break points.
 
 ```{r warning=FALSE, message=FALSE}
 summary(mpsz_pop2020$DEPENDENCY)
-ggplot(data=mpsz_pop2020, aes(x=`DEPENDENCY`)) +
+
+original <- ggplot(data=mpsz_pop2020, aes(x=`DEPENDENCY`)) +
   geom_bar(color="black", fill="#e9531e")+
   scale_x_binned(n.breaks=10)
 
 #Try to remove outliers
 mpsz_pop2020_no_outlier <- subset(mpsz_pop2020, mpsz_pop2020$DEPENDENCY <3)
 
-ggplot(data=mpsz_pop2020_no_outlier, aes(x=`DEPENDENCY`)) +
+filtered <- ggplot(data=mpsz_pop2020_no_outlier, aes(x=`DEPENDENCY`)) +
   geom_bar(color="black", fill="#e9531e")+
   scale_x_binned(n.breaks=10)
+
+original + filtered
 ```
 
-With reference to the results above, we set break point at 0.60, 0.70, 0.80, and 0.90. In addition, we also need to include a minimum and maximum, which we set at 0 and 100. Our *breaks* vector is thus c(0, 0.60, 0.70, 0.80, 0.90, 1.00)
+With reference to the results above, we set break point at 0.60, 0.70, 0.80, and 0.90. In addition, we also need to include a minimum and maximum, which we set at 0 and 1.00. Our *breaks* vector is thus c(0, 0.60, 0.70, 0.80, 0.90, 1.00)
+
+::: callout-note
+**Why do we use the above-mentioned breaks?**
+
+The reason behind choosing those break points is mainly stemmed from the 1st quantile and 3rd quantile of the datasets. While the minimum value is 0.10 and maximum value is 19.0, the 1st quantile (the value under which 25% of data points are found) is 0.7147 and the 3rd quantile (the value under which 75% of data points are found) is 0.8763. Using these two values, we may assume that the dataset might have outliers on the right end, and the majority of the dataset might be scattered in the range of 0.7147 and 0.8763. Hence, we use the mentioned break points.
+
+Otherwise, we can use non-heuristic approach in this case as well. We can easily plot the data to see the distribution first (see above). As we assumed earlier, you can clearly see the outliers on the right-side of the histogram. After removing the outliers (temporarily), we can see the new plot (see above). Majority of the datasets are scattered within the range of 0.6 - 1.0. This is why we break the datasets into 0.6, 0.7, 0.8 and 0.9 respectively so that there is balanced quantity of data points in each break.
+:::
 
 Using this information, we will now proceed to plot the choropleth map.
 
@@ -576,7 +589,7 @@ agedmap <- tm_shape(mpsz_pop2020)+
 tmap_arrange(youngmap, agedmap, asp=1, ncol=2)
 ```
 
-## 9.0 **Mappping Spatial Object Meeting a Selection Criterion**
+## 9.0 Mappping Spatial Object Meeting a Selection Criterion
 
 Instead of creating small multiple choropleth map, we can also use selection funtion to map spatial objects meeting the selection criterion.
 
