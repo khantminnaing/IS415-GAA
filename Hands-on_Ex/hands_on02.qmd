@@ -441,7 +441,7 @@ tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 6,
           style = "quantile",
-          palette = "Blues") +
+          palette = "Sunset") +
   tm_borders(alpha = 0.5)
 ```
 

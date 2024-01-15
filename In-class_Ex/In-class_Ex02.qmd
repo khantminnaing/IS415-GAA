@@ -1,0 +1,55 @@
+---
+title: "In-Class Exercise 02"
+description: |
+ R for Geospatial Data Science
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 01-12-2024
+date-modified: "last-modified"
+categories:
+  - In-Class Exercise
+  - R
+  - sf
+output:
+  distill::distill_article:
+    code_folding: false
+    toc: true
+    self_contained: false
+---
+
+## 1.0 Overview
+
+In this exercise, we will
+
+## 2.0 Importing Packages
+
+Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
+
+-   [`arrow`](https://arrow.apache.org/docs/r/) for reading and writing Apache Parquet files, a format optimized for speed and interoperability
+
+-   [`lubridate`](https://lubridate.tidyverse.org/) for tackling temporal data
+
+-   [`tidyverse`](https://www.tidyverse.org/) for manipulating and wrangling data
+
+-   [`tmap`](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) for visualizing data
+
+-   [`sf`](https://r-spatial.github.io/sf/) for handling geospatial data.
+
+```{r}
+pacman::p_load(arrow,lubridate,tidyverse,tmap,sf)
+```
+
+```{r}
+
+```
+
+## 3.0 Importing Datasets into R Environment
+
+### 3.1 Datasets
+
+In this exercise, we will use [Grab-Posisi](https://engineering.grab.com/grab-posisi) dataset, which is a comprehensive GPS trajectory dataset for car-hailing services in Southeast Asia.
+
+![](images/grab posisi.png)
+
+Apart from the time and location of the object, GPS trajectories are also characterised by other parameters such as speed, the headed direction, the area and distance covered during its travel, and the travelled time. Thus, the trajectory patterns from users GPS data are a valuable source of information for a wide range of urban applications, such as solving transportation problems, traffic prediction, and developing reasonable urban planning.
