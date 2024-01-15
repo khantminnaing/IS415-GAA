@@ -40,10 +40,6 @@ Before we start the exercise, we will need to import necessary R packages first.
 pacman::p_load(arrow,lubridate,tidyverse,tmap,sf)
 ```
 
-```{r}
-
-```
-
 ## 3.0 Importing Datasets into R Environment
 
 ### 3.1 Datasets
@@ -53,3 +49,7 @@ In this exercise, we will use [Grab-Posisi](https://engineering.grab.com/grab-po
 ![](images/grab posisi.png)
 
 Apart from the time and location of the object, GPS trajectories are also characterised by other parameters such as speed, the headed direction, the area and distance covered during its travel, and the travelled time. Thus, the trajectory patterns from users GPS data are a valuable source of information for a wide range of urban applications, such as solving transportation problems, traffic prediction, and developing reasonable urban planning.
+
+```{r}
+
+```
