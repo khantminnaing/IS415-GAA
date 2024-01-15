@@ -149,14 +149,14 @@ RDS (R Data Serialization) files are **a common format for saving R objects in R
 
 ```{r}
 #| eval: false
-write_rds(origin_df, "~IS415-GAA/data/rds/origin_df.rds")
-write_rds(destination_df, "~IS415-GAA/data/rds/destination_df.rds")
+write_rds(origin_df, "../data/rds/origin_df.rds")
+write_rds(destination_df, "../data/rds/destination_df.rds")
 ```
 
 ### 3.4 Importing RDS Objects
 
 ```{r}
 #| eval: false
-origin_df <- read_rds("~/IS415-GAA/data/rds/origin_df.rds")
-destination_df <- read_rds("~/IS415-GAA/data/rds/destination_df.rds")
+origin_df <- read_rds("../data/rds/origin_df.rds")
+destination_df <- read_rds("../IS415-GAA/data/rds/destination_df.rds")
 ```
