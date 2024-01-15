@@ -480,7 +480,7 @@ tm_shape(mpsz_pop2020)+
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
           style = "quantile", 
-          palette = "-Greens") +
+          palette = "Sunset") +
   tm_borders(alpha = 0.5) +
   tmap_style("classic")
 ```
@@ -495,7 +495,7 @@ In the code chunk below, `tm_compass()`, `tm_scale_bar()` and `tm_grid()` are us
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
           style = "quantile", 
-          palette = "Blues",
+          palette = "Sunset",
           title = "No. of persons") +
   tm_layout(main.title = "Distribution of Dependency Ratio \nby planning subzone",
             main.title.position = "center",
