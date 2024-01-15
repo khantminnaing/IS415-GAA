@@ -11,9 +11,18 @@ categories:
   - In-Class Exercise
   - R
   - sf
+  - lubridate
+  - grab-posisi
+format:
+  html:  
+    #code-fold: true
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
 output:
   distill::distill_article:
-    code_folding: false
     toc: true
     self_contained: false
 ---
@@ -26,13 +35,13 @@ In this exercise, we will
 
 Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
 
--   [`arrow`](https://arrow.apache.org/docs/r/) for reading and writing Apache Parquet files, a format optimized for speed and interoperability
+-   [`arrow`](https://arrow.apache.org/docs/r/) for reading and writing Apache Parquet files
 
--   [`lubridate`](https://lubridate.tidyverse.org/) for tackling temporal data
+-   [`lubridate`](https://lubridate.tidyverse.org/) for tackling with temporal data (dates and times)
 
--   [`tidyverse`](https://www.tidyverse.org/) for manipulating and wrangling data
+-   [`tidyverse`](https://www.tidyverse.org/) for manipulating and wrangling data, as well as, implementing data science functions
 
--   [`tmap`](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) for visualizing data
+-   [`tmap`](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) for creating and visualizing thematic maps
 
 -   [`sf`](https://r-spatial.github.io/sf/) for handling geospatial data.
 
@@ -46,10 +55,108 @@ pacman::p_load(arrow,lubridate,tidyverse,tmap,sf)
 
 In this exercise, we will use [Grab-Posisi](https://engineering.grab.com/grab-posisi) dataset, which is a comprehensive GPS trajectory dataset for car-hailing services in Southeast Asia.
 
-![](images/grab posisi.png)
+![](images/grab%20posisi.png)
 
 Apart from the time and location of the object, GPS trajectories are also characterised by other parameters such as speed, the headed direction, the area and distance covered during its travel, and the travelled time. Thus, the trajectory patterns from users GPS data are a valuable source of information for a wide range of urban applications, such as solving transportation problems, traffic prediction, and developing reasonable urban planning.
 
-```{r}
+### 3.1 Importing Grab-Posisi Dataset
 
+Each trajectory in Grab-Posisi dataset is serialised in a file in Apache Parquet format.
+
+-   Firstly, we will use `read_parquet` function from `arrow` package
+
+```{r}
+df <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet')
+df_1 <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00001-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet')
+```
+
+-   Next, we will use `head()` function to quickly scan through the data columns and values.
+
+```{r}
+head(df)
+```
+
+From the result above, we can see that the dataset includes a total of 9 columns as follows:
+
+| Column Name   | Data Type | Remark                   |
+|---------------|-----------|--------------------------|
+| trj_id        | chr       | Trajectory ID            |
+| driving_mode  | chr       | Mode of Driving          |
+| osname        | chr       |                          |
+| pingtimestamp | int       | Data Recording Timestamp |
+| rawlat        | num       | Latitude Value (WGS-84)  |
+| rawlng        | num       | Longitude Value (WGS-84) |
+| speed         | num       | Speed                    |
+| bearing       | int       | Bearing                  |
+| accuracy      | num       | Accuracy                 |
+
+From the above table, it is seen that the `pingtimestamp` is recorded as `int`. We need to convert this data to proper datetime format to derive meaningful temporal insights of the data. To do so, we will use `as_datetime()` function from `lubridate` package.
+
+```{r}
+df$pingtimestamp <- as_datetime(df$pingtimestamp)
+```
+
+### 3.2 Extracting Trip Starting Locations and Temporal Data Values
+
+After loading the Grab-Posisi dataset, we will extract features that we want to use for analysis. Firstly, we will extract trip starting locations for all trajectories in the dataset and save it into a new df called `origin_df`.
+
+Also, we are interested to derive useful temporal data such as day of the week, hour, and yy-mm-dd. To do so, we will use the following functions from `lubridate` package, and add the newly derived values as new columns to `origin_df`.
+
+-   `wday`: allows us to get days component of a date-time
+
+-   `hour`: allows us to get hours component of a date-time
+
+-   `mday`: allows us to parse dates with year, month, and day components
+
+```{r}
+#| eval: false
+origin_df <- df %>%
+  group_by(trj_id) %>%
+  arrange(pingtimestamp) %>%
+  filter(row_number()==1) %>% 
+  mutate(weekday = wday(pingtimestamp,
+                       label=TRUE,
+                       abbr=TRUE),
+         starting_hr = factor(hour(pingtimestamp)),
+         day = factor(mday(pingtimestamp)))
+```
+
+### 3.3 Extracting Trip Ending Locations and Temporal Data Values
+
+Similar to what we did in previous session, we are also interested to extract trip ending locations and associated temporal data into a new df called `destination_df`. We will use the same functions from previous session here.
+
+```{r}
+#| eval: false
+destination_df <- df %>%
+  group_by(trj_id) %>%
+  arrange(desc(pingtimestamp)) %>%
+  filter(row_number()==1) %>% 
+  mutate(weekday = wday(pingtimestamp,
+                       label=TRUE,
+                       abbr=TRUE),
+         starting_hr = factor(hour(pingtimestamp)),
+         day = factor(mday(pingtimestamp)))
+```
+
+::: {.callout-warning title="Reflection"}
+`arrange()` function sort the timestamps in ascending order by default. Hence, for `destination_df`, we use `arrange(desc())` argument to sort the timestamps in descending order
+:::
+
+
+### 3.4 Saving R Objects in RDS Format
+
+RDS (R Data Serialization) files are **a common format for saving R objects in RStudio**, and they allow us to preserve the state of an object between R sessions. Saving R object as an RDS file in R can be useful for sharing our work with others, replicating our analysis, or simply storing our work for later use.
+
+```{r}
+#| eval: false
+write_rds(origin_df, "~IS415-GAA/data/rds/origin_df.rds")
+write_rds(destination_df, "~IS415-GAA/data/rds/destination_df.rds")
+```
+
+### 3.4 Importing RDS Objects
+
+```{r}
+#| eval: false
+origin_df <- read_rds("~/IS415-GAA/data/rds/origin_df.rds")
+destination_df <- read_rds("~/IS415-GAA/data/rds/destination_df.rds")
 ```

@@ -1,0 +1,24 @@
+---
+title: "Take-Home Exercise 01: Application of Spatial Point Patterns Analysis to discover the Geographical Distribution of Grab Hailing services in Singapore"
+description: |
+ Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 01-12-2024
+date-modified: "last-modified"
+categories:
+  - grab-posisi
+format:
+  html:  
+    code-fold: true
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+output:
+  distill::distill_article:
+    toc: true
+    self_contained: false
+---

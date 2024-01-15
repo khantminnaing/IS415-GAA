@@ -16,6 +16,9 @@ website:
           text: "Hands-On Exercise 2"
         - href: Hands-on_Ex/hands_on08.qmd
           text: "Hands-On Exercise 8"
+      - text: "Take-home Exercises"
+        menu:
+        - href: Take-home_Ex/Take-home_Ex01.qmd
     right:
       - href: index.qmd
         text: Home

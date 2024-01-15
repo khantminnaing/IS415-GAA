@@ -611,7 +611,7 @@ tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
 
 ## 10. References
 
-Tutorial provided by Professor Kam Tin Seong, Singapore Management University
+Tutorial provided by Professor Kam Tin Seong**©**, Singapore Management University
 
 Reference: <https://r4gdsa.netlify.app/chap02.html>
 

@@ -148,6 +148,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
     </ul>
   </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-take-home-exercises" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Take-home Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercises">    
+        <li>
+    <a class="dropdown-item" href="../Take-home_Ex/Take-home_Ex01.html" rel="" target="">
+ <span class="dropdown-text">Take-Home Exercise 01: Application of Spatial Point Patterns Analysis to discover the Geographical Distribution of Grab Hailing services in Singapore</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
@@ -179,6 +190,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#importing-datasets-into-r-environment" id="toc-importing-datasets-into-r-environment" class="nav-link" data-scroll-target="#importing-datasets-into-r-environment">3.0 Importing Datasets into R Environment</a>
   <ul class="collapse">
   <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets">3.1 Datasets</a></li>
+  <li><a href="#importing-grab-posisi-dataset" id="toc-importing-grab-posisi-dataset" class="nav-link" data-scroll-target="#importing-grab-posisi-dataset">3.1 Importing Grab-Posisi Dataset</a></li>
+  <li><a href="#extracting-trip-starting-locations-and-temporal-data-values" id="toc-extracting-trip-starting-locations-and-temporal-data-values" class="nav-link" data-scroll-target="#extracting-trip-starting-locations-and-temporal-data-values">3.2 Extracting Trip Starting Locations and Temporal Data Values</a></li>
+  <li><a href="#extracting-trip-ending-locations-and-temporal-data-values" id="toc-extracting-trip-ending-locations-and-temporal-data-values" class="nav-link" data-scroll-target="#extracting-trip-ending-locations-and-temporal-data-values">3.3 Extracting Trip Ending Locations and Temporal Data Values</a></li>
+  <li><a href="#saving-r-objects-in-rds-format" id="toc-saving-r-objects-in-rds-format" class="nav-link" data-scroll-target="#saving-r-objects-in-rds-format">3.4 Saving R Objects in RDS Format</a></li>
+  <li><a href="#importing-rds-objects" id="toc-importing-rds-objects" class="nav-link" data-scroll-target="#importing-rds-objects">3.4 Importing RDS Objects</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -193,6 +209,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="quarto-category">In-Class Exercise</div>
     <div class="quarto-category">R</div>
     <div class="quarto-category">sf</div>
+    <div class="quarto-category">lubridate</div>
+    <div class="quarto-category">grab-posisi</div>
   </div>
   </div>
 
@@ -239,10 +257,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="importing-packages">2.0 Importing Packages</h2>
 <p>Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:</p>
 <ul>
-<li><p><a href="https://arrow.apache.org/docs/r/"><code>arrow</code></a> for reading and writing Apache Parquet files, a format optimized for speed and interoperability</p></li>
-<li><p><a href="https://lubridate.tidyverse.org/"><code>lubridate</code></a> for tackling temporal data</p></li>
-<li><p><a href="https://www.tidyverse.org/"><code>tidyverse</code></a> for manipulating and wrangling data</p></li>
-<li><p><a href="https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html"><code>tmap</code></a> for visualizing data</p></li>
+<li><p><a href="https://arrow.apache.org/docs/r/"><code>arrow</code></a> for reading and writing Apache Parquet files</p></li>
+<li><p><a href="https://lubridate.tidyverse.org/"><code>lubridate</code></a> for tackling with temporal data (dates and times)</p></li>
+<li><p><a href="https://www.tidyverse.org/"><code>tidyverse</code></a> for manipulating and wrangling data, as well as, implementing data science functions</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html"><code>tmap</code></a> for creating and visualizing thematic maps</p></li>
 <li><p><a href="https://r-spatial.github.io/sf/"><code>sf</code></a> for handling geospatial data.</p></li>
 </ul>
 <div class="cell">
@@ -256,6 +274,159 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In this exercise, we will use <a href="https://engineering.grab.com/grab-posisi">Grab-Posisi</a> dataset, which is a comprehensive GPS trajectory dataset for car-hailing services in Southeast Asia.</p>
 <p><img src="images/grab posisi.png" class="img-fluid"></p>
 <p>Apart from the time and location of the object, GPS trajectories are also characterised by other parameters such as speed, the headed direction, the area and distance covered during its travel, and the travelled time.&nbsp;Thus, the trajectory patterns from users GPS data are a valuable source of information for a wide range of urban applications, such as solving transportation problems, traffic prediction, and developing reasonable urban planning.</p>
+</section>
+<section id="importing-grab-posisi-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="importing-grab-posisi-dataset">3.1 Importing Grab-Posisi Dataset</h3>
+<p>Each trajectory in Grab-Posisi dataset is serialised in a file in Apache Parquet format.</p>
+<ul>
+<li>Firstly, we will use <code>read_parquet</code> function from <code>arrow</code> package</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_1 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00001-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Next, we will use <code>head()</code> function to quickly scan through the data columns and values.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 9
+  trj_id driving_mode osname  pingtimestamp rawlat rawlng speed bearing accuracy
+  &lt;chr&gt;  &lt;chr&gt;        &lt;chr&gt;           &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt;    &lt;dbl&gt;
+1 70014  car          android    1554943236   1.34   104.  18.9     248      3.9
+2 73573  car          android    1555582623   1.32   104.  17.7      44      4  
+3 75567  car          android    1555141026   1.33   104.  14.0      34      3.9
+4 1410   car          android    1555731693   1.26   104.  13.0     181      4  
+5 4354   car          android    1555584497   1.28   104.  14.8      93      3.9
+6 32630  car          android    1555395258   1.30   104.  23.2      73      3.9</code></pre>
+</div>
+</div>
+<p>From the result above, we can see that the dataset includes a total of 9 columns as follows:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Column Name</th>
+<th>Data Type</th>
+<th>Remark</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>trj_id</td>
+<td>chr</td>
+<td>Trajectory ID</td>
+</tr>
+<tr class="even">
+<td>driving_mode</td>
+<td>chr</td>
+<td>Mode of Driving</td>
+</tr>
+<tr class="odd">
+<td>osname</td>
+<td>chr</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>pingtimestamp</td>
+<td>int</td>
+<td>Data Recording Timestamp</td>
+</tr>
+<tr class="odd">
+<td>rawlat</td>
+<td>num</td>
+<td>Latitude Value (WGS-84)</td>
+</tr>
+<tr class="even">
+<td>rawlng</td>
+<td>num</td>
+<td>Longitude Value (WGS-84)</td>
+</tr>
+<tr class="odd">
+<td>speed</td>
+<td>num</td>
+<td>Speed</td>
+</tr>
+<tr class="even">
+<td>bearing</td>
+<td>int</td>
+<td>Bearing</td>
+</tr>
+<tr class="odd">
+<td>accuracy</td>
+<td>num</td>
+<td>Accuracy</td>
+</tr>
+</tbody>
+</table>
+<p>From the above table, it is seen that the <code>pingtimestamp</code> is recorded as <code>int</code>. We need to convert this data to proper datetime format to derive meaningful temporal insights of the data. To do so, we will use <code>as_datetime()</code> function from <code>lubridate</code> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>pingtimestamp <span class="ot">&lt;-</span> <span class="fu">as_datetime</span>(df<span class="sc">$</span>pingtimestamp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="extracting-trip-starting-locations-and-temporal-data-values" class="level3">
+<h3 class="anchored" data-anchor-id="extracting-trip-starting-locations-and-temporal-data-values">3.2 Extracting Trip Starting Locations and Temporal Data Values</h3>
+<p>After loading the Grab-Posisi dataset, we will extract features that we want to use for analysis. Firstly, we will extract trip starting locations for all trajectories in the dataset and save it into a new df called <code>origin_df</code>.</p>
+<p>Also, we are interested to derive useful temporal data such as day of the week, hour, and yy-mm-dd. To do so, we will use the following functions from <code>lubridate</code> package, and add the newly derived values as new columns to <code>origin_df</code>.</p>
+<ul>
+<li><p><code>wday</code>: allows us to get days component of a date-time</p></li>
+<li><p><code>hour</code>: allows us to get hours component of a date-time</p></li>
+<li><p><code>mday</code>: allows us to parse dates with year, month, and day components</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>origin_df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(pingtimestamp) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="extracting-trip-ending-locations-and-temporal-data-values" class="level3">
+<h3 class="anchored" data-anchor-id="extracting-trip-ending-locations-and-temporal-data-values">3.3 Extracting Trip Ending Locations and Temporal Data Values</h3>
+<p>Similar to what we did in previous session, we are also interested to extract trip ending locations and associated temporal data into a new df called <code>destination_df</code>. We will use the same functions from previous session here.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pingtimestamp)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Reflection">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Reflection
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>arrange()</code> function sort the timestamps in ascending order by default. Hence, for <code>destination_df</code>, we use <code>arrange(desc())</code> argument to sort the timestamps in descending order</p>
+</div>
+</div>
+</section>
+<section id="saving-r-objects-in-rds-format" class="level3">
+<h3 class="anchored" data-anchor-id="saving-r-objects-in-rds-format">3.4 Saving R Objects in RDS Format</h3>
+<p>RDS (R Data Serialization) files are <strong>a common format for saving R objects in RStudio</strong>, and they allow us to preserve the state of an object between R sessions. Saving R object as an RDS file in R can be useful for sharing our work with others, replicating our analysis, or simply storing our work for later use.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(origin_df, <span class="st">"~IS415-GAA/data/rds/origin_df.rds"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(destination_df, <span class="st">"~IS415-GAA/data/rds/destination_df.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="importing-rds-objects" class="level3">
+<h3 class="anchored" data-anchor-id="importing-rds-objects">3.4 Importing RDS Objects</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>origin_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"~/IS415-GAA/data/rds/origin_df.rds"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"~/IS415-GAA/data/rds/destination_df.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
 
 </section>
