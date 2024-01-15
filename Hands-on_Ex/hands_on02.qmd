@@ -61,7 +61,7 @@ In this exercise, we will use two datasets as follows:
 
 -   Master Plan 2014 Subzone Boundary (Web) (i.e. `MP14_SUBZONE_WEB_PL`) in ESRI shapefile format. It can be downloaded at [data.gov.sg](https://data.gov.sg/) This is a geospatial data. It consists of the geographical boundary of Singapore at the planning subzone level. The data is based on URA Master Plan 2014.
 
--   Singapore Residents by Planning Area / Subzone, Age Group, Sex and Type of Dwelling, June 2011-2020 in csv format (i.e. `respopagesextod2011to2020.csv`). This is an aspatial data fie. It can be downloaded at [Department of Statistics, Singapore](https://www.singstat.gov.sg/) Although it does not contain any coordinates values, but it's PA and SZ fields can be used as unique identifiers to geocode to `MP14_SUBZONE_WEB_PL` shapefile.
+-   Singapore Residents by Planning Area / Subzone, Age Group, Sex and Type of Dwelling, June 2011-2020 in csv format (i.e.`respopagesextod2011to2020.csv`). This is an aspatial data fie. It can be downloaded at [Department of Statistics, Singapore](https://www.singstat.gov.sg/) Although it does not contain any coordinates values, but it's PA and SZ fields can be used as unique identifiers to geocode to `MP14_SUBZONE_WEB_PL` shapefile.
 
 ### 3.2 Importing Geospatial Data into R
 
@@ -203,12 +203,12 @@ tm_shape(mpsz_pop2020) +
   tm_polygons()
 ```
 
-::: callout-note
+::: {.callout-warning title="Reflection"}
 Things to learn from the code chunk above:
 
 -   tmap_mode() with "plot" option is used to produce a static map. For interactive mode, "view" option should be used.
 
--   fill argument is used to map the attribute (i.e. DEPENDENCY)
+-   fill argument is used to map the attribute (i.e.DEPENDENCY)
 :::
 
 ### 5.4 Drawing a Choropleth Map Using *tm_polygons()*
@@ -220,7 +220,7 @@ tm_shape(mpsz_pop2020)+
   tm_polygons("DEPENDENCY")
 ```
 
-::: callout-note
+::: {.callout-warning title="Reflection"}
 Things to learn from *tm_polygons()*:
 
 -   The default interval binning used to draw the choropleth map is called "pretty". A detailed discussion of the data classification methods supported by **tmap** will be provided in sub-section 4.3.
@@ -241,7 +241,7 @@ tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY")
 ```
 
-::: callout-note
+::: {.callout-warning title="Reflection"}
 Notice that the planning subzones are shared according to the respective dependecy values
 :::
 
@@ -317,7 +317,7 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha = 0.5)
 ```
 
-::: callout-note
+::: {.callout-warning title="Reflection"}
 Notice that the distribution of quantile data classification method are more evenly distributed then equal data classification method.
 :::
 
@@ -412,7 +412,7 @@ original + filtered
 
 With reference to the results above, we set break point at 0.60, 0.70, 0.80, and 0.90. In addition, we also need to include a minimum and maximum, which we set at 0 and 1.00. Our *breaks* vector is thus c(0, 0.60, 0.70, 0.80, 0.90, 1.00)
 
-::: callout-note
+::: {.callout-warning title="Reflection"}
 **Why do we use the above-mentioned breaks?**
 
 The reason behind choosing those break points is mainly stemmed from the 1st quantile and 3rd quantile of the datasets. While the minimum value is 0.10 and maximum value is 19.0, the 1st quantile (the value under which 25% of data points are found) is 0.7147 and the 3rd quantile (the value under which 75% of data points are found) is 0.8763. Using these two values, we may assume that the dataset might have outliers on the right end, and the majority of the dataset might be scattered in the range of 0.7147 and 0.8763. Hence, we use the mentioned break points.
