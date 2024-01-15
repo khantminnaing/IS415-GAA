@@ -2,9 +2,9 @@
   {
     "objectID": "In-class_Ex/In-class_Ex01.html",
     "href": "In-class_Ex/In-class_Ex01.html",
-    "title": "R for Geospatial Data Science",
+    "title": "In-Class Exercise 02",
     "section": "",
-    "text": "##Getting Started\n\npacman::p_load(arrow,lubridate,tidyverse,sf)"
+    "text": "pacman::p_load(arrow,lubridate,tidyverse,sf)"
   },
   {
     "objectID": "index.html",
@@ -215,5 +215,12 @@
     "title": "Hands-On Exercise 02",
     "section": "10. References",
     "text": "10. References\nTutorial provided by Professor Kam Tin Seong, Singapore Management University\nReference: https://r4gdsa.netlify.app/chap02.html\n\n10.1 All about tmap package\n\ntmap: Thematic Maps in R\ntmap\ntmap: get started!\ntmap: changes in version 2.0\ntmap: creating thematic maps in a flexible way (useR!2015)\nExploring and presenting maps with tmap (useR!2017)\n\n\n\n10.2 Geospatial data wrangling\n\nsf: Simple Features for R\nSimple Features for R: StandardizedSupport for Spatial Vector Data\nReading, Writing and Converting Simple Features\n\n\n\n10.3 Data wrangling\n\ndplyr\nTidy data\ntidyr: Easily Tidy Data with ‘spread()’ and ‘gather()’ Functions"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex01.html#getting-started",
+    "href": "In-class_Ex/In-class_Ex01.html#getting-started",
+    "title": "In-Class Exercise 02",
+    "section": "",
+    "text": "pacman::p_load(arrow,lubridate,tidyverse,sf)"
   }
 ]
