@@ -31,7 +31,7 @@ page-footer:
 
 format:
   html:
-    theme: united
+    theme: [flatly, dark.scss]
     css: styles.css
     toc: true
     

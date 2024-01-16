@@ -1,5 +1,5 @@
 ---
-title: "Take-Home Exercise 01: Application of Spatial Point Patterns Analysis to discover the Geographical Distribution of Grab Hailing services in Singapore"
+title: "Take-Home Exercise 01"
 description: |
  Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore
 author:
@@ -9,6 +9,7 @@ date: 01-12-2024
 date-modified: "last-modified"
 categories:
   - grab-posisi
+title-block-banner: true
 format:
   html:  
     code-fold: true
@@ -22,3 +23,138 @@ output:
     toc: true
     self_contained: false
 ---
+
+## 1.0 Introduction
+
+Human mobility, the spatial-temporal dynamics of human movements, serves as a critical reflection of societal patterns and human behaviors. With the advancement and pervasiveness of Information and Communication Technologies (ICT) in our daily life, especially smart phone, a large volume of data related to human mobility have been collected. These data provide valuable insights into understanding how individuals and populations move within and between different geographical locations. By using appropriate GIS analysis methods, these data can turn into valuable inisghts for predicting future mobility trrends and developing more efficient and sustainable strategies for managing urban mobility.
+
+In this study, I will apply spatial point patterns analysis methods to discover the geographical and spatio-temporal distribution of Grab hailing services locations in Singapore. In order to determine the geographical patterns of the Grab hailing services, I will develop traditional Kernel Density Estimation layers and Temporal Network Kernel Density Estimation (TNKDE). Kernel Density Estimation (KDE) layers will help identify the areas with high concentration of Grab hailing services, providing insights into the demand and popularity of these services in different parts of Singapore. TNKDE, on the other hand, will allow for analysis of how the distribution of Grab hailing services changes over time, revealing temporal patterns and trends in their usage. These spatial and spatio-temporal analyses will contribute to a better understanding of the dynamics and effectiveness of Grab's mobility services in Singapore.
+
+## 2.0 Literature Review of Spatial Point Pattern Analysis 
+
+## 3.0 Importing Packages
+
+Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
+
+-   [`arrow`](https://arrow.apache.org/docs/r/) for reading and writing Apache Parquet files
+
+-   [`lubridate`](https://lubridate.tidyverse.org/) for tackling with temporal data (dates and times)
+
+-   [`tidyverse`](https://www.tidyverse.org/) for manipulating and wrangling data, as well as, implementing data science functions
+
+-   [`tmap`](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) for creating and visualizing thematic maps
+
+-   [`sf`](https://r-spatial.github.io/sf/) for handling geospatial data.
+
+```{r}
+pacman::p_load(arrow,lubridate,tidyverse,tmap,sf)
+```
+
+## 4.0 Importing Datasets into R Environment
+
+### 4.1 Datasets
+
+In this exercise, we will use [Grab-Posisi](https://engineering.grab.com/grab-posisi) dataset, which is a comprehensive GPS trajectory dataset for car-hailing services in Southeast Asia.
+
+Apart from the time and location of the object, GPS trajectories are also characterised by other parameters such as speed, the headed direction, the area and distance covered during its travel, and the travelled time. Thus, the trajectory patterns from users GPS data are a valuable source of information for a wide range of urban applications, such as solving transportation problems, traffic prediction, and developing reasonable urban planning.
+
+### 4.2 Importing Grab-Posisi Dataset
+
+Each trajectory in Grab-Posisi dataset is serialised in a file in Apache Parquet format.
+
+-   Firstly, we will use `read_parquet` function from `arrow` package
+
+```{r}
+df <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet')
+df_1 <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00001-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet')
+```
+
+-   Next, we will use `head()` function to quickly scan through the data columns and values.
+
+```{r}
+head(df)
+```
+
+From the result above, we can see that the dataset includes a total of 9 columns as follows:
+
+| Column Name   | Data Type | Remark                   |
+|---------------|-----------|--------------------------|
+| trj_id        | chr       | Trajectory ID            |
+| driving_mode  | chr       | Mode of Driving          |
+| osname        | chr       |                          |
+| pingtimestamp | int       | Data Recording Timestamp |
+| rawlat        | num       | Latitude Value (WGS-84)  |
+| rawlng        | num       | Longitude Value (WGS-84) |
+| speed         | num       | Speed                    |
+| bearing       | int       | Bearing                  |
+| accuracy      | num       | Accuracy                 |
+
+From the above table, it is seen that the `pingtimestamp` is recorded as `int`. We need to convert this data to proper datetime format to derive meaningful temporal insights of the data. To do so, we will use `as_datetime()` function from `lubridate` package.
+
+```{r}
+df$pingtimestamp <- as_datetime(df$pingtimestamp)
+```
+
+### 5.2 Extracting Trip Starting Locations and Temporal Data Values
+
+After loading the Grab-Posisi dataset, we will extract features that we want to use for analysis. Firstly, we will extract trip starting locations for all trajectories in the dataset and save it into a new df called `origin_df`.
+
+Also, we are interested to derive useful temporal data such as day of the week, hour, and yy-mm-dd. To do so, we will use the following functions from `lubridate` package, and add the newly derived values as new columns to `origin_df`.
+
+-   `wday`: allows us to get days component of a date-time
+
+-   `hour`: allows us to get hours component of a date-time
+
+-   `mday`: allows us to parse dates with year, month, and day components
+
+```{r}
+#| eval: false
+origin_df <- df %>%
+  group_by(trj_id) %>%
+  arrange(pingtimestamp) %>%
+  filter(row_number()==1) %>% 
+  mutate(weekday = wday(pingtimestamp,
+                       label=TRUE,
+                       abbr=TRUE),
+         starting_hr = factor(hour(pingtimestamp)),
+         day = factor(mday(pingtimestamp)))
+```
+
+### 3.3 Extracting Trip Ending Locations and Temporal Data Values
+
+Similar to what we did in previous session, we are also interested to extract trip ending locations and associated temporal data into a new df called `destination_df`. We will use the same functions from previous session here.
+
+```{r}
+#| eval: false
+destination_df <- df %>%
+  group_by(trj_id) %>%
+  arrange(desc(pingtimestamp)) %>%
+  filter(row_number()==1) %>% 
+  mutate(weekday = wday(pingtimestamp,
+                       label=TRUE,
+                       abbr=TRUE),
+         starting_hr = factor(hour(pingtimestamp)),
+         day = factor(mday(pingtimestamp)))
+```
+
+::: {.callout-warning title="Reflection"}
+`arrange()` function sort the timestamps in ascending order by default. Hence, for `destination_df`, we use `arrange(desc())` argument to sort the timestamps in descending order
+:::
+
+### 3.4 Saving R Objects in RDS Format
+
+RDS (R Data Serialization) files are **a common format for saving R objects in RStudio**, and they allow us to preserve the state of an object between R sessions. Saving R object as an RDS file in R can be useful for sharing our work with others, replicating our analysis, or simply storing our work for later use.
+
+```{r}
+#| eval: false
+write_rds(origin_df, "../data/rds/origin_df.rds")
+write_rds(destination_df, "../data/rds/destination_df.rds")
+```
+
+### 3.4 Importing RDS Objects
+
+```{r}
+#| eval: false
+origin_df <- read_rds("../data/rds/origin_df.rds")
+destination_df <- read_rds("../IS415-GAA/data/rds/destination_df.rds")
+```

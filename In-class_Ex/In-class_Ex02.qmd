@@ -142,7 +142,6 @@ destination_df <- df %>%
 `arrange()` function sort the timestamps in ascending order by default. Hence, for `destination_df`, we use `arrange(desc())` argument to sort the timestamps in descending order
 :::
 
-
 ### 3.4 Saving R Objects in RDS Format
 
 RDS (R Data Serialization) files are **a common format for saving R objects in RStudio**, and they allow us to preserve the state of an object between R sessions. Saving R object as an RDS file in R can be useful for sharing our work with others, replicating our analysis, or simply storing our work for later use.
