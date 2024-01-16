@@ -1,7 +1,7 @@
 ---
-title: "Take-Home Exercise 01"
+title: "Take-Home Exercise 01: Spatial Point Patterns Analysis of Grab Trajectories in Singapore"
 description: |
- Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore
+ Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore, implemented using spatstat package (Baddeley, Turner, and Rubak 2022) in R environment.
 author:
   - name: Khant Min Naing
     url: https://www.linkedin.com/in/khantminnaing/
@@ -9,6 +9,9 @@ date: 01-12-2024
 date-modified: "last-modified"
 categories:
   - grab-posisi
+  - spatial point patterns
+  - spatstat
+  - r
 title-block-banner: true
 format:
   html:  
@@ -28,23 +31,27 @@ output:
 
 Human mobility, the spatial-temporal dynamics of human movements, serves as a critical reflection of societal patterns and human behaviors. With the advancement and pervasiveness of Information and Communication Technologies (ICT) in our daily life, especially smart phone, a large volume of data related to human mobility have been collected. These data provide valuable insights into understanding how individuals and populations move within and between different geographical locations. By using appropriate GIS analysis methods, these data can turn into valuable inisghts for predicting future mobility trrends and developing more efficient and sustainable strategies for managing urban mobility.
 
-In this study, I will apply spatial point patterns analysis methods to discover the geographical and spatio-temporal distribution of Grab hailing services locations in Singapore. In order to determine the geographical patterns of the Grab hailing services, I will develop traditional Kernel Density Estimation layers and Temporal Network Kernel Density Estimation (TNKDE). Kernel Density Estimation (KDE) layers will help identify the areas with high concentration of Grab hailing services, providing insights into the demand and popularity of these services in different parts of Singapore. TNKDE, on the other hand, will allow for analysis of how the distribution of Grab hailing services changes over time, revealing temporal patterns and trends in their usage. These spatial and spatio-temporal analyses will contribute to a better understanding of the dynamics and effectiveness of Grab's mobility services in Singapore.
+In this study, I will apply **Spatial Point Patterns Analysis** methods to discover the geographical and spatio-temporal distribution of Grab hailing services locations in Singapore. In order to determine the geographical and spatio-temporal patterns of the Grab hailing services, I will develop traditional **Kernel Density Estimation (KDE)** and **Temporal Network Kernel Density Estimation (TNKDE)**. KDE layers will help identify the areas with high concentration of Grab hailing services, providing insights into the demand and popularity of these services in different parts of Singapore. TNKDE, on the other hand, will allow for analysis of how the distribution of Grab hailing services changes over time, revealing temporal patterns and trends in their usage. These spatial and spatio-temporal analyses will contribute to a better understanding of the dynamics and effectiveness of Grab's mobility services in Singapore.
 
 ## 2.0 Literature Review of Spatial Point Pattern Analysis 
+
+Spatial point pattern analysis is concerned with description, statistical characterization, modeling and visulisation of point patterns over space and making inference about the process that could have generated an observed pattern (Boots & Getis, 1988,Rey et al., 2023; Pebesma & Bivand, 2023). According to this theory, empirical spatial distribution of points in our daily life are not controlled by sampling, but a result of an **underlying geographically-continuous process** (Rey et al., 2023). For example, an COVID-19 cluster did not happen by chance, but due to a spatial process of close-contact infection.
+
+When analysing real-world spatial points, it is important to analyse whether the observed spatial points are randomly distributed or patterned due to a process or interaction (Floch et al., 2018). In "complete random\" distribution, points are located everywhere with the same probability and independently of each other. On the other hand, the spatial points can be clustered or dispersed due to an underlying point process. However, it is challenging to use heuristic observation and intuitive interpretation to detect whether a spatial point pattern exists (Floch et al., 2018). Hence, spatial point pattern analysis can be used to detect the spatial concentration or dispersion phenomena.
+
+![](images/Screenshot 2024-01-16 at 10.56.45 PM.png)
+
+When analysing and interpreting the properties of a point pattern, these properties can be categorized into two: (a) first-order properties and (b) second-order properties (Yuan et al., 2020; Gimond, 2023). First-order properties concern with the characteristics of individual point locations and their variations of their density across space (Gimond, 2023). Under this conception, observations vary from point to point due to changes in the underlying property. Second-order properties focus on not only individual points, but also the interactions between points and their influences on one another (Gimond, 2023). Under this conception, observations vary from place to place due to interaction effects between observations. First-order properties of point patterns are mostly addressed by density-based techniques, such as kernel density, whereas, distance-based techniques, such nearest neighbour index and K-functions, are often used to analyse second-order properties since they take into account the distance between point pairs (Yuan et al., 2020; Gimond, 2023).
 
 ## 3.0 Importing Packages
 
 Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
 
--   [`arrow`](https://arrow.apache.org/docs/r/) for reading and writing Apache Parquet files
+-   **spatstat**: A package for statistical analysis of spatial data, specifically Spatial Point Pattern Analysis.
 
--   [`lubridate`](https://lubridate.tidyverse.org/) for tackling with temporal data (dates and times)
+-   **rgdal**: Used to import geospatial data and output as spatial class objects from **sp** package
 
--   [`tidyverse`](https://www.tidyverse.org/) for manipulating and wrangling data, as well as, implementing data science functions
-
--   [`tmap`](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) for creating and visualizing thematic maps
-
--   [`sf`](https://r-spatial.github.io/sf/) for handling geospatial data.
+-   **maptools**,**ggplot2**,**ggthemes**,**plotly**: Packages used to plot interactive visualisations summary statistics and KDE layers
 
 ```{r}
 pacman::p_load(arrow,lubridate,tidyverse,tmap,sf)
@@ -158,3 +165,7 @@ write_rds(destination_df, "../data/rds/destination_df.rds")
 origin_df <- read_rds("../data/rds/origin_df.rds")
 destination_df <- read_rds("../IS415-GAA/data/rds/destination_df.rds")
 ```
+
+## References
+
+1\. Rey, S.J., Arribas-Bel, D., Wolf, L.J.: Point Pattern Analysis. In: Geographic Data Science with python. pp. 185--219. CRC Press, Boca Raton etc. (2023).

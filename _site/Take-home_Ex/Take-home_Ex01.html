@@ -8,9 +8,9 @@
 
 <meta name="author" content="Khant Min Naing">
 <meta name="dcterms.date" content="2024-01-12">
-<meta name="description" content="Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore">
+<meta name="description" content="Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore, implemented using spatstat package (Baddeley, Turner, and Rubak 2022) in R environment.">
 
-<title>IS415 - Geospatial with Khant - Take-Home Exercise 01</title>
+<title>IS415 - Geospatial with Khant - Take-Home Exercise 01: Spatial Point Patterns Analysis of Grab Trajectories in Singapore</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -159,7 +159,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercises">    
         <li>
     <a class="dropdown-item" href="../Take-home_Ex/Take-home_Ex01.html" rel="" target="">
- <span class="dropdown-text">Take-Home Exercise 01</span></a>
+ <span class="dropdown-text">Take-Home Exercise 01: Spatial Point Patterns Analysis of Grab Trajectories in Singapore</span></a>
   </li>  
     </ul>
   </li>
@@ -184,14 +184,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Take-Home Exercise 01</h1>
+      <h1 class="title">Take-Home Exercise 01: Spatial Point Patterns Analysis of Grab Trajectories in Singapore</h1>
                   <div>
         <div class="description">
-          <p>Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore</p>
+          <p>Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore, implemented using spatstat package (Baddeley, Turner, and Rubak 2022) in R environment.</p>
         </div>
       </div>
                           <div class="quarto-categories">
                 <div class="quarto-category">grab-posisi</div>
+                <div class="quarto-category">spatial point patterns</div>
+                <div class="quarto-category">spatstat</div>
+                <div class="quarto-category">r</div>
               </div>
                   </div>
   </div>
@@ -243,6 +246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#saving-r-objects-in-rds-format" id="toc-saving-r-objects-in-rds-format" class="nav-link" data-scroll-target="#saving-r-objects-in-rds-format">3.4 Saving R Objects in RDS Format</a></li>
   <li><a href="#importing-rds-objects" id="toc-importing-rds-objects" class="nav-link" data-scroll-target="#importing-rds-objects">3.4 Importing RDS Objects</a></li>
   </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
 </nav>
     </div>
@@ -255,20 +259,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">1.0 Introduction</h2>
 <p>Human mobility, the spatial-temporal dynamics of human movements, serves as a critical reflection of societal patterns and human behaviors. With the advancement and pervasiveness of Information and Communication Technologies (ICT) in our daily life, especially smart phone, a large volume of data related to human mobility have been collected. These data provide valuable insights into understanding how individuals and populations move within and between different geographical locations. By using appropriate GIS analysis methods, these data can turn into valuable inisghts for predicting future mobility trrends and developing more efficient and sustainable strategies for managing urban mobility.</p>
-<p>In this study, I will apply spatial point patterns analysis methods to discover the geographical and spatio-temporal distribution of Grab hailing services locations in Singapore. In order to determine the geographical patterns of the Grab hailing services, I will develop traditional Kernel Density Estimation layers and Temporal Network Kernel Density Estimation (TNKDE). Kernel Density Estimation (KDE) layers will help identify the areas with high concentration of Grab hailing services, providing insights into the demand and popularity of these services in different parts of Singapore. TNKDE, on the other hand, will allow for analysis of how the distribution of Grab hailing services changes over time, revealing temporal patterns and trends in their usage. These spatial and spatio-temporal analyses will contribute to a better understanding of the dynamics and effectiveness of Grab’s mobility services in Singapore.</p>
+<p>In this study, I will apply <strong>Spatial Point Patterns Analysis</strong> methods to discover the geographical and spatio-temporal distribution of Grab hailing services locations in Singapore. In order to determine the geographical and spatio-temporal patterns of the Grab hailing services, I will develop traditional <strong>Kernel Density Estimation (KDE)</strong> and <strong>Temporal Network Kernel Density Estimation (TNKDE)</strong>. KDE layers will help identify the areas with high concentration of Grab hailing services, providing insights into the demand and popularity of these services in different parts of Singapore. TNKDE, on the other hand, will allow for analysis of how the distribution of Grab hailing services changes over time, revealing temporal patterns and trends in their usage. These spatial and spatio-temporal analyses will contribute to a better understanding of the dynamics and effectiveness of Grab’s mobility services in Singapore.</p>
 </section>
 <section id="literature-review-of-spatial-point-pattern-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="literature-review-of-spatial-point-pattern-analysis">2.0 Literature Review of Spatial Point Pattern Analysis</h2>
+<p>Spatial point pattern analysis is concerned with description, statistical characterization, modeling and visulisation of point patterns over space and making inference about the process that could have generated an observed pattern (Boots &amp; Getis, 1988,Rey et al., 2023; Pebesma &amp; Bivand, 2023). According to this theory, empirical spatial distribution of points in our daily life are not controlled by sampling, but a result of an <strong>underlying geographically-continuous process</strong> (Rey et al., 2023). For example, an COVID-19 cluster did not happen by chance, but due to a spatial process of close-contact infection.</p>
+<p>When analysing real-world spatial points, it is important to analyse whether the observed spatial points are randomly distributed or patterned due to a process or interaction (Floch et al., 2018). In “complete random" distribution, points are located everywhere with the same probability and independently of each other. On the other hand, the spatial points can be clustered or dispersed due to an underlying point process. However, it is challenging to use heuristic observation and intuitive interpretation to detect whether a spatial point pattern exists (Floch et al., 2018). Hence, spatial point pattern analysis can be used to detect the spatial concentration or dispersion phenomena.</p>
+<p><img src="images/Screenshot 2024-01-16 at 10.56.45 PM.png" class="img-fluid"></p>
+<p>When analysing and interpreting the properties of a point pattern, these properties can be categorized into two: (a) first-order properties and (b) second-order properties (Yuan et al., 2020; Gimond, 2023). First-order properties concern with the characteristics of individual point locations and their variations of their density across space (Gimond, 2023). Under this conception, observations vary from point to point due to changes in the underlying property. Second-order properties focus on not only individual points, but also the interactions between points and their influences on one another (Gimond, 2023). Under this conception, observations vary from place to place due to interaction effects between observations. First-order properties of point patterns are mostly addressed by density-based techniques, such as kernel density, whereas, distance-based techniques, such nearest neighbour index and K-functions, are often used to analyse second-order properties since they take into account the distance between point pairs (Yuan et al., 2020; Gimond, 2023).</p>
 </section>
 <section id="importing-packages" class="level2">
 <h2 class="anchored" data-anchor-id="importing-packages">3.0 Importing Packages</h2>
 <p>Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:</p>
 <ul>
-<li><p><a href="https://arrow.apache.org/docs/r/"><code>arrow</code></a> for reading and writing Apache Parquet files</p></li>
-<li><p><a href="https://lubridate.tidyverse.org/"><code>lubridate</code></a> for tackling with temporal data (dates and times)</p></li>
-<li><p><a href="https://www.tidyverse.org/"><code>tidyverse</code></a> for manipulating and wrangling data, as well as, implementing data science functions</p></li>
-<li><p><a href="https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html"><code>tmap</code></a> for creating and visualizing thematic maps</p></li>
-<li><p><a href="https://r-spatial.github.io/sf/"><code>sf</code></a> for handling geospatial data.</p></li>
+<li><p><strong>spatstat</strong>: A package for statistical analysis of spatial data, specifically Spatial Point Pattern Analysis.</p></li>
+<li><p><strong>rgdal</strong>: Used to import geospatial data and output as spatial class objects from <strong>sp</strong> package</p></li>
+<li><p><strong>maptools</strong>,<strong>ggplot2</strong>,<strong>ggthemes</strong>,<strong>plotly</strong>: Packages used to plot interactive visualisations summary statistics and KDE layers</p></li>
 </ul>
 <div class="cell">
 <details>
@@ -457,9 +463,13 @@ Reflection
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../IS415-GAA/data/rds/destination_df.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-
-
 </section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>1. Rey, S.J., Arribas-Bel, D., Wolf, L.J.: Point Pattern Analysis. In: Geographic Data Science with python. pp.&nbsp;185–219. CRC Press, Boca Raton etc. (2023).</p>
+
+
 </section>
 
 </main> <!-- /main -->
