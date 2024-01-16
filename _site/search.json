@@ -236,5 +236,26 @@
     "title": "About",
     "section": "",
     "text": "Welcome! I am Khant Min Naing, an undergraduate student at Singapore Management University. This course website is developed to document my learning journey at IS415: Geospatial Analytics and Applications under Professor Kam Tin Seong. Follow my journey as I venture into the world of big data, geospatial analysis and urban planning.\nConnect with me!"
+  },
+  {
+    "objectID": "Hands-on_Ex/hands_on03.html",
+    "href": "Hands-on_Ex/hands_on03.html",
+    "title": "Hands-On Exercise 03",
+    "section": "",
+    "text": "Spatial Point Pattern Analysis is the evaluation of the pattern, or distribution, of a set of points on a surface. It can refer to the actual spatial or temporal location of these points or also include data from point sources. It is one of the most fundamental concepts in geography and spatial analysis. This hands-on exercise will explore the basic concepts and methods of Spatial Point Pattern Analysis.\nParticularly, we will explore using spatstat, an R package specially designed for Spatial Point Pattern Analysis.\n\n\nToday, we will use Spatial Point Pattern Analysis to analyse the spatial point processes of childcare centers in Singapore.\nThe specific questions we would like to address through this exercise are as follows:\n\nAre the childcare centres in Singapore randomly distributed throughout the country?\nWhere are the locations with higher concentration of childcare centres?\n\n\n\n\n\n\n\nIn this exercise, we will use the following datasets:\n\nCHILDCARE, a point feature data providing both location and attribute information of childcare centres. It was downloaded from Data.gov.sg and is in geojson format.\nMP14_SUBZONE_WEB_PL, a polygon feature data providing information of URA 2014 Master Plan Planning Subzone boundary data. It is in ESRI shapefile format. This data set was also downloaded from Data.gov.sg.\nCostalOutline, a polygon feature data showing the national boundary of Singapore. It is provided by SLA and is in ESRI shapefile format."
+  },
+  {
+    "objectID": "Hands-on_Ex/hands_on03.html#overview",
+    "href": "Hands-on_Ex/hands_on03.html#overview",
+    "title": "Hands-On Exercise 03",
+    "section": "",
+    "text": "Today, we will use Spatial Point Pattern Analysis to analyse the spatial point processes of childcare centers in Singapore.\nThe specific questions we would like to address through this exercise are as follows:\n\nAre the childcare centres in Singapore randomly distributed throughout the country?\nWhere are the locations with higher concentration of childcare centres?"
+  },
+  {
+    "objectID": "Hands-on_Ex/hands_on03.html#importing-datasets-to-r-environment",
+    "href": "Hands-on_Ex/hands_on03.html#importing-datasets-to-r-environment",
+    "title": "Hands-On Exercise 03",
+    "section": "",
+    "text": "In this exercise, we will use the following datasets:\n\nCHILDCARE, a point feature data providing both location and attribute information of childcare centres. It was downloaded from Data.gov.sg and is in geojson format.\nMP14_SUBZONE_WEB_PL, a polygon feature data providing information of URA 2014 Master Plan Planning Subzone boundary data. It is in ESRI shapefile format. This data set was also downloaded from Data.gov.sg.\nCostalOutline, a polygon feature data showing the national boundary of Singapore. It is provided by SLA and is in ESRI shapefile format."
   }
 ]

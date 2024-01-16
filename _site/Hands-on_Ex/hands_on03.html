@@ -151,7 +151,19 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#st-and-2nd-order-spatial-point-patterns-analysis-methods" id="toc-st-and-2nd-order-spatial-point-patterns-analysis-methods" class="nav-link active" data-scroll-target="#st-and-2nd-order-spatial-point-patterns-analysis-methods">1st and 2nd Order Spatial Point Patterns Analysis Methods</a>
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">1.0 Overview</a></li>
+  <li><a href="#importing-packages" id="toc-importing-packages" class="nav-link" data-scroll-target="#importing-packages">2.0 Importing Packages</a></li>
+  <li><a href="#importing-datasets-to-r-environment" id="toc-importing-datasets-to-r-environment" class="nav-link" data-scroll-target="#importing-datasets-to-r-environment">3.0 Importing Datasets to R Environment</a></li>
+  <li><a href="#st-order-spatial-point-pattern-analysis" id="toc-st-order-spatial-point-pattern-analysis" class="nav-link" data-scroll-target="#st-order-spatial-point-pattern-analysis">1st Order Spatial Point Pattern Analysis</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -203,8 +215,37 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<section id="st-and-2nd-order-spatial-point-patterns-analysis-methods" class="level1">
+<h1>1st and 2nd Order Spatial Point Patterns Analysis Methods</h1>
+<p>Spatial Point Pattern Analysis is the evaluation of the pattern, or distribution, of a set of points on a surface. It can refer to the actual spatial or temporal location of these points or also include data from point sources. It is one of the most fundamental concepts in geography and spatial analysis. This hands-on exercise will explore the basic concepts and methods of Spatial Point Pattern Analysis.</p>
+<p>Particularly, we will explore using <a href="https://cran.r-project.org/web/packages/spatstat/">spatstat</a>, an R package specially designed for Spatial Point Pattern Analysis.</p>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">1.0 Overview</h2>
+<p>Today, we will use Spatial Point Pattern Analysis to analyse the spatial point processes of childcare centers in Singapore.</p>
+<p>The specific questions we would like to address through this exercise are as follows:</p>
+<ul>
+<li><p>Are the childcare centres in Singapore randomly distributed throughout the country?</p></li>
+<li><p>Where are the locations with higher concentration of childcare centres?</p></li>
+</ul>
+</section>
+<section id="importing-packages" class="level2">
+<h2 class="anchored" data-anchor-id="importing-packages">2.0 Importing Packages</h2>
+</section>
+<section id="importing-datasets-to-r-environment" class="level2">
+<h2 class="anchored" data-anchor-id="importing-datasets-to-r-environment">3.0 Importing Datasets to R Environment</h2>
+<p>In this exercise, we will use the following datasets:</p>
+<ul>
+<li><p><code>CHILDCARE</code>, a point feature data providing both location and attribute information of childcare centres. It was downloaded from Data.gov.sg and is in geojson format.</p></li>
+<li><p><code>MP14_SUBZONE_WEB_PL</code>, a polygon feature data providing information of URA 2014 Master Plan Planning Subzone boundary data. It is in ESRI shapefile format. This data set was also downloaded from Data.gov.sg.</p></li>
+<li><p><code>CostalOutline</code>, a polygon feature data showing the national boundary of Singapore. It is provided by SLA and is in ESRI shapefile format.</p></li>
+</ul>
+</section>
+<section id="st-order-spatial-point-pattern-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="st-order-spatial-point-pattern-analysis">1st Order Spatial Point Pattern Analysis</h2>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
