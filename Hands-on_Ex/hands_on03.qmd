@@ -1,0 +1,28 @@
+---
+title: "Hands-On Exercise 03"
+description: |
+ Spatial Point Pattern Analysis
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 01-12-2024
+date-modified: "last-modified"
+categories:
+  - In-Class Exercise
+  - R
+  - sf
+  - lubridate
+  - grab-posisi
+format:
+  html:  
+    #code-fold: true
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+output:
+  distill::distill_article:
+    toc: true
+    self_contained: false
+---
