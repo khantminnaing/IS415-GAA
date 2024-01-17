@@ -33,7 +33,7 @@ Spatial Point Pattern Analysis is the evaluation of the pattern, or distribution
 
 Particularly, we will explore using [spatstat](https://cran.r-project.org/web/packages/spatstat/), an R package specially designed for Spatial Point Pattern Analysis.
 
-## 1.0 Overview 
+## 1.0 Overview
 
 Today, we will use Spatial Point Pattern Analysis to analyse the spatial point processes of childcare centers in Singapore.
 
@@ -45,6 +45,22 @@ The specific questions we would like to address through this exercise are as fol
 
 ## 2.0 Importing Packages
 
+In this hands-on exercise, we will use the following R package:
+
+-   [**sf**](https://r-spatial.github.io/sf/), a relatively new R package specially designed to import, manage and process vector-based geospatial data in R.
+
+-   [**spatstat**](https://spatstat.org/), which has a wide range of useful functions for point pattern analysis. In this hands-on exercise, it will be used to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation (KDE) layer.
+
+-   [**raster**](https://cran.r-project.org/web/packages/raster/) which reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format.
+
+-   [**maptools**](https://cran.r-project.org/web/packages/maptools/) which provides a set of tools for manipulating geographic data. In this hands-on exercise, we mainly use it to convert *Spatial* objects into *ppp* format of **spatstat**.
+
+-   [**tmap**](https://cran.r-project.org/web/packages/tmap/) which provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API.
+
+```{r}
+pacman::p_load(sf, raster, spatstat, tmap, devtools)
+```
+
 ## 3.0 Importing Datasets to R Environment
 
 In this exercise, we will use the following datasets:
@@ -55,4 +71,41 @@ In this exercise, we will use the following datasets:
 
 -   `CostalOutline`, a polygon feature data showing the national boundary of Singapore. It is provided by SLA and is in ESRI shapefile format.
 
+### 3.1 Importing Geospatial Data
+
+In this section, [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package will be used to import the three geospatial data sets mentioned in previous section into R environment.
+
+```{r}
+childcare_sf <- st_read("~/IS415-GAA/data/aspatial/child-care-services-geojson.geojson") %>%
+  st_transform(crs = 3414)
+
+mpsz_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", 
+                layer = "MP14_SUBZONE_WEB_PL") %>% st_transform(crs = 3414)
+```
+
 ## 1st Order Spatial Point Pattern Analysis
+
+```{r}
+tmap_mode('view')
+tm_shape(childcare_sf)+
+  tm_dots()
+```
+
+```{r}
+childcare_ppp <- as.ppp(st_coordinates(childcare_sf), st_bbox(childcare_sf))
+plot(childcare_ppp)
+```
+
+Next, we will take a quick look at the summary statistics of the newly created ppp object.
+
+```{r}
+summary(childcare_ppp)
+```
+
+::: {.callout-tip title="Reflection"}
+Notice the warning message about duplicates. In spatial point patterns analysis an issue of significant is the presence of duplicates. The statistical methodology used for spatial point patterns processes is based largely on the assumption that process are simple, that is, that the points cannot be coincident.
+:::
+
+```{r}
+
+```
