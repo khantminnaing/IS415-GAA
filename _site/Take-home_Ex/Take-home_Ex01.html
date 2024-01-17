@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Khant Min Naing">
-<meta name="dcterms.date" content="2024-01-12">
+<meta name="dcterms.date" content="2024-01-15">
 <meta name="description" content="Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore, implemented using spatstat package (Baddeley, Turner, and Rubak 2022) in R environment.">
 
 <title>IS415 - Geospatial with Khant - Take-Home Exercise 01: Spatial Point Patterns Analysis of Grab Trajectories in Singapore</title>
@@ -212,14 +212,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 12, 2024</p>
+        <p class="date">January 15, 2024</p>
       </div>
     </div>
     
       <div>
       <div class="quarto-title-meta-heading">Modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date-modified">January 16, 2024</p>
+        <p class="date-modified">January 17, 2024</p>
       </div>
     </div>
       
@@ -241,10 +241,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets">4.1 Datasets</a></li>
   <li><a href="#importing-grab-posisi-dataset" id="toc-importing-grab-posisi-dataset" class="nav-link" data-scroll-target="#importing-grab-posisi-dataset">4.2 Importing Grab-Posisi Dataset</a></li>
-  <li><a href="#extracting-trip-starting-locations-and-temporal-data-values" id="toc-extracting-trip-starting-locations-and-temporal-data-values" class="nav-link" data-scroll-target="#extracting-trip-starting-locations-and-temporal-data-values">5.2 Extracting Trip Starting Locations and Temporal Data Values</a></li>
-  <li><a href="#extracting-trip-ending-locations-and-temporal-data-values" id="toc-extracting-trip-ending-locations-and-temporal-data-values" class="nav-link" data-scroll-target="#extracting-trip-ending-locations-and-temporal-data-values">3.3 Extracting Trip Ending Locations and Temporal Data Values</a></li>
-  <li><a href="#saving-r-objects-in-rds-format" id="toc-saving-r-objects-in-rds-format" class="nav-link" data-scroll-target="#saving-r-objects-in-rds-format">3.4 Saving R Objects in RDS Format</a></li>
-  <li><a href="#importing-rds-objects" id="toc-importing-rds-objects" class="nav-link" data-scroll-target="#importing-rds-objects">3.4 Importing RDS Objects</a></li>
+  </ul></li>
+  <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling">5.0 Data Wrangling</a>
+  <ul class="collapse">
+  <li><a href="#extracting-trip-starting-locations-and-temporal-data-values-from-grab-posisi-dataset" id="toc-extracting-trip-starting-locations-and-temporal-data-values-from-grab-posisi-dataset" class="nav-link" data-scroll-target="#extracting-trip-starting-locations-and-temporal-data-values-from-grab-posisi-dataset">5.1 Extracting Trip Starting Locations and Temporal Data Values from Grab-Posisi dataset</a></li>
+  <li><a href="#extracting-trip-ending-locations-and-temporal-data-values-from-grab-posisi-dataset" id="toc-extracting-trip-ending-locations-and-temporal-data-values-from-grab-posisi-dataset" class="nav-link" data-scroll-target="#extracting-trip-ending-locations-and-temporal-data-values-from-grab-posisi-dataset">5.2 Extracting Trip Ending Locations and Temporal Data Values from Grab-Posisi dataset</a></li>
+  <li><a href="#saving-r-objects-in-rds-format" id="toc-saving-r-objects-in-rds-format" class="nav-link" data-scroll-target="#saving-r-objects-in-rds-format">5.4 Saving R Objects in RDS Format</a></li>
+  <li><a href="#importing-rds-objects" id="toc-importing-rds-objects" class="nav-link" data-scroll-target="#importing-rds-objects">5.5 Importing RDS Objects</a></li>
+  <li><a href="#converting-to-sf-tibble-data.frame" id="toc-converting-to-sf-tibble-data.frame" class="nav-link" data-scroll-target="#converting-to-sf-tibble-data.frame">5.3 Converting to sf tibble data.frame</a></li>
+  </ul></li>
+  <li><a href="#exploratory-spatial-data-analysis" id="toc-exploratory-spatial-data-analysis" class="nav-link" data-scroll-target="#exploratory-spatial-data-analysis">6.0 Exploratory Spatial Data Analysis</a>
+  <ul class="collapse">
+  <li><a href="#visualising-frequency-distribution" id="toc-visualising-frequency-distribution" class="nav-link" data-scroll-target="#visualising-frequency-distribution">6.1 Visualising Frequency Distribution</a></li>
+  <li><a href="#creating-point-symbol-maps" id="toc-creating-point-symbol-maps" class="nav-link" data-scroll-target="#creating-point-symbol-maps">6.2 Creating Point Symbol Maps</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -264,7 +273,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="literature-review-of-spatial-point-pattern-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="literature-review-of-spatial-point-pattern-analysis">2.0 Literature Review of Spatial Point Pattern Analysis</h2>
 <p>Spatial point pattern analysis is concerned with description, statistical characterization, modeling and visulisation of point patterns over space and making inference about the process that could have generated an observed pattern (Boots &amp; Getis, 1988,Rey et al., 2023; Pebesma &amp; Bivand, 2023). According to this theory, empirical spatial distribution of points in our daily life are not controlled by sampling, but a result of an <strong>underlying geographically-continuous process</strong> (Rey et al., 2023). For example, an COVID-19 cluster did not happen by chance, but due to a spatial process of close-contact infection.</p>
-<p>When analysing real-world spatial points, it is important to analyse whether the observed spatial points are randomly distributed or patterned due to a process or interaction (Floch et al., 2018). In “complete random" distribution, points are located everywhere with the same probability and independently of each other. On the other hand, the spatial points can be clustered or dispersed due to an underlying point process. However, it is challenging to use heuristic observation and intuitive interpretation to detect whether a spatial point pattern exists (Floch et al., 2018). Hence, spatial point pattern analysis can be used to detect the spatial concentration or dispersion phenomena.</p>
+<p>When analysing real-world spatial points, it is important to analyse whether the observed spatial points are randomly distributed or patterned due to a process or interaction (Floch et al., 2018). In “complete random” distribution, points are located everywhere with the same probability and independently of each other. On the other hand, the spatial points can be clustered or dispersed due to an underlying point process. However, it is challenging to use heuristic observation and intuitive interpretation to detect whether a spatial point pattern exists (Floch et al., 2018). Hence, spatial point pattern analysis can be used to detect the spatial concentration or dispersion phenomena.</p>
 <p><img src="images/Screenshot 2024-01-16 at 10.56.45 PM.png" class="img-fluid"></p>
 <p>When analysing and interpreting the properties of a point pattern, these properties can be categorized into two: (a) first-order properties and (b) second-order properties (Yuan et al., 2020; Gimond, 2023). First-order properties concern with the characteristics of individual point locations and their variations of their density across space (Gimond, 2023). Under this conception, observations vary from point to point due to changes in the underlying property. Second-order properties focus on not only individual points, but also the interactions between points and their influences on one another (Gimond, 2023). Under this conception, observations vary from place to place due to interaction effects between observations. First-order properties of point patterns are mostly addressed by density-based techniques, such as kernel density, whereas, distance-based techniques, such nearest neighbour index and K-functions, are often used to analyse second-order properties since they take into account the distance between point pairs (Yuan et al., 2020; Gimond, 2023).</p>
 </section>
@@ -277,40 +286,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>maptools</strong>,<strong>ggplot2</strong>,<strong>ggthemes</strong>,<strong>plotly</strong>: Packages used to plot interactive visualisations summary statistics and KDE layers</p></li>
 </ul>
 <div class="cell">
-<details>
-<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(arrow,lubridate,tidyverse,tmap,sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 </div>
 </section>
 <section id="importing-datasets-into-r-environment" class="level2">
 <h2 class="anchored" data-anchor-id="importing-datasets-into-r-environment">4.0 Importing Datasets into R Environment</h2>
 <section id="datasets" class="level3">
 <h3 class="anchored" data-anchor-id="datasets">4.1 Datasets</h3>
-<p>In this exercise, we will use <a href="https://engineering.grab.com/grab-posisi">Grab-Posisi</a> dataset, which is a comprehensive GPS trajectory dataset for car-hailing services in Southeast Asia.</p>
-<p>Apart from the time and location of the object, GPS trajectories are also characterised by other parameters such as speed, the headed direction, the area and distance covered during its travel, and the travelled time.&nbsp;Thus, the trajectory patterns from users GPS data are a valuable source of information for a wide range of urban applications, such as solving transportation problems, traffic prediction, and developing reasonable urban planning.</p>
+<p>In this study, we will use <a href="https://engineering.grab.com/grab-posisi">Grab-Posisi</a> dataset, which is a comprehensive GPS trajectory dataset for car-hailing services in Southeast Asia. Apart from the time and location of the object, GPS trajectories are also characterised by other parameters such as speed, the headed direction, the area and distance covered during its travel, and the travelled time. Thus, the trajectory patterns from users GPS data are a valuable source of information for a wide range of urban applications, such as solving transportation problems, traffic prediction, and developing reasonable urban planning.</p>
+<p>Moreover, we will also use <a href="https://www.geofabrik.de/geofabrik/openstreetmap.html">OpenStreetMap datase</a>t, which is an open-sourced geospatial dataset including shapefiles of important layers including road networks, forests, building footprints and many other points of interest.</p>
+<p>To extract the Singapore boundary, we will download Master Plan 2019 Subzone Boundary (No Sea), provided by data.gov.sg.</p>
 </section>
 <section id="importing-grab-posisi-dataset" class="level3">
 <h3 class="anchored" data-anchor-id="importing-grab-posisi-dataset">4.2 Importing Grab-Posisi Dataset</h3>
-<p>Each trajectory in Grab-Posisi dataset is serialised in a file in Apache Parquet format.</p>
-<ul>
-<li>Firstly, we will use <code>read_parquet</code> function from <code>arrow</code> package</li>
-</ul>
+<p>Each trajectory in Grab-Posisi dataset is serialised in a file in Apache Parquet format. The Singapore portion of the dataset is packaged into a total of 10 Parquet files.</p>
+<p>Firstly, we will use <code>read_parquet</code> function from <code>arrow</code> package, which allows us to read Parquet files into R environment as a data frame (more specifically, a <code>tibble</code>).</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet'</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_1 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00001-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00000.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df1 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00001.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00002.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>df3 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00003.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>df4 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00004.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df5 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00005.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>df6 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00006.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>df7 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00007.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>df8 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00008.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>df9 <span class="ot">&lt;-</span> <span class="fu">read_parquet</span>(<span class="st">'~/IS415-GAA/data/GrabPosisi/part-00009.snappy.parquet'</span>,<span class="at">as_data_frame =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<ul>
-<li>Next, we will use <code>head()</code> function to quickly scan through the data columns and values.</li>
-</ul>
+<p>To consolidate all trajectory instances into a single dataframe, we’ll vertically bind all 10 imported dataframes using bind_rows() function from tidyverse package.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_trajectories <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(df,df1,df2,df3,df4,df5,df6,df7,df8,df9)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To get a quick overview of the dataset, we’ll first check the number of trajectory instances using <code>dim()</code> function. Then, we’ll use <code>head()</code> function to quickly scan through the data columns and values</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df_trajectories)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30329685        9</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_trajectories)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 9
   trj_id driving_mode osname  pingtimestamp rawlat rawlng speed bearing accuracy
@@ -323,7 +336,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 6 32630  car          android    1555395258   1.30   104.  23.2      73      3.9</code></pre>
 </div>
 </div>
-<p>From the result above, we can see that the dataset includes a total of 9 columns as follows:</p>
+<p>From the result above, we can see that the dataset includes a total of 30329685 trajectory instances, each with a total of 9 columns as follows:</p>
 <table class="table">
 <thead>
 <tr class="header">
@@ -382,54 +395,48 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>From the above table, it is seen that the <code>pingtimestamp</code> is recorded as <code>int</code>. We need to convert this data to proper datetime format to derive meaningful temporal insights of the data. To do so, we will use <code>as_datetime()</code> function from <code>lubridate</code> package.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>pingtimestamp <span class="ot">&lt;-</span> <span class="fu">as_datetime</span>(df<span class="sc">$</span>pingtimestamp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df_trajectories<span class="sc">$</span>pingtimestamp <span class="ot">&lt;-</span> <span class="fu">as_datetime</span>(df_trajectories<span class="sc">$</span>pingtimestamp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="extracting-trip-starting-locations-and-temporal-data-values" class="level3">
-<h3 class="anchored" data-anchor-id="extracting-trip-starting-locations-and-temporal-data-values">5.2 Extracting Trip Starting Locations and Temporal Data Values</h3>
-<p>After loading the Grab-Posisi dataset, we will extract features that we want to use for analysis. Firstly, we will extract trip starting locations for all trajectories in the dataset and save it into a new df called <code>origin_df</code>.</p>
-<p>Also, we are interested to derive useful temporal data such as day of the week, hour, and yy-mm-dd. To do so, we will use the following functions from <code>lubridate</code> package, and add the newly derived values as new columns to <code>origin_df</code>.</p>
+</section>
+<section id="data-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="data-wrangling">5.0 Data Wrangling</h2>
+<p>Data wrangling is the process of converting and transforming raw data into a usable form and is carried out prior to conducting any data analysis.</p>
+<section id="extracting-trip-starting-locations-and-temporal-data-values-from-grab-posisi-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="extracting-trip-starting-locations-and-temporal-data-values-from-grab-posisi-dataset">5.1 Extracting Trip Starting Locations and Temporal Data Values from Grab-Posisi dataset</h3>
+<p>Firstly, we will extract trip starting locations for all unqiue trajectories in the dataset and store them to a new df named <code>origin_df</code>. We are also interested in obtaining valuable temporal data such as the day of the week, the hour, and the date (yy-mm-dd). To do so, we will use the following functions from <code>lubridate</code> package, and add the newly derived values as columns to <code>origin_df</code>.</p>
 <ul>
 <li><p><code>wday</code>: allows us to get days component of a date-time</p></li>
 <li><p><code>hour</code>: allows us to get hours component of a date-time</p></li>
 <li><p><code>mday</code>: allows us to parse dates with year, month, and day components</p></li>
 </ul>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>origin_df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(pingtimestamp) <span class="sc">%&gt;%</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>origin_df <span class="ot">&lt;-</span> df_trajectories <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(pingtimestamp) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="extracting-trip-ending-locations-and-temporal-data-values" class="level3">
-<h3 class="anchored" data-anchor-id="extracting-trip-ending-locations-and-temporal-data-values">3.3 Extracting Trip Ending Locations and Temporal Data Values</h3>
+<section id="extracting-trip-ending-locations-and-temporal-data-values-from-grab-posisi-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="extracting-trip-ending-locations-and-temporal-data-values-from-grab-posisi-dataset">5.2 Extracting Trip Ending Locations and Temporal Data Values from Grab-Posisi dataset</h3>
 <p>Similar to what we did in previous session, we are also interested to extract trip ending locations and associated temporal data into a new df called <code>destination_df</code>. We will use the same functions from previous session here.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pingtimestamp)) <span class="sc">%&gt;%</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> df_trajectories <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pingtimestamp)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="callout callout-style-default callout-warning callout-titled" title="Reflection">
+<div class="callout callout-style-default callout-tip callout-titled" title="Reflection">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -439,29 +446,71 @@ Reflection
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>arrange()</code> function sort the timestamps in ascending order by default. Hence, for <code>destination_df</code>, we use <code>arrange(desc())</code> argument to sort the timestamps in descending order</p>
+<p><code>arrange()</code> function sort the timestamps in ascending order by default. Hence, this default order is applied to <code>origin_df</code>. However, for destination_df, the <code>arrange(desc())</code> argument is used to modify the default order to descending.</p>
 </div>
 </div>
 </section>
 <section id="saving-r-objects-in-rds-format" class="level3">
-<h3 class="anchored" data-anchor-id="saving-r-objects-in-rds-format">3.4 Saving R Objects in RDS Format</h3>
+<h3 class="anchored" data-anchor-id="saving-r-objects-in-rds-format">5.4 Saving R Objects in RDS Format</h3>
 <p>RDS (R Data Serialization) files are <strong>a common format for saving R objects in RStudio</strong>, and they allow us to preserve the state of an object between R sessions. Saving R object as an RDS file in R can be useful for sharing our work with others, replicating our analysis, or simply storing our work for later use.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(origin_df, <span class="st">"../data/rds/origin_df.rds"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(destination_df, <span class="st">"../data/rds/destination_df.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(origin_df, <span class="st">"../data/rds/origin_df_th.rds"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(destination_df, <span class="st">"../data/rds/destination_df_th.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="importing-rds-objects" class="level3">
-<h3 class="anchored" data-anchor-id="importing-rds-objects">3.4 Importing RDS Objects</h3>
+<h3 class="anchored" data-anchor-id="importing-rds-objects">5.5 Importing RDS Objects</h3>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>origin_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../data/rds/origin_df.rds"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../IS415-GAA/data/rds/destination_df.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>origin_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../data/rds/origin_df.rds"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"../IS415-GAA/data/rds/destination_df.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="converting-to-sf-tibble-data.frame" class="level3">
+<h3 class="anchored" data-anchor-id="converting-to-sf-tibble-data.frame">5.3 Converting to sf tibble data.frame</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>origin_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(origin_df,</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>destination_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(destination_df,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="exploratory-spatial-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-spatial-data-analysis">6.0 Exploratory Spatial Data Analysis</h2>
+<section id="visualising-frequency-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-frequency-distribution">6.1 Visualising Frequency Distribution</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>origin_df, </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>weekday)) <span class="sc">+</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>origin_df, </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>day)) <span class="sc">+</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-11-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="creating-point-symbol-maps" class="level3">
+<h3 class="anchored" data-anchor-id="creating-point-symbol-maps">6.2 Creating Point Symbol Maps</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"view"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(origin_sf) <span class="sc">+</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_symbols</span>(<span class="at">size =</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title=</span><span class="st">"Point Symbol Map of Grab Trajectory Origin Points in Singapore"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"view"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>destination_point_map <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(destination_sf) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_dots</span>()</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>destination_point_map</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>

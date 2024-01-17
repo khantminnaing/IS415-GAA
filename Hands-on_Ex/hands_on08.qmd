@@ -185,11 +185,12 @@ Next, we will learn how to reveal the geospatial distribution condominium resale
 
 ```{r}
 tmap_mode("view")
+tmap_options(check.and.fix = TRUE)
 tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.4) +
 tm_shape(condo_resale.sf) +  
   tm_dots(col = "SELLING_PRICE",
-          palette = "Plasma",
+          palette = "plasma",
           alpha = 1,
           size = 0.5,
           style="quantile") +
@@ -372,7 +373,7 @@ tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.4) +
 tm_shape(condo_resale.res.sf) +  
   tm_dots(col = "MLR_RES",
-          palette = "Plasma",
+          palette = "plasma",
           alpha = 0.6,
           size = 0.5,
           style="quantile") +
@@ -528,7 +529,7 @@ AREA_SQM_SE <- tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
   tm_dots(col = "AREA_SQM_SE",
-          palette="Plasma",
+          palette="plasma",
           size = 0.3,
           alpha = 0.5)
 
@@ -536,7 +537,7 @@ AREA_SQM_TV <- tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
   tm_dots(col = "AREA_SQM_TV",
-          palette="Plasma",
+          palette="plasma",
           size = 0.3,
           alpha = 0.5)
 
