@@ -76,20 +76,46 @@ In this exercise, we will use the following datasets:
 In this section, [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package will be used to import the three geospatial data sets mentioned in previous section into R environment.
 
 ```{r}
-childcare_sf <- st_read("~/IS415-GAA/data/aspatial/child-care-services-geojson.geojson") %>%
-  st_transform(crs = 3414)
+childcare_sf <- st_read("~/IS415-GAA/data/aspatial/child-care-services-geojson.geojson")
 
 mpsz_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", 
-                layer = "MP14_SUBZONE_WEB_PL") %>% st_transform(crs = 3414)
+                layer = "MP14_SUBZONE_WEB_PL")
 ```
 
-## 1st Order Spatial Point Pattern Analysis
+## 4.0 Geospatial Data Wrangling
+
+### 4.1. Assigning Stanadrd Coordinate Systems
+
+```{r}
+childcare_sf <- st_transform(childcare_sf, crs = 3414)
+mpsz_sf <- st_transform(mpsz_sf, crs = 3414)
+```
+
+### 4.2 Mappoing Geospatial Datasets
+
+After checking and assigning correct referencing system of each geospatial data data frame, it is also useful for us to plot a map to show their spatial patterns. We will use `tmap` to create an interactive point symbol map.
 
 ```{r}
 tmap_mode('view')
 tm_shape(childcare_sf)+
   tm_dots()
 ```
+
+```{r}
+tmap_mode('plot')
+```
+
+::: {.callout-tip title="Reflection"}
+My original `tmap` version was 3.99 and `tmap_mode('view')` does not work with the version. Hence, we have to download an older version of `tmap` that is compatible with using the code chunk below:
+
+`install_version("tmap", "3.3-4")`
+
+While it is a good practice to keep the packages updated, some functions might be unavailable in certain package versions. Using the code chunk above, we can pull older or achieved versions of the R-packages and apply in our code.
+:::
+
+### 4.3 Converting the simple features to **spatstat's ppp format**
+
+**spatstat** requires the analytical data in ***ppp*** object form. Hence we will convert `sf` objects to `ppp` objects using [`as.ppp()`](https://rdrr.io/pkg/spatstat.geom/man/as.ppp.html) function by providing the point coordinates and the observation window.
 
 ```{r}
 childcare_ppp <- as.ppp(st_coordinates(childcare_sf), st_bbox(childcare_sf))
@@ -106,6 +132,68 @@ summary(childcare_ppp)
 Notice the warning message about duplicates. In spatial point patterns analysis an issue of significant is the presence of duplicates. The statistical methodology used for spatial point patterns processes is based largely on the assumption that process are simple, that is, that the points cannot be coincident.
 :::
 
-```{r}
+### 4.4 Handling duplicated points
 
+We can check the duplication in a ***ppp*** object by using the code chunk below.
+
+```{r}
+any(duplicated(childcare_ppp))
 ```
+
+Since the above code chunk returns TRUE, we will use the `multiplicity()` function to count the number of co-indicence point.
+
+```{r}
+multiplicity(childcare_ppp)
+```
+
+If we want to know how many locations have more than one point event, we can use `sum()`
+
+```{r}
+sum(multiplicity(childcare_ppp) > 1)
+```
+
+The output shows that there are 885 duplicated point events.
+
+To view the locations of these duplicate point events, we will plot `childcare` data by using the code chunk below.
+
+```{r}
+tmap_mode('view')
+tm_shape(childcare_sf) +
+  tm_dots(alpha=0.4, 
+          size=0.05)
+```
+
+```{r}
+tmap_mode('plot')
+```
+
+::: {.callout-tip title="Reflection"}
+**Can we spot the duplicate points from the map shown above?**
+
+Yes, if we zoom in and look closely to the points, we may observe that some points has darker shade than others, despite using the same color for all points. Those points with darker shade may indicate the duplicated points, as a result of overlap.
+
+![](images/Screenshot%202024-01-17%20at%203.15.35%20PM.png)
+:::
+
+**How do we overcome the issue of data duplicates?**
+
+There are three ways to overcome this problem.
+
+-   The easiest way is to delete the duplicates. But, that will also mean that some useful point events will be lost.
+
+-   The second solution is use *jittering*, which will add a small perturbation to the duplicate points so that they do not occupy the exact same space.
+
+-   The third solution is to make each point "unique" and then attach the duplicates of the points to the patterns as **marks**, as attributes of the points. Then you would need analytical techniques that take into account these marks.
+
+```{r}
+childcare_ppp_jit <- rjitter(childcare_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+```
+
+```{r}
+any(duplicated(childcare_ppp_jit))
+```
+
+## 1st Order Spatial Point Pattern Analysis

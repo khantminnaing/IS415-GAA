@@ -192,7 +192,6 @@ tm_shape(condo_resale.sf) +
   tm_dots(col = "SELLING_PRICE",
           palette = "plasma",
           alpha = 1,
-          size = 0.5,
           style="quantile") +
   tm_view(set.zoom.limits = c(11,14))
 ```
@@ -375,7 +374,6 @@ tm_shape(condo_resale.res.sf) +
   tm_dots(col = "MLR_RES",
           palette = "plasma",
           alpha = 0.6,
-          size = 0.5,
           style="quantile") +
   tm_view(set.zoom.limits = c(11,14))
 
@@ -517,7 +515,7 @@ tm_shape(condo_resale.sf.adaptive) +
 ```
 
 ```{r}
-tmap_mode("plot")
+tmap_mode("view")
 ```
 
 `{= 1) +}   tm_view(set.zoom.limits = c(11,14))`
