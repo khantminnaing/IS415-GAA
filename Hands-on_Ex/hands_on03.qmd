@@ -528,7 +528,7 @@ plot(density(childcare_tm_ppp.km,
              sigma=bw.diggle, 
              edge=TRUE, 
              kernel="gaussian"),
-     main="Tempines")
+     main="Tampines")
 
 par(mfrow=c(1,2))
 plot(density(childcare_bp_ppp.km, 
@@ -540,7 +540,7 @@ plot(density(childcare_jw_ppp.km,
              sigma=bw.diggle, 
              edge=TRUE, 
              kernel="gaussian"),
-     main="JUrong West")
+     main="Jurong West")
 ```
 
 ### 6.6 Computing fixed bandwidth KDE
@@ -583,7 +583,7 @@ H1= The distribution of childcare services are not randomly distributed.
 
 The 95% confident interval will be used.
 
-### 7.1  **Testing spatial point patterns using Clark and Evans Test**
+### 7.1 **Testing spatial point patterns using Clark and Evans Test**
 
 ```{r}
 clarkevans.test(childcareSG_ppp,
@@ -604,3 +604,157 @@ clarkevans.test(childcare_bp_ppp,
 ```
 
 ## 8.0 2nd Order Spatial Point Patterns Analysis
+
+### 8.1 Analysing Spatial Point Process Using G-Function
+
+The G function measures the distribution of the distances from an arbitrary event to its nearest event. In this section, we will explore how to compute G-function estimation by using [Gest()](https://rdrr.io/cran/spatstat/man/Gest.html) of **spatstat** package. We will also explore how to perform monta carlo simulation test using [envelope()](https://rdrr.io/cran/spatstat/man/envelope.html) of **spatstat** package.
+
+#### 8.1.1 Computing G-Function Estimation
+
+In this example, we will use Punggol Planning Area to compute G-function.
+
+```{r}
+G_PG = Gest(childcare_pg_ppp, correction= "border")
+plot(G_PG, xlim=c(0,500))
+```
+
+#### 8.1.2 Performing Complete Spatial Randomness Test
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   H~o~ = The distribution of childcare services at Punggol are randomly distributed.
+
+-   H~1~= The distribution of childcare services at Punggol are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+To test our hypotheses, we will run a Monte Carlo simulation.
+
+```{r}
+G_PG.csr <- envelope(childcare_pg_ppp, Gest, nsim= 900)
+```
+
+Once the simulation is done, we will plot the results.
+
+```{r}
+plot(G_PG.csr)
+```
+
+### 8.1.3 Tampines Planning Area
+
+We will carry out the same procedure above for Tampines planning area as well
+
+```{r}
+G_tm = Gest(childcare_tm_ppp, correction = "best")
+plot(G_tm)
+G_tm.csr <- envelope(childcare_tm_ppp, Gest, correction = "all", nsim = 999)
+plot(G_tm.csr)
+```
+
+### 8.2 Analysing Spatial Point Process Using F-Function
+
+The F function estimates the empty space function F(r) or its hazard rate h(r) from a point pattern in a window of arbitrary shape. In this section, we will explore how to compute F-function estimation by using [Fest()](https://rdrr.io/cran/spatstat/man/Fest.html) of **spatstat** package.
+
+#### 8.2.1 Computing F-Function Estimation
+
+In this example, we will use Jurong West Planning Area to compute F-function.
+
+```{r}
+F_JW = Fest(childcare_jw_ppp)
+plot(F_JW)
+```
+
+#### 8.2.2 Performing Complete Spatial Randomness Test
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   H~o~ = The distribution of childcare services at Jurong West are randomly distributed.
+
+-   H~1~= The distribution of childcare services at Jurong West are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+To test our hypotheses, we will run a Monte Carlo simulation.
+
+```{r}
+F_JW.csr <- envelope(childcare_jw_ppp, Fest, nsim = 999)
+
+```
+
+Once the simulation is done, we will plot the results.
+
+```{r}
+plot(F_JW.csr)
+```
+
+### 8.3 Analysing Spatial Point Process Using K-Function
+
+K-function measures the number of events found up to a given distance of any particular event. In this section, we will learn how to compute K-function estimates by using [Kest()](https://rdrr.io/cran/spatstat/man/Kest.html) of **spatstat** package.
+
+#### 8.3.1 Computing K-Function Estimation
+
+In this example, we will use Bukit Panjang Planning Area to compute F-function.
+
+```{r}
+K_bp = Kest(childcare_bp_ppp, correction = "Ripley")
+plot(K_bp, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)")
+```
+
+#### 8.3.2 Performing Complete Spatial Randomness Test
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   H~o~ = The distribution of childcare services at Bukit Panjang are randomly distributed.
+
+-   H~1~= The distribution of childcare services at Bukit Panjang are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+To test our hypotheses, we will run a Monte Carlo simulation.
+
+```{r}
+K_BP.csr <- envelope(childcare_bp_ppp, Fest, nsim = 999)
+
+```
+
+Once the simulation is done, we will plot the results.
+
+```{r}
+plot(K_BP.csr, . - r ~ r, xlab="d", ylab="K(d)-r")
+```
+
+### 8.4 Analysing Spatial Point Process Using K-Function
+
+K-function measures the number of events found up to a given distance of any particular event. In this section, we will learn how to compute K-function estimates by using [Kest()](https://rdrr.io/cran/spatstat/man/Kest.html) of **spatstat** package.
+
+#### 8.4.1 Computing L-Function Estimation
+
+In this example, we will use Tampines Planning Area to compute L-function.
+
+```{r}
+L_tm = Lest(childcare_tm_ppp, correction = "Ripley")
+plot(L_tm, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)")
+```
+
+#### 8.4.2 Performing Complete Spatial Randomness Test
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   H~o~ = The distribution of childcare services at Tampines are randomly distributed.
+
+-   H~1~= The distribution of childcare services at Tampines are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+To test our hypotheses, we will run a Monte Carlo simulation.
+
+```{r}
+L_tm.csr <- envelope(childcare_tm_ppp, Lest, nsim = 99, rank = 1, glocal=TRUE)
+```
+
+Once the simulation is done, we will plot the results.
+
+```{r}
+plot(L_tm.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
+```
