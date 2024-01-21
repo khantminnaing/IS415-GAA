@@ -37,7 +37,7 @@ In this study, I will apply **Spatial Point Patterns Analysis** methods to disco
 
 Spatial point pattern analysis is concerned with description, statistical characterization, modeling and visulisation of point patterns over space and making inference about the process that could have generated an observed pattern (Boots & Getis, 1988,Rey et al., 2023; Pebesma & Bivand, 2023). According to this theory, empirical spatial distribution of points in our daily life are not controlled by sampling, but a result of an **underlying geographically-continuous process** (Rey et al., 2023). For example, an COVID-19 cluster did not happen by chance, but due to a spatial process of close-contact infection.
 
-When analysing real-world spatial points, it is important to analyse whether the observed spatial points are randomly distributed or patterned due to a process or interaction (Floch et al., 2018). In "complete random" distribution, points are located everywhere with the same probability and independently of each other. On the other hand, the spatial points can be clustered or dispersed due to an underlying point process. However, it is challenging to use heuristic observation and intuitive interpretation to detect whether a spatial point pattern exists (Floch et al., 2018). Hence, spatial point pattern analysis can be used to detect the spatial concentration or dispersion phenomena.
+When analysing real-world spatial points, it is important to analyse whether the observed spatial points are randomly distributed or patterned due to a process or interaction (Floch et al., 2018). In "complete random" distribution, points are located everywhere with the same probability and independently of each other. On the other hand, the spatial points can be clustered or dispersed due to an underlying point process. However, it is challenging to use heuristic observation and intuitive interpretation to detect whether a spatial point pattern exists (Baddeley et al., 2015; Floch et al., 2018). Hence, spatial point pattern analysis can be used to detect the spatial concentration or dispersion phenomena.
 
 ![](images/Screenshot%202024-01-16%20at%2010.56.45%20PM.png)
 
@@ -47,14 +47,20 @@ When analysing and interpreting the properties of a point pattern, these propert
 
 Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
 
--   **spatstat**: A package for statistical analysis of spatial data, specifically Spatial Point Pattern Analysis.
+-   [`arrow`](https://arrow.apache.org/docs/r/) : for reading and writing Apache Parquet files
+
+-   [`lubridate`](https://lubridate.tidyverse.org/) : for tackling with temporal data (dates and times)
+
+-   [**`spatstat`**](https://cran.r-project.org/web/packages/spatstat/index.html): A package for statistical analysis of spatial data, specifically Spatial Point Pattern Analysis. This package was provided by Baddeley, Turner and Ruback (2015) and gives a comprehensive list of functions to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation (KDE) layer.
 
 -   **rgdal**: Used to import geospatial data and output as spatial class objects from **sp** package
 
--   **maptools**,**ggplot2**,**ggthemes**,**plotly**: Packages used to plot interactive visualisations summary statistics and KDE layers
+-   **raster** : reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format.
+
+-   **maptools**, **ggplot2**, **ggthemes**, **plotly**: Packages used to plot interactive visualisations summary statistics and KDE layers
 
 ```{r}
-pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st)
+pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat)
 ```
 
 ## 4.0 Importing Datasets into R Environment
@@ -65,7 +71,7 @@ In this study, we will use [Grab-Posisi](https://engineering.grab.com/grab-posis
 
 Moreover, we will also use [OpenStreetMap datase](https://www.geofabrik.de/geofabrik/openstreetmap.html)t, which is an open-sourced geospatial dataset including shapefiles of important layers including road networks, forests, building footprints and many other points of interest.
 
-To extract the Singapore boundary, we will download Master Plan 2019 Subzone Boundary (No Sea), provided by data.gov.sg.
+To extract the Singapore boundary, we will use Master Plan 2019 Subzone Boundary (No Sea), provided by data.gov.sg.
 
 ### 4.2 Importing Grab-Posisi Dataset
 
@@ -119,6 +125,42 @@ From the above table, it is seen that the `pingtimestamp` is recorded as `int`. 
 df_trajectories$pingtimestamp <- as_datetime(df_trajectories$pingtimestamp)
 ```
 
+### 4.3 Importing OpenStreetMap road data for Malaysia, Singapore and Brunei
+
+The `gis_osm_roads_free_1` dataset, which we downloaded from OpenStreetMap, is in ESRI shapefile format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the **`st_read()`** function of the **`sf`** package. This function reads the shapefile data and returns an **`sf`** object that can be used for further analysis.
+
+```{r}
+osm_road_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", 
+                layer = "gis_osm_roads_free_1") %>% st_transform(crs = 3414)
+```
+
+After importing the dataset, we will have a quick look at summary of `osm_road_sf`.
+
+```{r}
+summary(osm_road_sf)
+```
+
+From the code output, we observed that there are a total of **1764130 observations**. This is due to the fact that OpenStreetMap package we downloaded include data for not only Singapore, but also Malaysia and Brunei.
+
+### 4.4 Importing Singapore Master Plan Planning Subzone boundary data
+
+The `MP14_SUBZONE_WEB_PL` dataset, which we downloaded from [data.gov.sg](data.gov.sg), is in ESRI shapefile format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the **`st_read()`** function of the **`sf`** package. This function reads the shapefile data and returns an **`sf`** object that can be used for further analysis.
+
+```{r}
+mpsz_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", 
+                layer = "MP14_SUBZONE_WEB_PL") %>% st_transform(crs = 3414)
+```
+
+::: {.callout-tip title="Reflection"}
+In the code chunk above, we use `%>%` operator is used to pipe the output of `st_read()` to the `st_transform()` function. Since the dataset we are using is the Singapore boundary, we need to assign the standard coordinate reference system for Singapore, which is SVY21 (EPSG:3414). `st_transform()` function transforms the coordinate reference system of the **`sf`** object to **`3414`**.
+:::
+
+After importing the dataset, we will plot it to see how it looks. The **`plot()`** function is used to plot the geometry of the **`sf`** object. The **`st_geometry()`** function is used to extract the geometry of the **`mpsz_sf`** object.
+
+```{r}
+plot(st_geometry(mpsz_sf))
+```
+
 ## 5.0 Data Wrangling
 
 Data wrangling is the process of converting and transforming raw data into a usable form and is carried out prior to conducting any data analysis.
@@ -165,50 +207,6 @@ destination_df <- df_trajectories %>%
 `arrange()` function sort the timestamps in ascending order by default. Hence, this default order is applied to `origin_df`. However, for destination_df, the `arrange(desc())` argument is used to modify the default order to descending.
 :::
 
-### 5.4 Creating a CoastalLine of Singapore
-
-```{r}
-mpsz_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", 
-                layer = "MP14_SUBZONE_WEB_PL") %>% st_transform(crs = 3414)
-plot(st_geometry(mpsz_sf))
-names(mpsz_sf)
-```
-
-```{r}
-northeasten.islands <- subset(mpsz_sf, mpsz_sf$SUBZONE_N == "NORTH-EASTERN ISLANDS")
-southern.islands <- subset(mpsz_sf, mpsz_sf$SUBZONE_N == "SOUTHERN GROUP")
-sudong <- subset(mpsz_sf, mpsz_sf$SUBZONE_N == "SUDONG")
-semakau <- subset(mpsz_sf,mpsz_sf$SUBZONE_N == "SEMAKAU")
-
-outerislands <- dplyr::bind_rows(list(northeasten.islands,southern.islands,sudong,semakau))
-plot(st_geometry(outerislands))
-```
-
-```{r}
-sg_sf <- st_difference(st_union(mpsz_sf), st_union(outerislands))
-plot(st_geometry(sg_sf))
-```
-
-### 5.4 Saving R Objects in RDS Format
-
-RDS (R Data Serialization) files are **a common format for saving R objects in RStudio**, and they allow us to preserve the state of an object between R sessions. Saving R object as an RDS file in R can be useful for sharing our work with others, replicating our analysis, or simply storing our work for later use.
-
-```{r}
-#| eval: false
-write_rds(origin_df, "../data/rds/origin_df_th.rds")
-write_rds(destination_df, "../data/rds/destination_df_th.rds")
-write_rds(sg_sf, "../data/rds/sg_sf_th.rds")
-```
-
-### 5.5 Importing RDS Objects
-
-```{r}
-#| eval: false
-origin_df <- read_rds("../data/rds/origin_df_th.rds")
-destination_df <- read_rds("../data/rds/destination_df_th.rds")
-sg_sf <- read_rds("../data/rds/sg_sf_th.rds")
-```
-
 ### 5.3 Converting to sf tibble data.frame
 
 ```{r}
@@ -221,6 +219,162 @@ destination_sf <- st_as_sf(destination_df,
                       coords = c("rawlng", "rawlat"),
                       crs = 4326) %>%
   st_transform(crs = 3414)
+```
+
+### 5.4 Creating a CoastalLine of Singapore
+
+The original `mpsz_sf` dataset we imported include information of all URA Master Plan planning area boundaries. However, for this analysis, we only need the national-level boundary of Singapore. Hence, we will need to union all the subzone boundaries to one single polygon boundary. Also, Grab ride-hailing service is only available on the main Singapore islands. Hence, we will need to remove outer islands which Grab service is not available. In particular, we will remove the following planning subzones: `NORTH-EASTERN ISLANDS`, `SOUTHERN GROUP`, `SUDONG` & `SEMAKAU`.
+
+We can remove these subzones using the **`subset()`** function. The subset() function is used to extract rows from a data frame that meet certain conditions.
+
+```{r}
+northeasten.islands <- subset(mpsz_sf, mpsz_sf$SUBZONE_N == "NORTH-EASTERN ISLANDS")
+southern.islands <- subset(mpsz_sf, mpsz_sf$SUBZONE_N == "SOUTHERN GROUP")
+sudong <- subset(mpsz_sf, mpsz_sf$SUBZONE_N == "SUDONG")
+semakau <- subset(mpsz_sf,mpsz_sf$SUBZONE_N == "SEMAKAU")
+
+outerislands <- dplyr::bind_rows(list(northeasten.islands,southern.islands,sudong,semakau))
+```
+
+::: {.callout-tip title="Reflection"}
+In the code chunk above, we first created four new data frames called `northeasten.islands`, `southern.islands`, `sudong`, and `semakau` by selecting rows from `mpsz_sf` where the value in the `SUBZONE_N` column matches the corresponding value.
+
+After that, we used `bind_rows()` function from the **dplyr** package to combine these four data frames into a single data frame called `outerislands`.
+:::
+
+After importing the dataset, we will plot it to see how it looks.
+
+```{r}
+plot(st_geometry(outerislands))
+```
+
+As mentioned earlier, we only need to get national-level boundary of Singapore, without outer islands. To do so, we will need to process the mpsz_sf layer to achieve the outcome. - We will first use `st_union()` function from the **sf** package to combine the geometries of `mpsz_sf` and `outerislands` sf objects into a single geometry each. - Next, we will use `st_difference()` function then removes the overlapping areas between the two geometries. - Finally, we will store the non-overlapping areas into a new sf objected called `sg_sf`.
+
+```{r}
+sg_sf <- st_difference(st_union(mpsz_sf), st_union(outerislands))
+```
+
+To assess whether the geometry of the newly created `sg_sf` matches our intended outcome, we will plot it out.
+
+```{r}
+plot(st_geometry(sg_sf))
+```
+
+### 5.5 Extracting Road Layers within Singapore
+
+As we have seen in Section 4.3., `osm_road_sf` dataset includes road networks from not only Singapore, but also Malaysia and Brunei. However, our analysis is focused on Singapore. Hence, we will need to remove unecessary data rows. To do so, we will
+
+```{r}
+#sg_road_sf <- st_difference(osm_road_sf,sg_sf)
+```
+
+```{r}
+#plot(sg_road_sf)
+```
+
+### 5.5 Converting the Simple Features to Planar Point Pattern Object
+
+In order to use the capabilities of spatstat packahe, a spatial dataset should be converted into an object of class planar point pattern `ppp` (Baddeley et al., 2015). A point pattern object contains the spatial coordinates of the points, the marks attached to the points (if any), the window in which the points were observed, and the name of the unit of length for the spatial coordinates. s. Thus, a single object of class `ppp` contains all the information required to perform spatial point pattern analysis.
+
+In previous section, we have created sf objects of Grab trajectory origin and destination points. Now, we will convert them into ppp objects using [`as.ppp()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/as.ppp) function from **spatstat** package.
+
+```{r}
+origin_ppp <- as.ppp(st_coordinates(origin_sf), st_bbox(origin_sf))
+
+par(mar = c(0,0,1,0))
+plot(origin_ppp)
+```
+
+::: callout-tip
+The code chunk above converts the **`origin_sf`** object to a point pattern object of class **`ppp`.** **`st_coordinates()`** function is used to extract the coordinates of the **`origin_sf`** object and **`st_bbox()`** function is used to extract the bounding box of the **`origin_sf`** object. The resulting object `origin_ppp` is a point pattern object of class `ppp`.
+:::
+
+```{r}
+destination_ppp <- as.ppp(st_coordinates(destination_sf), st_bbox(destination_sf))
+
+par(mar = c(0,0,1,0))
+plot(destination_ppp)
+```
+
+### 5.6 Handling Data Errors
+
+Before going striaght into analysis, we will need to a quick look at the summary statistics of the newly created ppp objects. This is an important step to ensure that the data is free of errors and that a reliable analysis can be performed.
+
+#### 5.6.1 Data Error Handling for `origin_ppp`
+
+We will use `summary()` function to get summary information of `origin_ppp` object.
+
+```{r}
+summary(origin_ppp)
+```
+
+We can also check if there is any duplicated points in `origin_ppp` object using `any(duplicated()` function.
+
+```{r}
+any(duplicated(origin_ppp))
+```
+
+The code output is **`FALSE`**, which means there are no duplication of point coordaintes in the **`origin_ppp`** object.
+
+::: {.call-tip title="Reflection"}
+**Why do we need to check duplication?**
+
+When analyzing spatial point processes, it is important to avoid duplication of points. This is because statistical methodology for spatial point processes is based largely on the assumption that processes are simple, i.e., that points of the process can never be coincident. When the data have coincident points, some statistical procedures designed for simple point processes will be severely affected (Baddeley et al., 2015).
+:::
+
+#### 5.6.2 Data Error Handling for `destination_ppp`
+
+We will use `summary()` function to get summary information of `destination_ppp` object.
+
+```{r}
+summary(destination_ppp)
+```
+
+We can also check if there is any duplicated points in `destination_ppp` object using `any(duplicated()` function.
+
+```{r}
+any(duplicated(destination_ppp))
+```
+
+The code output is **`FALSE`**, which means there are no duplication of point coordinates in the **`destination_ppp`** object.
+
+### 5.7 Creating Observation Windows
+
+Many data types in **spatstat** require us to specify the region of space inside which the data were observed. This is the observation window and it is represented by an object of class `owin`. In this analysis, our study area is Singapore, hence we will use Singapore boundary as the observation window for spatial point pattern analysis.
+
+In Section 5.4, we have already created the `sg_sf` object, which represents the Singapore boundary (without outer islands). To convert this sf object to `owin` object, we will use [`as.owin()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/owin.object) function from **spatstat** package.
+
+```{r}
+sg_owin <- as.owin(sg_sf)
+plot.owin(sg_owin)
+```
+
+We will use `summary()` function to get summary information of `sg_owin` object.
+
+```{r}
+summary(sg_owin)
+```
+
+### **5.8 Combining `ppp` objects and `owin` object**
+
+In section 5.5, we have created two `ppp` objects - `origin_ppp` and `destination_ppp`, each representing the spatial points of Grab trajectory origin and destination. In section 5.7, we have created a `owin` object called `sg_owin`, which represent the observation window of our analysis.
+
+The observation window `sg_owin` and the point pattern `origin_ppp` or `destination_ppp` can be combined, so that the custom window replaces the default ractangular extent (as seen in section 5.5).
+
+```{r}
+origin_ppp_sg = origin_ppp[sg_owin]
+destination_ppp_sg = destination_ppp[sg_owin]
+
+par(mar = c(0,0,1,0))
+plot(origin_ppp_sg)
+plot(destination_ppp_sg)
+```
+
+We will use `summary()` function to get summary information of the newly created `origin_ppp_sg` object and `destination_ppp_sg` object.
+
+```{r}
+summary(origin_ppp_sg)
+summary(destination_ppp_sg)
 ```
 
 ## 6.0 Exploratory Spatial Data Analysis
@@ -239,7 +393,7 @@ ggplot(data=origin_df,
 
 ### 6.2 Creating Point Symbol Maps
 
-```{r}
+```{r eval=FALSE}
 tmap_mode("view")
 tm_shape(origin_sf) +
     tm_dots(alpha=0.4, 
