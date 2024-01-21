@@ -35,13 +35,13 @@ In this study, I will apply **Spatial Point Patterns Analysis** methods to disco
 
 ## 2.0 Literature Review of Spatial Point Pattern Analysis
 
-Spatial point pattern analysis is concerned with description, statistical characterization, modeling and visulisation of point patterns over space and making inference about the process that could have generated an observed pattern (Boots & Getis, 1988,Rey et al., 2023; Pebesma & Bivand, 2023). According to this theory, empirical spatial distribution of points in our daily life are not controlled by sampling, but a result of an **underlying geographically-continuous process** (Rey et al., 2023). For example, an COVID-19 cluster did not happen by chance, but due to a spatial process of close-contact infection.
+Spatial point pattern analysis is concerned with description, statistical characterization, modeling and visulisation of point patterns over space and making inference about the process that could have generated an observed pattern (Boots & Getis, 1988 ,Rey et al., 2023; Pebesma & Bivand, 2023). According to this theory, empirical spatial distribution of points in our daily life are not controlled by sampling, but a result of an **underlying geographically-continuous process** (Rey et al., 2023). For example, an COVID-19 cluster did not happen by chance, but due to a spatial process of close-contact infection.
 
 When analysing real-world spatial points, it is important to analyse whether the observed spatial points are randomly distributed or patterned due to a process or interaction (Floch et al., 2018). In "complete random" distribution, points are located everywhere with the same probability and independently of each other. On the other hand, the spatial points can be clustered or dispersed due to an underlying point process. However, it is challenging to use heuristic observation and intuitive interpretation to detect whether a spatial point pattern exists (Baddeley et al., 2015; Floch et al., 2018). Hence, spatial point pattern analysis can be used to detect the spatial concentration or dispersion phenomena.
 
 ![](images/Screenshot%202024-01-16%20at%2010.56.45%20PM.png)
 
-When analysing and interpreting the properties of a point pattern, these properties can be categorized into two: (a) first-order properties and (b) second-order properties (Yuan et al., 2020; Gimond, 2023). First-order properties concern with the characteristics of individual point locations and their variations of their density across space (Gimond, 2023). Under this conception, observations vary from point to point due to changes in the underlying property. Second-order properties focus on not only individual points, but also the interactions between points and their influences on one another (Gimond, 2023). Under this conception, observations vary from place to place due to interaction effects between observations. First-order properties of point patterns are mostly addressed by density-based techniques, such as kernel density, whereas, distance-based techniques, such nearest neighbour index and K-functions, are often used to analyse second-order properties since they take into account the distance between point pairs (Yuan et al., 2020; Gimond, 2023).
+When analysing and interpreting the properties of a point pattern, these properties can be categorized into two: (a) first-order properties and (b) second-order properties (Yuan et al., 2020; Gimond, 2023). First-order properties concern with the characteristics of individual point locations and their variations of their density across space (Gimond, 2023). Under this conception, observations vary from point to point due to changes in the underlying property. Second-order properties focus on not only individual points, but also the interactions between points and their influences on one another (Gimond, 2023). Under this conception, observations vary from place to place due to interaction effects between observations. First-order properties of point patterns are mostly addressed by density-based techniques, such as quadrat analysis and kernel density estimation, whereas, distance-based techniques, such nearest neighbour index and K-functions, are often used to analyse second-order properties since they take into account the distance between point pairs (Yuan et al., 2020; Gimond, 2023).
 
 ## 3.0 Importing Packages
 
@@ -360,8 +360,7 @@ We will use `summary()` function to get summary information of `sg_owin` object.
 ```{r}
 summary(sg_owin)
 ```
-
-### **5.8 Combining `ppp` objects and `owin` object**
+### 5.8 Combining `ppp` objects and `owin` object
 
 In section 5.5, we have created two `ppp` objects - `origin_ppp` and `destination_ppp`, each representing the spatial points of Grab trajectory origin and destination. In section 5.7, we have created a `owin` object called `sg_owin`, which represent the observation window of our analysis.
 
@@ -410,6 +409,161 @@ tm_shape(destination_sf) +
           size=0.05)
 ```
 
+### 6.2 Measuring Central Tendency
+
+Descriptive statistics are used in point pattern analysis to summarise a point pattern's basic properties, such as its central tendency and dispersion. The mean centre and the median centre are two often employed metrics for central tendency (Gimond, 2019).
+
+#### 6.2.1 Mean Center
+
+Mean center is the arithmetic average of the (x, y) coordinates of all point in the study area. Similar to mean in statistical analysis, mean center is influenced to a greater degree by the outliers. (Yuan et al.,2020)
+
+```{r}
+origin_xy <- st_coordinates(origin_sf)
+origin_mc <- apply(origin_xy, 2, mean)
+
+destination_xy <- st_coordinates(destination_sf)
+destination_mc <- apply(destination_xy, 2, mean)
+
+origin_mc
+destination_mc
+```
+
+The results show that the origin and destination mean centres are, respectively, (**28490.57, 36939.04**) and (**28870.96, 36590.49**). The two mean centres appear to be situated in close proximity to one another.
+
+#### 6.2.2 Median Center
+
+Median center is the location that minimizes the sum of distances required to travel to all points within an observation window. It can be calculated using an iterative procedure first presented by Kulin and Kuenne (1962). The procedure begins at a predetermined point, such as the median center, as the initial point. Then, the algorithm updates the median center's new coordinates (x', y') continually until the optimal value is reached. The median center, as opposed to the mean center, offers a more reliable indicator of central tendency as it is unaffected by outliers (Yuan et al., 2020).
+
+```{r}
+origin_medc <- apply(origin_xy, 2, median)
+
+destination_medc <- apply(destination_xy, 2, median)
+
+origin_medc
+destination_medc
+```
+
+Based on the results, the median centres of origin and destination are, respectively, **(28553.17, 36179.05)** and **(28855.04, 35883.86)**. The two median centres appear to be situated in close proximity to one another.
+
+Moreover, mean centers and median centers for each origin and destination points are similar. This may imply that the distribution of the data is relatively balanced and there is not a significant difference in the spatial patterns between the origin and destination points. Additionally, this indicates that both the mean center and median center are effective measures for analyzing the central tendency of the data in this context.
+
+We can try to plot both results together on the same plane for better comparison of the mean center and median center as well.
+
+```{r}
+par(mar = c(0,0,1,0))
+
+plot(sg_sf, col='light grey', main="mean and median centers of origin_sf")
+points(origin_xy, cex=.5)
+points(cbind(origin_mc[1], origin_mc[2]), pch='*', col='red', cex=3)
+points(cbind(origin_medc[1], origin_medc[2]), pch='*', col='purple', cex=3)
+```
+
+```{r}
+par(mar = c(0,0,1,0))
+
+plot(sg_sf, col='light grey', main="mean and median centers of destination_sf")
+points(destination_xy, cex=.5)
+points(cbind(destination_mc[1], destination_mc[2]), pch='*', col='yellow', cex=3)
+points(cbind(destination_medc[1], destination_medc[2]), pch='*', col='orange', cex=3)
+```
+
+### 6.2 Measuring Dispersion
+
+#### 6.2.1 Standard Distance
+
+Standard distances are defined similarly to standard deviations. This indicator measures how dispersed a group of points is around its mean center (Gimond, 2023).
+
+```{r}
+origin_sd <- sqrt(sum((origin_xy[,1] - origin_mc[1])^2 + (origin_xy[,2] - origin_mc[2])^2) / nrow(origin_xy))
+
+destination_sd <- sqrt(sum((origin_xy[,1] - destination_xy[1])^2 + (origin_xy[,2] - destination_xy[2])^2) / nrow(origin_xy))
+
+origin_sd
+destination_sd
+```
+
+From the results, the origin and destination standard distances are **10187.88** and **23452.37**, respectively. Hence, it appears that destination points are more dispersed than the origin points.
+
+::: {.callout-tip title="Reflection"}
+However, it would be challenging to discern why the destination points are more dispersed without further analysis. Further analysis would be needed to determine the factors contributing to the increased dispersion of destination points. Since it is out of scope for this exercise, we will not explore any further.
+:::
+
+#### 6.2.3 Plotting Standard Distances
+
+In this section, we will create a bearing circle using the standard distance values we have calculated earlier.  
+
+```{r}
+par(mar = c(0,0,1,0))
+plot(sg_sf, col='light grey', main="standard distance of origin_sf")
+points(origin_xy, cex=.5)
+points(cbind(origin_mc[1], origin_mc[2]), pch='*', col='red', cex=3)
+
+bearing <- 1:360 * pi/180
+cx <- origin_mc[1] + origin_sd * cos(bearing)
+cy <- origin_mc[2] + origin_sd * sin(bearing)
+circle <- cbind(cx, cy)
+lines(circle, col='red', lwd=2)
+```
+
+```{r}
+par(mar = c(0,0,1,0))
+plot(sg_sf, col='light grey',main="standard distance of destination_sf")
+points(destination_xy, cex=.5)
+points(cbind(destination_mc[1], destination_mc[2]), pch='*', col='purple', cex=3)
+
+bearing <- 1:360 * pi/180
+cx <- destination_mc[1] + destination_sd * cos(bearing)
+cy <- destination_mc[2] + destination_sd * sin(bearing)
+circle <- cbind(cx, cy)
+lines(circle, col='purple', lwd=2)
+```
+
+A better comparison of the standard distances between origin and destination points can also be achieved by trying to plot both results on the same plane.
+
+```{r}
+par(mar = c(0,0,1,0))
+
+plot(sg_sf, col='light grey',main="standard distances of origin_sf & destination_sf")
+points(cbind(origin_mc[1], origin_mc[2]), pch='*', col='red', cex=3)
+points(cbind(destination_mc[1], destination_mc[2]), pch='*', col='purple', cex=3)
+
+bearing <- 1:360 * pi/180
+
+origin_cx <- origin_mc[1] + origin_sd * cos(bearing)
+origin_cy <- origin_mc[2] + origin_sd * sin(bearing)
+
+destination_cx <- destination_mc[1] + destination_sd * cos(bearing)
+destination_cy <- destination_mc[2] + destination_sd * sin(bearing)
+
+origin_circle <- cbind(origin_cx, origin_cy)
+destination_circle <- cbind(destination_cx, destination_cy)
+
+lines(origin_circle, col='red', lwd=2)
+lines(destination_circle, col='purple', lwd=2)
+```
+
+## 7.0 First-Order Spatial Point Patterns Analysis
+
+After data wrangling is complete, we will start to perform first-order spatial point pattern analysis using functions from `spatstat` package. As we have discussed in Section 2.0., First-order properties concern the characteristics of individual point locations and their variations of their density across space and are mostly addressed by density-based techniques, such as quadrant analysis and kernel density estimation.
+
+Investigation of the intensity of a point pattern is one of the first and most important steps in point pattern analysis (Baddeley et al., 2015). If the point process has an intensity function λ(u), this function can be estimated non-parametrically by kernel estimation (Baddeley et al., 2015). Kernel estimation allows for smoothing of the probability density estimation of a random variable (in this analysis a point event) based on kernels as weights.
+
+### 7.1 Kernel Density Estimation
+
+Kernel Destiny Estimation (KDE) produces a surface (raster) that details the estimated distribution of point events over observation window. Each cell within the KDE layer contains a value that is the estimated density at that location (). Hence, this approach is also known as local density approach. To create the KDE layer, a localised density for small subsets of the observation window is computed. However, these subsets overlap one another in each iteration, creating a **moving window**, defined by a **kernel**.
+
 ## References
 
 1\. Rey, S.J., Arribas-Bel, D., Wolf, L.J.: Point Pattern Analysis. In: Geographic Data Science with python. pp. 185--219. CRC Press, Boca Raton etc. (2023).
+
+Yuan, Y., Qiang, Y., Bin Asad, K., and Chow, T. E. (2020). Point Pattern Analysis. The Geographic Information Science & Technology Body of Knowledge (1st Quarter 2020 Edition), John P. Wilson (ed.). DOI: 10.22224/gistbok/2020.1.13
+
+Baddeley, A., Rubak, E., & Turner, R. (2015). Spatial Point Patterns: Methodology and Applications with R (1st ed.). Chapman and Hall/CRC. <https://doi.org/10.1201/b19708>
+
+Boots, B.N., & Getis, A. (1988). Point Pattern Analysis. Reprint. Edited by Grant Ian Thrall. WVU Research Repository, 2020.
+
+Pebesma, E.; Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). 314 pages. Chapman and Hall/CRC, Boca Raton. https://doi.org/10.1201/9780429459016
+
+1\. Floch, J.-M., Marcon, E., Puech, F.: Spatial distribution of points. In: Bellefon, M.-P. de (ed.) Handbook of Spatial Analysis : Theory and Application with R. pp. 72--111. Insee-Eurostat.
+
+Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from <https://mgimond.github.io/Spatial/index.html>
