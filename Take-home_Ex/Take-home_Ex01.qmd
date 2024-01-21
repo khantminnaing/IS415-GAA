@@ -265,11 +265,17 @@ plot(st_geometry(sg_sf))
 As we have seen in Section 4.3., `osm_road_sf` dataset includes road networks from not only Singapore, but also Malaysia and Brunei. However, our analysis is focused on Singapore. Hence, we will need to remove unecessary data rows. To do so, we will
 
 ```{r}
-#sg_road_sf <- st_difference(osm_road_sf,sg_sf)
+#| eval: false
+sg_road_sf <- st_intersection(osm_road_sf,sg_sf)
 ```
 
 ```{r}
-#plot(sg_road_sf)
+#| echo: false
+sg_road_sf <- read_rds("../data/rds/sg_road_sf.rds")
+```
+
+```{r}
+plot(st_geometry(sg_road_sf))
 ```
 
 ### 5.5 Converting the Simple Features to Planar Point Pattern Object
