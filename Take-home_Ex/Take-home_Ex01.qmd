@@ -284,7 +284,7 @@ unique(sg_road_sf$fclass)
 tm_shape(sg_sf) +
   tm_polygons() +
 tm_shape(sg_road_sf) +
-  tm_lines(col="fclass") +
+  tm_lines(col="fclass", palette ="viridis") +
   tm_layout(main.title = "Road Network in Singapore",
             main.title.position = "center",
             main.title.size = 1.2,
@@ -648,7 +648,7 @@ par(mar = c(0,0,1,0))
 plot(kde_origin,main = "adapative density")
 ```
 
-### 7.4 **Rescaling KDE Values**
+### 7.4 Rescaling KDE Values
 
 ```{r}
 origin_ppp_sg.km <- rescale(origin_ppp_sg, 1000, "km")

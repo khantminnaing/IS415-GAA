@@ -163,7 +163,7 @@ The easiest and quickest to draw a choropleth map using **tmap** is using *qtm()
 tmap_mode("plot")
 qtm(mpsz_pop2020, 
     fill = "DEPENDENCY",
-    fill.palette ="Plasma")
+    fill.palette ="plasma")
 ```
 
 ### 5.2 **Plotting a choropleth map quickly by using *qtm()***
@@ -174,7 +174,7 @@ However, in real-life application, the quick choropleth map produced in the prev
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
           style = "quantile", 
-          palette = "Plasma",
+          palette = "plasma",
           title = "Dependency ratio") +
   tm_layout(main.title = "Distribution of Dependency Ratio by planning subzone",
             main.title.position = "center",
@@ -301,7 +301,7 @@ To define a data classification method, the *style* argument of `tm_fill()` or `
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 5,
-          palette = "Plasma",
+          palette = "plasma",
           style = "jenks") +
   tm_borders(alpha = 0.5)
 ```
@@ -312,7 +312,7 @@ Next, we will try equal data classification method.
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 5,
-          palette = "Plasma",
+          palette = "plasma",
           style = "equal") +
   tm_borders(alpha = 0.5)
 ```
@@ -327,14 +327,14 @@ Next, we will try other data classification methods.
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 5,
-          palette = "Plasma",
+          palette = "plasma",
           style = "fisher") +
   tm_borders(alpha = 0.5)
 
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 5,
-          palette = "Plasma",
+          palette = "plasma",
           style = "sd") +
   tm_borders(alpha = 0.5)
 ```
@@ -343,14 +343,14 @@ tm_shape(mpsz_pop2020)+
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 5,
-          palette = "Plasma",
+          palette = "plasma",
           style = "hclust") +
   tm_borders(alpha = 0.5)
 
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 5,
-          palette = "Plasma",
+          palette = "plasma",
           style = "bclust") +
   tm_borders(alpha = 0.5)
 ```
@@ -361,28 +361,28 @@ Also, we can try exploring using the same classification methods, but with diffe
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 2,
-          palette = "Plasma",
+          palette = "plasma",
           style = "kmeans") +
   tm_borders(alpha = 0.5)
 
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 6,
-          palette = "Plasma",
+          palette = "plasma",
           style = "kmeans") +
   tm_borders(alpha = 0.5)
 
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 10,
-          palette = "Plasma",
+          palette = "plasma",
           style = "kmeans") +
   tm_borders(alpha = 0.5)
 
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 20,
-          palette = "Plasma",
+          palette = "plasma",
           style = "kmeans") +
   tm_borders(alpha = 0.5)
 ```
@@ -425,7 +425,7 @@ Using this information, we will now proceed to plot the choropleth map.
 ```{r warning=FALSE, message=FALSE}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
-          palette="Plasma",
+          palette="plasma",
           breaks = c(0, 0.60, 0.70, 0.80, 0.90, 1.00)) +
   tm_borders(alpha = 0.5)
 ```
@@ -441,7 +441,7 @@ tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
           n = 6,
           style = "quantile",
-          palette = "Sunset") +
+          palette = "plasma") +
   tm_borders(alpha = 0.5)
 ```
 
@@ -457,7 +457,7 @@ In **tmap**, several *legend* options are provided to change the placement, form
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
           style = "jenks", 
-          palette = "DarkSunset", 
+          palette = "plasma", 
           legend.hist = TRUE, 
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
@@ -480,7 +480,7 @@ tm_shape(mpsz_pop2020)+
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
           style = "quantile", 
-          palette = "Sunset") +
+          palette = "plasma") +
   tm_borders(alpha = 0.5) +
   tmap_style("classic")
 ```
@@ -495,7 +495,7 @@ In the code chunk below, `tm_compass()`, `tm_scale_bar()` and `tm_grid()` are us
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
           style = "quantile", 
-          palette = "Sunset",
+          palette = "plasma",
           title = "No. of persons") +
   tm_layout(main.title = "Distribution of Dependency Ratio \nby planning subzone",
             main.title.position = "center",
@@ -531,7 +531,7 @@ In this example, small multiple choropleth maps are created by defining ***ncols
 tm_shape(mpsz_pop2020)+
   tm_fill(c("YOUNG", "AGED"),
           style = "equal", 
-          palette = "Plasma") +
+          palette = "plasma") +
   tm_layout(legend.position = c("right", "bottom")) +
   tm_borders(alpha = 0.5) +
   tmap_style("white")
@@ -543,7 +543,7 @@ In this example, small multiple choropleth maps are created by assigning multipl
 tm_shape(mpsz_pop2020) +
   tm_fill("DEPENDENCY",
           style = "quantile",
-          palette = "Plasma",
+          palette = "plasma",
           thres.poly = 0) + 
   tm_facets(by="REGION_N", 
             free.coords=TRUE) +
@@ -561,7 +561,7 @@ In this example, multiple small choropleth maps are created by using **`tm_facet
 tm_shape(mpsz_pop2020) +
   tm_fill("DEPENDENCY",
           style = "quantile",
-          palette = "Plasma",
+          palette = "plasma",
           thres.poly = 0) + 
   tm_facets(by="REGION_N", 
             free.coords=TRUE) +
@@ -579,12 +579,12 @@ In this example, multiple small choropleth maps are created by creating multiple
 youngmap <- tm_shape(mpsz_pop2020)+ 
   tm_polygons("YOUNG", 
               style = "quantile", 
-              palette = "Purp")
+              palette = "viridis")
 
 agedmap <- tm_shape(mpsz_pop2020)+ 
   tm_polygons("AGED", 
               style = "quantile", 
-              palette = "Burg")
+              palette = "plasma")
 
 tmap_arrange(youngmap, agedmap, asp=1, ncol=2)
 ```
@@ -599,7 +599,7 @@ For example, we have select the central region and *DEPENDENCY* column to plot.
 tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
   tm_fill("DEPENDENCY", 
           style = "quantile", 
-          palette = "Plasma", 
+          palette = "plasma", 
           legend.hist = TRUE, 
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +

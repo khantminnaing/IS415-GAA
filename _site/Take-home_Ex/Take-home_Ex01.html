@@ -275,7 +275,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#kernel-density-estimation" id="toc-kernel-density-estimation" class="nav-link" data-scroll-target="#kernel-density-estimation">7.1 Kernel Density Estimation</a></li>
   <li><a href="#bandwidth-selection" id="toc-bandwidth-selection" class="nav-link" data-scroll-target="#bandwidth-selection">7.2 Bandwidth Selection</a></li>
-  <li><a href="#rescaling-kde-values" id="toc-rescaling-kde-values" class="nav-link" data-scroll-target="#rescaling-kde-values">7.4 <strong>Rescaling KDE Values</strong></a></li>
+  <li><a href="#rescaling-kde-values" id="toc-rescaling-kde-values" class="nav-link" data-scroll-target="#rescaling-kde-values">7.4 Rescaling KDE Values</a></li>
   </ul></li>
   <li><a href="#network-constrained-kernel-density-estimation-nkde" id="toc-network-constrained-kernel-density-estimation-nkde" class="nav-link" data-scroll-target="#network-constrained-kernel-density-estimation-nkde">8.0 Network Constrained Kernel Density Estimation (NKDE)</a></li>
   <li><a href="#temporal-network-kernel-density-estimation-tnkde" id="toc-temporal-network-kernel-density-estimation-tnkde" class="nav-link" data-scroll-target="#temporal-network-kernel-density-estimation-tnkde">9.0 Temporal Network Kernel Density Estimation (TNKDE)</a></li>
@@ -604,7 +604,7 @@ Reflection
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(sg_sf) <span class="sc">+</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(sg_road_sf) <span class="sc">+</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_lines</span>(<span class="at">col=</span><span class="st">"fclass"</span>) <span class="sc">+</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_lines</span>(<span class="at">col=</span><span class="st">"fclass"</span>, <span class="at">palette =</span><span class="st">"viridis"</span>) <span class="sc">+</span></span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Road Network in Singapore"</span>,</span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">1.2</span>,</span>
@@ -1223,7 +1223,7 @@ Reflection
 </section>
 </section>
 <section id="rescaling-kde-values" class="level3">
-<h3 class="anchored" data-anchor-id="rescaling-kde-values">7.4 <strong>Rescaling KDE Values</strong></h3>
+<h3 class="anchored" data-anchor-id="rescaling-kde-values">7.4 Rescaling KDE Values</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>origin_ppp_sg.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(origin_ppp_sg, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
 <span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>destination_ppp_sg.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(destination_ppp_sg, <span class="dv">1000</span>, <span class="st">"km"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

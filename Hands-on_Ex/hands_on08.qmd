@@ -184,7 +184,7 @@ Next, we will learn how to reveal the geospatial distribution condominium resale
 -   Next, we will turn R display into `plot` mode.
 
 ```{r}
-tmap_mode("view")
+#tmap_mode("view")
 tmap_options(check.and.fix = TRUE)
 tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.4) +
@@ -504,7 +504,7 @@ summary(gwr.adaptive$SDF$yhat)
 We will now visualise the local R2 value as below.
 
 ```{r}
-tmap_mode("view")
+#tmap_mode("view")
 tm_shape(mpsz_svy21)+
   tm_polygons(alpha = 0.1) +
 tm_shape(condo_resale.sf.adaptive) +  
@@ -515,7 +515,7 @@ tm_shape(condo_resale.sf.adaptive) +
 ```
 
 ```{r}
-tmap_mode("view")
+#tmap_mode("view")
 ```
 
 `{= 1) +}   tm_view(set.zoom.limits = c(11,14))`
@@ -528,7 +528,7 @@ AREA_SQM_SE <- tm_shape(mpsz_svy21)+
 tm_shape(condo_resale.sf.adaptive) +  
   tm_dots(col = "AREA_SQM_SE",
           palette="plasma",
-          size = 0.3,
+          size = 0.2,
           alpha = 0.5)
 
 AREA_SQM_TV <- tm_shape(mpsz_svy21)+
@@ -536,7 +536,7 @@ AREA_SQM_TV <- tm_shape(mpsz_svy21)+
 tm_shape(condo_resale.sf.adaptive) +  
   tm_dots(col = "AREA_SQM_TV",
           palette="plasma",
-          size = 0.3,
+          size = 0.2,
           alpha = 0.5)
 
 tmap_arrange(AREA_SQM_SE, AREA_SQM_TV, 
