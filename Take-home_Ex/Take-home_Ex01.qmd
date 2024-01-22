@@ -60,7 +60,7 @@ Before we start the exercise, we will need to import necessary R packages first.
 -   **maptools**, **ggplot2**, **ggthemes**, **plotly**: Packages used to plot interactive visualisations summary statistics and KDE layers
 
 ```{r}
-pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat)
+pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat,patchwork)
 ```
 
 ## 4.0 Importing Datasets into R Environment
@@ -274,8 +274,23 @@ sg_road_sf <- st_intersection(osm_road_sf,sg_sf)
 sg_road_sf <- read_rds("../data/rds/sg_road_sf.rds")
 ```
 
+Next, we will look at the classification of road networks as provided by OpenStreetMap.
+
 ```{r}
-plot(st_geometry(sg_road_sf))
+unique(sg_road_sf$fclass)
+```
+
+```{r}
+tm_shape(sg_sf) +
+  tm_polygons() +
+tm_shape(sg_road_sf) +
+  tm_lines(col="fclass") +
+  tm_layout(main.title = "Road Network in Singapore",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.outside = TRUE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
 ```
 
 ### 5.5 Converting the Simple Features to Planar Point Pattern Object
@@ -388,13 +403,19 @@ summary(destination_ppp_sg)
 ### 6.1 Visualising Frequency Distribution
 
 ```{r}
-ggplot(data=origin_df, 
-       aes(x=weekday)) + 
-  geom_bar()
+origin_day <- ggplot(data=origin_df, 
+              aes(x=weekday)) + 
+              geom_bar()
 
-ggplot(data=origin_df, 
-       aes(x=day)) + 
-  geom_bar()
+destination_day <-  ggplot(data=destination_sf, 
+                    aes(x=weekday)) + 
+                    geom_bar()
+
+origin_day + destination_day
+```
+
+```{r}
+
 ```
 
 ### 6.2 Creating Point Symbol Maps
@@ -557,12 +578,13 @@ Kernel Destiny Estimation (KDE) generates a surface (raster) representing the es
 
 To build the KDE layer, a localised density is calculated for multiple small subsets of the observation window. However, these subsets overlap throughout each iteration, resulting in a moving window defined by a kernel (Wilkin, 2020; Gimond, 2023).
 
-Kernel estimation is implemented in **spatstat** by the function `density.ppp()`, a method for the
-generic command density.
+Kernel estimation is implemented in **spatstat** by the function `density.ppp()`, a method for the generic command density.
 
 ```{r}
+par(mar = c(0,0,1,0))
 den <- density(origin_ppp_sg)
-plot(den)
+plot(den,main = "default density")
+contour(den, add=TRUE)
 ```
 
 However, the KDE given by default argument may not be what we aim to achieve. In this regards, we can specify smoothing bandwidth through the argument `sigma` or kernel function through the argument `kernel`.
@@ -571,7 +593,7 @@ However, the KDE given by default argument may not be what we aim to achieve. In
 
 The kernel bandwidth `sigma` controls the degree of smoothing. In general, a small value of `sigma` produces an irregular intensity surface, while a large value of `sigma` appears to oversmooth the intensity.
 
-![Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)](images/Screenshot 2024-01-22 at 8.20.59 AM.png)
+![Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)](images/Screenshot%202024-01-22%20at%208.20.59%20AM.png)
 
 #### 7.2.1 Fixed Bandwidth
 
@@ -579,9 +601,9 @@ The kernel bandwidth `sigma` controls the degree of smoothing. In general, a sma
 
 -   [`bw.diggle()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.diggle.html) (Cross Validated)
 
--   [`bw.CvL()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.CvL.adaptive.html) (Cronie and van Lieshout\'s Criterion)
+-   [`bw.CvL()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.CvL.adaptive.html) (Cronie and van Lieshout's Criterion)
 
--   [`bw.scott()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/bw.scott) (Scott\'s Rule)
+-   [`bw.scott()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/bw.scott) (Scott's Rule)
 
 -   [`bw.ppl()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.pplHeat.html) (Likelihood Cross Validation)can also be used.
 
@@ -599,21 +621,32 @@ bw_ppl <- bw.ppl(origin_ppp_sg)
 bw_ppl
 ```
 
-The commands used for generating bandwidth return a numerical value, the optimised bandwidth, which also belongs to the special class `bw.optim.`
+The commands used for generating bandwidth return a numerical value, the optimised bandwidth, which also belongs to the special class `bw.optim`. The plot method for this class shows the objective function for the optimisation that leads to the result.
 
 ```{r}
 par(mfrow = c(1,2))
-plot(bw_diggle)
+plot(bw_diggle, xlim=c(0,40), ylim=c(-70,200))
 plot(bw_CvL)
 
 par(mfrow = c(1,2))
 plot(bw_scott)
-plot(bw_ppl)
+plot(bw_ppl, xlim=c(-1000,6000), ylim=c(-320000,-260000))
 ```
 
 #### 7.2.2 Adaptive Bandwidth
 
+A fixed smoothing bandwidth is unsatisfactory if the true intensity varies greatly across the spatial domain, because it is likely to cause over-smoothing in the high-intensity areas and under-smoothing in the low intensity areas (Baddeley et al., 2015)
+
 The fixed bandwidth method is very sensitive to highly skewed distribution of spatial point patterns over geographical units.
+
+```{r}
+kde_origin <- adaptive.density(origin_ppp_sg, method = "kernel")
+```
+
+```{r}
+par(mar = c(0,0,1,0))
+plot(kde_origin,main = "adapative density")
+```
 
 ### 7.4 **Rescaling KDE Values**
 
@@ -624,20 +657,34 @@ destination_ppp_sg.km <- rescale(destination_ppp_sg, 1000, "km")
 
 ![](images/kerneltypes.png)
 
+## 8.0 Network Constrained Kernel Density Estimation (NKDE)
+
+Many real world point event are not randomly distributed. Their distribution, on the other hand, are constrained by network such as roads, rivers, and fault lines just to name a few of them.
+
+```{r}
+#| eval: false
+pacman::p_load(dodgr)
+sg_network <- weight_streetnet(dodgr_streetnet("singapore"))
+```
+
+## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
+
 ## References
 
-1\. Rey, S.J., Arribas-Bel, D., Wolf, L.J.: Point Pattern Analysis. In: Geographic Data Science with python. pp. 185--219. CRC Press, Boca Raton etc. (2023).
+Baddeley, A., Rubak, E., & Turner, R. (2015). Spatial Point Patterns: Methodology and Applications with R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/b19708.
 
-Yuan, Y., Qiang, Y., Bin Asad, K., and Chow, T. E. (2020). Point Pattern Analysis. The Geographic Information Science & Technology Body of Knowledge (1st Quarter 2020 Edition), John P. Wilson (ed.). DOI: 10.22224/gistbok/2020.1.13
+Boots, B.N., & Getis, A. (1988). Point Pattern Analysis. Reprint. Edited by G.I. Thrall. WVU Research Repository.
 
-Baddeley, A., Rubak, E., & Turner, R. (2015). Spatial Point Patterns: Methodology and Applications with R (1st ed.). Chapman and Hall/CRC. <https://doi.org/10.1201/b19708>
+Floch, J.-M., Marcon, E., Puech, F. (n.d.). Spatial distribution of points. In M.-P. de Bellefon (Ed.), Handbook of Spatial Analysis : Theory and Application with R (pp. 72--111). Insee-Eurostat.
 
-Boots, B.N., & Getis, A. (1988). Point Pattern Analysis. Reprint. Edited by Grant Ian Thrall. WVU Research Repository, 2020.
+Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from https://mgimond.github.io/Spatial/index.html.
 
-Pebesma, E.; Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). 314 pages. Chapman and Hall/CRC, Boca Raton. https://doi.org/10.1201/9780429459016
+Pebesma, E.; Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016.
 
-1\. Floch, J.-M., Marcon, E., Puech, F.: Spatial distribution of points. In: Bellefon, M.-P. de (ed.) Handbook of Spatial Analysis : Theory and Application with R. pp. 72--111. Insee-Eurostat.
+Rey, S.J., Arribas-Bel, D., Wolf, L.J. (2023). Point Pattern Analysis. In: Geographic Data Science with python. CRC Press.
 
-Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from <https://mgimond.github.io/Spatial/index.html>
+Wilkin, J. (2020). Geocomputation 2020-2021 Work Book. University College London. Retrieved from https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html.
 
-Wilkin, J. (2020) Geocomputation 2020-2021 Work Book. University College London. Retrieved from <https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html>
+Yuan, Y., Qiang, Y., Bin Asad, K., and Chow, T. E. (2020). Point Pattern Analysis. In J.P. Wilson (Ed.), The Geographic Information Science & Technology Body of Knowledge (1st Quarter 2020 Edition). DOI: 10.22224/gistbok/2020.1.13.
+
+Kam, T. S. (2022). R for Geospatial Data Science and Analytics. Retrieved from <https://r4gdsa.netlify.app/>

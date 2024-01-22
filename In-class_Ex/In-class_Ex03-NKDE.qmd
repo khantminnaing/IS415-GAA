@@ -27,7 +27,7 @@ output:
     self_contained: false
 ---
 
-## 1.0 Overview 
+## 1.0 Overview
 
 **Network constrained Spatial Point Patterns Analysis (NetSPAA)** is a collection of spatial point patterns analysis methods special developed for analysing spatial point event occurs on or alongside network. The spatial point event can be locations of traffic accident or childcare centre for example. The network, on the other hand can be a road network or river network.
 
@@ -41,9 +41,9 @@ In this hands-on exercise, you are going to gain hands-on experience on using ap
 
 In this hands-on exercise, four R packages will be used, they are:
 
--   [spNetwork](https://cran.r-project.org/web/packages/spNetwork/), which provides functions to perform Spatial Point Patterns Analysis such as kernel density estimation (KDE) and K-function on network. It also can be used to build spatial matrices (\'listw\' objects like in \'spdep\' package) to conduct any kind of traditional spatial analysis with spatial weights based on reticular distances.
+-   [spNetwork](https://cran.r-project.org/web/packages/spNetwork/), which provides functions to perform Spatial Point Patterns Analysis such as kernel density estimation (KDE) and K-function on network. It also can be used to build spatial matrices ('listw' objects like in 'spdep' package) to conduct any kind of traditional spatial analysis with spatial weights based on reticular distances.
 
--   [rgdal](https://cran.r-project.org/web/packages/rgdal/), which provides bindings to the [\'Geospatial\' Data Abstraction Library (GDAL) (\>= 1.11.4)](https://gdal.org/) and access to projection/transformation operations from the [PROJ](https://proj.org/) library. In this exercise, rgdal will be used to import geospatial data in R and store as [sp](https://cran.r-project.org/web/packages/sp/vignettes/intro_sp.pdf) objects.
+-   [rgdal](https://cran.r-project.org/web/packages/rgdal/), which provides bindings to the ['Geospatial' Data Abstraction Library (GDAL) (\>= 1.11.4)](https://gdal.org/) and access to projection/transformation operations from the [PROJ](https://proj.org/) library. In this exercise, rgdal will be used to import geospatial data in R and store as [sp](https://cran.r-project.org/web/packages/sp/vignettes/intro_sp.pdf) objects.
 
 -   [sp](https://cran.r-project.org/web/packages/sp/), which provides classes and methods for dealing with spatial data in R. In this exercise, it will be used to manage SpatialPointsDataFrame and SpatiaLinesDataFrame, and for performing projection transformation.
 
@@ -87,7 +87,7 @@ tmap_mode('plot')
 
 Before computing NetKDE, the SpatialLines object need to be cut into lixels with a specified minimal distance. This task can be performed by using with *lixelize_lines()* of spNetwork as shown in the code chunk below.
 
-![](images/Screenshot 2024-01-22 at 11.18.34 AM.png)
+![](images/Screenshot%202024-01-22%20at%2011.18.34%20AM.png)
 
 ```{r}
 lixels <- lixelize_lines(network, 750, mindist = 375)
