@@ -160,12 +160,3 @@ origin_df <- read_rds("../data/rds/origin_df.rds")
 destination_df <- read_rds("../data/rds/destination_df.rds")
 ```
 
-### **Visualising as Point Symbol Map**
-
-In the code chunk below, tmap functions are used to plot a point symbol map by using the origin trips locations.
-
-```{r}
-tmap_mode("plot")
-tm_shape(origin_sf) +
-  tm_dots()
-```

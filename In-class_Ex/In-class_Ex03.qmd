@@ -57,9 +57,6 @@ childcare_sf <- st_read("../data/aspatial/child-care-services-geojson.geojson")
 
 mpsz_sf <- st_read(dsn = "../data/geospatial", 
                 layer = "MP14_SUBZONE_WEB_PL")
-
-sg_sf <- st_read(dsn = "../data/geospatial", layer="CostalOutline")
-
 ```
 
 ## 4.0 Geospatial Data Wrangling
@@ -69,4 +66,11 @@ sg_sf <- st_read(dsn = "../data/geospatial", layer="CostalOutline")
 ```{r}
 childcare_sf <- st_transform(childcare_sf, crs = 3414)
 mpsz_sf <- st_transform(mpsz_sf, crs = 3414)
+```
+
+### 4.2 Creating Coastal Outline
+
+```{r}
+sg_sf <- mpsz_sf %>% st_union()
+plot(sg_sf)
 ```

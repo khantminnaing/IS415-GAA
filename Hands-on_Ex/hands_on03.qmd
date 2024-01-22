@@ -58,7 +58,7 @@ In this hands-on exercise, we will use the following R package:
 -   [**tmap**](https://cran.r-project.org/web/packages/tmap/) which provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API.
 
 ```{r}
-pacman::p_load(sf, raster, spatstat, tmap, devtools,sp)
+pacman::p_load(sf, raster, spatstat, tmap, tidyverse, devtools,sp)
 ```
 
 ## 3.0 Importing Datasets to R Environment
@@ -76,12 +76,12 @@ In this exercise, we will use the following datasets:
 In this section, [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package will be used to import the three geospatial data sets mentioned in previous section into R environment.
 
 ```{r}
-childcare_sf <- st_read("~/IS415-GAA/data/aspatial/child-care-services-geojson.geojson")
+childcare_sf <- st_read("../data/aspatial/child-care-services-geojson.geojson")%>% st_transform(crs =3414)
 
-mpsz_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", 
+mpsz_sf <- st_read(dsn = "../data/geospatial", 
                 layer = "MP14_SUBZONE_WEB_PL")
 
-sg_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", layer="CostalOutline")
+sg_sf <- st_read(dsn = "../data/geospatial", layer="CostalOutline")
 
 ```
 
@@ -457,10 +457,10 @@ tm_shape(kde_childcareSG_bw_raster) +
 The code chunk below will be used to extract the target planning areas.
 
 ```{r}
-pg = mpsz_sf[mpsz_sf$PLN_AREA_N == "PUNGGOL",]
-tm = mpsz_sf[mpsz_sf$PLN_AREA_N == "TAMPINES",]
-bp = mpsz_sf[mpsz_sf$PLN_AREA_N == "BUKIT PANJANG",]
-jw = mpsz_sf[mpsz_sf$PLN_AREA_N == "JURONG WEST",]
+pg = mpsz_sf %>% filter(PLN_AREA_N == "PUNGGOL")
+tm = mpsz_sf %>% filter(PLN_AREA_N == "TAMPINES")
+bp = mpsz_sf %>% filter(PLN_AREA_N == "BUKIT PANJANG")
+jw = mpsz_sf %>% filter(PLN_AREA_N == "JURONG WEST")
 ```
 
 ```{r}

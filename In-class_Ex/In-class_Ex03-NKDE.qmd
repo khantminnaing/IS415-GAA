@@ -1,0 +1,152 @@
+---
+title: "In-Class Exercise 02"
+description: |
+ R for Geospatial Data Science
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 01-12-2024
+date-modified: "last-modified"
+categories:
+  - In-Class Exercise
+  - R
+  - sf
+  - lubridate
+  - grab-posisi
+format:
+  html:  
+    #code-fold: true
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+output:
+  distill::distill_article:
+    toc: true
+    self_contained: false
+---
+
+## 1.0 Overview 
+
+**Network constrained Spatial Point Patterns Analysis (NetSPAA)** is a collection of spatial point patterns analysis methods special developed for analysing spatial point event occurs on or alongside network. The spatial point event can be locations of traffic accident or childcare centre for example. The network, on the other hand can be a road network or river network.
+
+In this hands-on exercise, you are going to gain hands-on experience on using appropriate functions of **spNetwork** package:
+
+-   to derive **network constrained kernel density estimation (NetKDE)**, and
+
+-   to perform network G-function and k-function analysis
+
+## 2.0 Installing and l**aunching the R package**
+
+In this hands-on exercise, four R packages will be used, they are:
+
+-   [spNetwork](https://cran.r-project.org/web/packages/spNetwork/), which provides functions to perform Spatial Point Patterns Analysis such as kernel density estimation (KDE) and K-function on network. It also can be used to build spatial matrices (\'listw\' objects like in \'spdep\' package) to conduct any kind of traditional spatial analysis with spatial weights based on reticular distances.
+
+-   [rgdal](https://cran.r-project.org/web/packages/rgdal/), which provides bindings to the [\'Geospatial\' Data Abstraction Library (GDAL) (\>= 1.11.4)](https://gdal.org/) and access to projection/transformation operations from the [PROJ](https://proj.org/) library. In this exercise, rgdal will be used to import geospatial data in R and store as [sp](https://cran.r-project.org/web/packages/sp/vignettes/intro_sp.pdf) objects.
+
+-   [sp](https://cran.r-project.org/web/packages/sp/), which provides classes and methods for dealing with spatial data in R. In this exercise, it will be used to manage SpatialPointsDataFrame and SpatiaLinesDataFrame, and for performing projection transformation.
+
+-   [**tmap**](https://cran.r-project.org/web/packages/tmap/) which provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API.
+
+```{r}
+pacman::p_load(sf, spNetwork, tmap, classInt, virdis, tidyverse)
+```
+
+## 3.0 Importing Data to R Environment
+
+In this study, we will analyse the spatial distribution of childcare centre in [Punggol planning area](https://en.wikipedia.org/wiki/Punggol). For the purpose of this study, two geospatial data sets will be used. They are:
+
+-   *Punggol_St*, a line features geospatial data which store the road network within Punggol Planning Area.
+
+-   *Punggol_CC*, a point feature geospatial data which store the location of childcare centres within Punggol Planning Area.
+
+Both data sets are in ESRI shapefile format.
+
+```{r}
+network <- st_read(dsn="../data/geospatial", 
+                   layer="Punggol_St")
+childcare <- st_read(dsn="../data/geospatial",
+                     layer="Punggol_CC")
+```
+
+Next, we will plot the childcare locations (as points) and road network (as lines) as follows.
+
+```{r}
+tmap_mode('view')
+tm_shape(childcare)+
+  tm_dots(col='orange')+
+  tm_shape(network)+
+  tm_lines()
+tmap_mode('plot')
+```
+
+## 4.0 **Network Constrained KDE (NetKDE) Analysis**
+
+### **4.1 Preparing the lixels objects**
+
+Before computing NetKDE, the SpatialLines object need to be cut into lixels with a specified minimal distance. This task can be performed by using with *lixelize_lines()* of spNetwork as shown in the code chunk below.
+
+![](images/Screenshot 2024-01-22 at 11.18.34 AM.png)
+
+```{r}
+lixels <- lixelize_lines(network, 750, mindist = 375)
+```
+
+### 4.2 Generating Line Centers
+
+Next, we will used `lines_center()` of **spNetwork** to generate a SpatialPointsDataFrame (i.e. samples) with line centre points.
+
+```{r}
+samples <- lines_center(lixels)
+```
+
+### 4.3 Performing NKDE
+
+Once we have obtained all the datasets required, we can perform NKDE by using `nkde()` function of **spNetwork**.
+
+```{r}
+densities <- nkde(network, 
+                  events = childcare,
+                  w = rep(1,nrow(childcare)),
+                  samples = samples,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5,
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+### 4.4 Visualisation
+
+```{r}
+samples$density <- densities
+lixels$density <- densities
+```
+
+Next, we will rescale the density values to help with better mapping results
+
+```{r}
+samples$density <- samples$density*1000
+lixels$density <- lixels$density*1000
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(lixels)+
+  tm_lines(col="density", palette="plasma")+
+tm_shape(childcare)+
+  tm_dots()
+
+tmap_mode('plot')
+```
+
+The interactive map above effectively reveals road segments (darker color) with relatively higher density of childcare centres than road segments with relatively lower density of childcare centres (lighter color)
+
+In practical use, we can use these results to effectively identify areas where new pedestrian roads can be built.
