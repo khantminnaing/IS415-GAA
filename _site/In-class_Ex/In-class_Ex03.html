@@ -197,6 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#geospatial-data-wrangling" id="toc-geospatial-data-wrangling" class="nav-link" data-scroll-target="#geospatial-data-wrangling">4.0 Geospatial Data Wrangling</a>
   <ul class="collapse">
   <li><a href="#assigning-stanadrd-coordinate-systems" id="toc-assigning-stanadrd-coordinate-systems" class="nav-link" data-scroll-target="#assigning-stanadrd-coordinate-systems">4.1. Assigning Stanadrd Coordinate Systems</a></li>
+  <li><a href="#creating-coastal-outline" id="toc-creating-coastal-outline" class="nav-link" data-scroll-target="#creating-coastal-outline">4.2 Creating Coastal Outline</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -295,16 +296,6 @@ Dimension:     XY
 Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
 Projected CRS: SVY21</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sg_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"../data/geospatial"</span>, <span class="at">layer=</span><span class="st">"CostalOutline"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Reading layer `CostalOutline' from data source 
-  `/Users/khantminnaing/IS415-GAA/data/geospatial' using driver `ESRI Shapefile'
-Simple feature collection with 60 features and 4 fields
-Geometry type: POLYGON
-Dimension:     XY
-Bounding box:  xmin: 2663.926 ymin: 16357.98 xmax: 56047.79 ymax: 50244.03
-Projected CRS: SVY21</code></pre>
-</div>
 </div>
 </section>
 </section>
@@ -313,8 +304,18 @@ Projected CRS: SVY21</code></pre>
 <section id="assigning-stanadrd-coordinate-systems" class="level3">
 <h3 class="anchored" data-anchor-id="assigning-stanadrd-coordinate-systems">4.1. Assigning Stanadrd Coordinate Systems</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>childcare_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(childcare_sf, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mpsz_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(mpsz_sf, <span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>childcare_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(childcare_sf, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>mpsz_sf <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(mpsz_sf, <span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-coastal-outline" class="level3">
+<h3 class="anchored" data-anchor-id="creating-coastal-outline">4.2 Creating Coastal Outline</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sg_sf <span class="ot">&lt;-</span> mpsz_sf <span class="sc">%&gt;%</span> <span class="fu">st_union</span>()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="In-class_Ex03_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
 </div>
 
 
