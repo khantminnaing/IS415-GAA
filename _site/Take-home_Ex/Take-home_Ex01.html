@@ -129,11 +129,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
         <li>
     <a class="dropdown-item" href="../In-class_Ex/In-class_Ex03.html" rel="" target="">
- <span class="dropdown-text">In-Class Exercise 02</span></a>
+ <span class="dropdown-text">In-Class Exercise 03</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../In-class_Ex/In-class_Ex03-NKDE.html" rel="" target="">
- <span class="dropdown-text">In-Class Exercise 02</span></a>
+ <span class="dropdown-text">In-Class Exercise 03 NKDE</span></a>
   </li>  
     </ul>
   </li>
@@ -167,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercises">    
         <li>
     <a class="dropdown-item" href="../Take-home_Ex/Take-home_Ex01.html" rel="" target="">
- <span class="dropdown-text">Take-Home Exercise 01: Spatial Point Patterns Analysis of Grab Trajectories in Singapore</span></a>
+ <span class="dropdown-text">Take-home Exercise 1</span></a>
   </li>  
     </ul>
   </li>
@@ -612,7 +612,7 @@ Reflection
 <span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
 <span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="1440"></p>
 </div>
 </div>
 </section>
@@ -1136,7 +1136,7 @@ Reflection
 <p>To build the KDE layer, a localised density is calculated&nbsp;for multiple&nbsp;small subsets of the observation window. However, these subsets overlap throughout each iteration, resulting in a moving&nbsp;window defined by a kernel (Wilkin, 2020; Gimond, 2023).</p>
 <p>Kernel estimation is implemented in <strong>spatstat</strong> by the function <code>density.ppp()</code>, a method for the generic command density.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>))</span>
 <span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>den <span class="ot">&lt;-</span> <span class="fu">density</span>(origin_ppp_sg)</span>
 <span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(den,<span class="at">main =</span> <span class="st">"default density"</span>)</span>
 <span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="fu">contour</span>(den, <span class="at">add=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1211,11 +1211,11 @@ Reflection
 <p>A fixed smoothing bandwidth is unsatisfactory if the true intensity varies greatly across the spatial domain, because it is likely to cause over-smoothing in the high-intensity areas and under-smoothing in the low intensity areas (Baddeley et al., 2015)</p>
 <p>The fixed bandwidth method is very sensitive to highly skewed distribution of spatial point patterns over geographical units.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>kde_origin <span class="ot">&lt;-</span> <span class="fu">adaptive.density</span>(origin_ppp_sg, <span class="at">method =</span> <span class="st">"kernel"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>kde_origin_adaptive <span class="ot">&lt;-</span> <span class="fu">adaptive.density</span>(origin_ppp_sg, <span class="at">method =</span> <span class="st">"kernel"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_origin,<span class="at">main =</span> <span class="st">"adapative density"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_origin_adaptive,<span class="at">main =</span> <span class="st">"adapative density"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid" width="672"></p>
 </div>

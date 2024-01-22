@@ -281,6 +281,7 @@ unique(sg_road_sf$fclass)
 ```
 
 ```{r}
+#| fig-width: 15
 tm_shape(sg_sf) +
   tm_polygons() +
 tm_shape(sg_road_sf) +
@@ -581,7 +582,7 @@ To build the KDE layer, a localised density is calculated for multiple small s
 Kernel estimation is implemented in **spatstat** by the function `density.ppp()`, a method for the generic command density.
 
 ```{r}
-par(mar = c(0,0,1,0))
+par(mar = c(0,1,1,1))
 den <- density(origin_ppp_sg)
 plot(den,main = "default density")
 contour(den, add=TRUE)
@@ -640,12 +641,12 @@ A fixed smoothing bandwidth is unsatisfactory if the true intensity varies great
 The fixed bandwidth method is very sensitive to highly skewed distribution of spatial point patterns over geographical units.
 
 ```{r}
-kde_origin <- adaptive.density(origin_ppp_sg, method = "kernel")
+kde_origin_adaptive <- adaptive.density(origin_ppp_sg, method = "kernel")
 ```
 
 ```{r}
-par(mar = c(0,0,1,0))
-plot(kde_origin,main = "adapative density")
+par(mar = c(0,1,1,1))
+plot(kde_origin_adaptive,main = "adapative density")
 ```
 
 ### 7.4 Rescaling KDE Values
