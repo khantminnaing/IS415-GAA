@@ -1,5 +1,5 @@
 ---
-title: "In-Class Exercise 02"
+title: "In-Class Exercise 03 NKDE"
 description: |
  R for Geospatial Data Science
 author:

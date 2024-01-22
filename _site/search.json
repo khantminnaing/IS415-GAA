@@ -212,56 +212,56 @@
   {
     "objectID": "In-class_Ex/In-class_Ex03-NKDE.html",
     "href": "In-class_Ex/In-class_Ex03-NKDE.html",
-    "title": "In-Class Exercise 02",
+    "title": "In-Class Exercise 03 NKDE",
     "section": "",
     "text": "Network constrained Spatial Point Patterns Analysis (NetSPAA) is a collection of spatial point patterns analysis methods special developed for analysing spatial point event occurs on or alongside network. The spatial point event can be locations of traffic accident or childcare centre for example. The network, on the other hand can be a road network or river network.\nIn this hands-on exercise, you are going to gain hands-on experience on using appropriate functions of spNetwork package:\n\nto derive network constrained kernel density estimation (NetKDE), and\nto perform network G-function and k-function analysis"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex03-NKDE.html#overview",
     "href": "In-class_Ex/In-class_Ex03-NKDE.html#overview",
-    "title": "In-Class Exercise 02",
+    "title": "In-Class Exercise 03 NKDE",
     "section": "",
     "text": "Network constrained Spatial Point Patterns Analysis (NetSPAA) is a collection of spatial point patterns analysis methods special developed for analysing spatial point event occurs on or alongside network. The spatial point event can be locations of traffic accident or childcare centre for example. The network, on the other hand can be a road network or river network.\nIn this hands-on exercise, you are going to gain hands-on experience on using appropriate functions of spNetwork package:\n\nto derive network constrained kernel density estimation (NetKDE), and\nto perform network G-function and k-function analysis"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex03-NKDE.html#installing-and-launching-the-r-package",
     "href": "In-class_Ex/In-class_Ex03-NKDE.html#installing-and-launching-the-r-package",
-    "title": "In-Class Exercise 02",
+    "title": "In-Class Exercise 03 NKDE",
     "section": "2.0 Installing and launching the R package",
     "text": "2.0 Installing and launching the R package\nIn this hands-on exercise, four R packages will be used, they are:\n\nspNetwork, which provides functions to perform Spatial Point Patterns Analysis such as kernel density estimation (KDE) and K-function on network. It also can be used to build spatial matrices (‘listw’ objects like in ‘spdep’ package) to conduct any kind of traditional spatial analysis with spatial weights based on reticular distances.\nrgdal, which provides bindings to the ‘Geospatial’ Data Abstraction Library (GDAL) (&gt;= 1.11.4) and access to projection/transformation operations from the PROJ library. In this exercise, rgdal will be used to import geospatial data in R and store as sp objects.\nsp, which provides classes and methods for dealing with spatial data in R. In this exercise, it will be used to manage SpatialPointsDataFrame and SpatiaLinesDataFrame, and for performing projection transformation.\ntmap which provides functions for plotting cartographic quality static point patterns maps or interactive maps by using leaflet API.\n\n\npacman::p_load(sf, spNetwork, tmap, classInt, virdis, tidyverse)"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex03-NKDE.html#importing-data-to-r-environment",
     "href": "In-class_Ex/In-class_Ex03-NKDE.html#importing-data-to-r-environment",
-    "title": "In-Class Exercise 02",
+    "title": "In-Class Exercise 03 NKDE",
     "section": "3.0 Importing Data to R Environment",
     "text": "3.0 Importing Data to R Environment\nIn this study, we will analyse the spatial distribution of childcare centre in Punggol planning area. For the purpose of this study, two geospatial data sets will be used. They are:\n\nPunggol_St, a line features geospatial data which store the road network within Punggol Planning Area.\nPunggol_CC, a point feature geospatial data which store the location of childcare centres within Punggol Planning Area.\n\nBoth data sets are in ESRI shapefile format.\n\nnetwork &lt;- st_read(dsn=\"../data/geospatial\", \n                   layer=\"Punggol_St\")\n\nReading layer `Punggol_St' from data source \n  `/Users/khantminnaing/IS415-GAA/data/geospatial' using driver `ESRI Shapefile'\nSimple feature collection with 2642 features and 2 fields\nGeometry type: LINESTRING\nDimension:     XY\nBounding box:  xmin: 34038.56 ymin: 40941.11 xmax: 38882.85 ymax: 44801.27\nProjected CRS: SVY21 / Singapore TM\n\nchildcare &lt;- st_read(dsn=\"../data/geospatial\",\n                     layer=\"Punggol_CC\")\n\nReading layer `Punggol_CC' from data source \n  `/Users/khantminnaing/IS415-GAA/data/geospatial' using driver `ESRI Shapefile'\nSimple feature collection with 61 features and 1 field\nGeometry type: POINT\nDimension:     XYZ\nBounding box:  xmin: 34423.98 ymin: 41503.6 xmax: 37619.47 ymax: 44685.77\nz_range:       zmin: 0 zmax: 0\nProjected CRS: SVY21 / Singapore TM\n\n\nNext, we will plot the childcare locations (as points) and road network (as lines) as follows.\n\ntmap_mode('view')\ntm_shape(childcare)+\n  tm_dots(col='orange')+\n  tm_shape(network)+\n  tm_lines()\n\n\n\n\n\ntmap_mode('plot')"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex03-NKDE.html#network-constrained-kde-netkde-analysis",
     "href": "In-class_Ex/In-class_Ex03-NKDE.html#network-constrained-kde-netkde-analysis",
-    "title": "In-Class Exercise 02",
+    "title": "In-Class Exercise 03 NKDE",
     "section": "4.0 Network Constrained KDE (NetKDE) Analysis",
     "text": "4.0 Network Constrained KDE (NetKDE) Analysis\n\n4.1 Preparing the lixels objects\nBefore computing NetKDE, the SpatialLines object need to be cut into lixels with a specified minimal distance. This task can be performed by using with lixelize_lines() of spNetwork as shown in the code chunk below.\n\n\nlixels &lt;- lixelize_lines(network, 750, mindist = 375)\n\n\n\n4.2 Generating Line Centers\nNext, we will used lines_center() of spNetwork to generate a SpatialPointsDataFrame (i.e. samples) with line centre points.\n\nsamples &lt;- lines_center(lixels)\n\n\n\n4.3 Performing NKDE\nOnce we have obtained all the datasets required, we can perform NKDE by using nkde() function of spNetwork.\n\ndensities &lt;- nkde(network, \n                  events = childcare,\n                  w = rep(1,nrow(childcare)),\n                  samples = samples,\n                  kernel_name = \"quartic\",\n                  bw = 300, \n                  div= \"bw\", \n                  method = \"simple\", \n                  digits = 1, \n                  tol = 1,\n                  grid_shape = c(1,1), \n                  max_depth = 8,\n                  agg = 5,\n                  sparse = TRUE,\n                  verbose = FALSE)\n\n\n\n4.4 Visualisation\n\nsamples$density &lt;- densities\nlixels$density &lt;- densities\n\nNext, we will rescale the density values to help with better mapping results\n\nsamples$density &lt;- samples$density*1000\nlixels$density &lt;- lixels$density*1000\n\n\ntmap_mode('view')\ntm_shape(lixels)+\n  tm_lines(col=\"density\", palette=\"plasma\")+\ntm_shape(childcare)+\n  tm_dots()\n\n\n\n\n\ntmap_mode('plot')\n\nThe interactive map above effectively reveals road segments (darker color) with relatively higher density of childcare centres than road segments with relatively lower density of childcare centres (lighter color)\nIn practical use, we can use these results to effectively identify areas where new pedestrian roads can be built."
   },
   {
     "objectID": "In-class_Ex/In-class_Ex03.html",
     "href": "In-class_Ex/In-class_Ex03.html",
-    "title": "In-Class Exercise 02",
+    "title": "In-Class Exercise 03",
     "section": "",
     "text": "pacman::p_load(arrow,lubridate,tidyverse,tmap,sf)\n\n\ninstall.packages(\"maptools\", repos = \"https://packagemanager.posit.co/cran/2023-10-13\")"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex03.html#importing-datasets-to-r-environment",
     "href": "In-class_Ex/In-class_Ex03.html#importing-datasets-to-r-environment",
-    "title": "In-Class Exercise 02",
+    "title": "In-Class Exercise 03",
     "section": "3.0 Importing Datasets to R Environment",
     "text": "3.0 Importing Datasets to R Environment\nIn this exercise, we will use the following datasets:\n\nCHILDCARE, a point feature data providing both location and attribute information of childcare centres. It was downloaded from Data.gov.sg and is in geojson format.\nMP14_SUBZONE_WEB_PL, a polygon feature data providing information of URA 2014 Master Plan Planning Subzone boundary data. It is in ESRI shapefile format. This data set was also downloaded from Data.gov.sg.\nCostalOutline, a polygon feature data showing the national boundary of Singapore. It is provided by SLA and is in ESRI shapefile format.\n\n\n3.1 Importing Geospatial Data\nIn this section, st_read() of sf package will be used to import the three geospatial data sets mentioned in previous section into R environment.\n\nchildcare_sf &lt;- st_read(\"../data/aspatial/child-care-services-geojson.geojson\")\n\nReading layer `child-care-services-geojson' from data source \n  `/Users/khantminnaing/IS415-GAA/data/aspatial/child-care-services-geojson.geojson' \n  using driver `GeoJSON'\nSimple feature collection with 1925 features and 2 fields\nGeometry type: POINT\nDimension:     XYZ\nBounding box:  xmin: 103.6878 ymin: 1.247759 xmax: 103.9897 ymax: 1.462134\nz_range:       zmin: 0 zmax: 0\nGeodetic CRS:  WGS 84\n\nmpsz_sf &lt;- st_read(dsn = \"../data/geospatial\", \n                layer = \"MP14_SUBZONE_WEB_PL\")\n\nReading layer `MP14_SUBZONE_WEB_PL' from data source \n  `/Users/khantminnaing/IS415-GAA/data/geospatial' using driver `ESRI Shapefile'\nSimple feature collection with 323 features and 15 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33\nProjected CRS: SVY21"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex03.html#geospatial-data-wrangling",
     "href": "In-class_Ex/In-class_Ex03.html#geospatial-data-wrangling",
-    "title": "In-Class Exercise 02",
+    "title": "In-Class Exercise 03",
     "section": "4.0 Geospatial Data Wrangling",
     "text": "4.0 Geospatial Data Wrangling\n\n4.1. Assigning Stanadrd Coordinate Systems\n\nchildcare_sf &lt;- st_transform(childcare_sf, crs = 3414)\nmpsz_sf &lt;- st_transform(mpsz_sf, crs = 3414)\n\n\n\n4.2 Creating Coastal Outline\n\nsg_sf &lt;- mpsz_sf %&gt;% st_union()\nplot(sg_sf)"
   },
