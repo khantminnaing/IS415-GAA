@@ -746,17 +746,19 @@ plot(kde_origin_adaptive,main = "adapative density")
 
 ```{r}
 raster_kde_scott <- raster(kde_scott)
+raster_kde_adaptive <- raster(kde_origin_adaptive)
 raster_kde_scott
 ```
 
 ```{r}
 projection(raster_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
-raster_kde_scott
+projection(raster_kde_adaptive) <- CRS("+init=EPSG:3414 +units=km")
 ```
 
 ```{r}
 tmap_mode('view')
-tm_basemap(server = "OpenStreetMap") +
+tm_basemap(server = "Stadia.OSMBright") +
+  tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_scott) +
   tm_raster("layer",
             n = 5,
@@ -764,12 +766,25 @@ tm_basemap(server = "OpenStreetMap") +
             alpha = 0.6,
             palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
   tm_shape(mpsz_sf)+
-  tm_polygons(alpha=0.3,id="PLN_AREA_N")+
+  tm_polygons(alpha=0.1,id="PLN_AREA_N")+
   tmap_options(check.and.fix = TRUE)
 ```
 
 ```{r}
 
+tmap_mode('view')
+tm_basemap(server = "Stadia.OSMBright") +
+  tm_basemap(server = "Esri.WorldImagery") +
+  tm_shape(raster_kde_adaptive) +
+  tm_raster("layer",
+            n = 5,
+            title = "KDE_Adaptive",
+            style = "pretty",
+            alpha = 0.6,
+            palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
+  tm_shape(mpsz_sf)+
+  tm_polygons(alpha=0.1,id="PLN_AREA_N")+
+  tmap_options(check.and.fix = TRUE)
 ```
 
 ```{r}
