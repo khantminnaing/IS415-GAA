@@ -281,7 +281,7 @@ unique(sg_road_sf$fclass)
 ```
 
 ```{r}
-#| fig-width: 20
+#| fig-width: 10
 tm_shape(sg_sf) +
   tm_polygons() +
 tm_shape(sg_road_sf) +
