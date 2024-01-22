@@ -739,10 +739,8 @@ kde_origin_adaptive <- adaptive.density(origin_ppp_sg.km, method = "kernel")
 
 ```{r}
 par(mar = c(0,1,1,1))
-plot(kde_origin_adaptive,main = "adapative density")
+plot(kde_origin_adaptive,main = "adapative kernel density")
 ```
-
-![](images/kerneltypes.png)
 
 ```{r}
 raster_kde_scott <- raster(kde_scott)
@@ -773,7 +771,7 @@ tm_basemap(server = "OpenStreetMap.HOT") +
 ```{r}
 
 tmap_mode('view')
-tm_basemap(server = "OpenStreetMap") +
+tm_basemap(server = "Esri.WorldImagery") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_adaptive) +
   tm_raster("layer",
@@ -799,7 +797,7 @@ je = mpsz_sf %>% filter(PLN_AREA_N == "JURONG EAST")
 jw = mpsz_sf %>% filter(PLN_AREA_N == "JURONG WEST")
 tp = mpsz_sf %>% filter(PLN_AREA_N == "TAMPINES")
 
-par(mar = c(1,0,2,0),mfrow=c(2,2))
+par(mar = c(1,1,2,0),mfrow=c(2,2))
 plot(st_geometry(wl), main = "Punggol")
 plot(st_geometry(je), main = "Jurong East")
 plot(st_geometry(jw), main = "Jurong West")
@@ -812,23 +810,56 @@ je_owin = as.owin(je)
 jw_owin = as.owin(jw)
 tp_owin = as.owin(tp)
 
-destination_wl_ppp = destination_ppp_sg.km[wl_owin]
-destination_je_ppp = destination_ppp_sg.km[je_owin]
-destination_jw_ppp = destination_ppp_sg.km[jw_owin]
-destination_tp_ppp = destination_ppp_sg.km[tp_owin]
+destination_wl_ppp = destination_ppp_sg[wl_owin]
+destination_je_ppp = destination_ppp_sg[je_owin]
+destination_jw_ppp = destination_ppp_sg[jw_owin]
+destination_tp_ppp = destination_ppp_sg[tp_owin]
 ```
 
 ```{r}
-wl_kde_scott <- density(destination_wl_ppp, sigma=0.01, main="Woodlands")
-je_kde_scott <- density(destination_je_ppp, sigma=0.01, main="Jurong East")
-jw_kde_scott <- density(destination_jw_ppp, sigma=0.01, main="Jurong West")
-tp_kde_scott <- density(destination_tp_ppp, sigma=0.01, main="Tampines")
+wl_kde_scott <- density(destination_wl_ppp, sigma=bw.scott, main="Woodlands")
+je_kde_scott <- density(destination_je_ppp, sigma=bw.scott, main="Jurong East")
+jw_kde_scott <- density(destination_jw_ppp, sigma=bw.scott, main="Jurong West")
+tp_kde_scott <- density(destination_tp_ppp, sigma=bw.scott, main="Tampines")
 
 par(mar = c(1,1,1,1.5),mfrow = c(2,2))
+
 plot(wl_kde_scott,main = "KDE Woodlands")
+contour(wl_kde_scott, add=TRUE)
 plot(je_kde_scott,main = "KDE Jurong East")
+contour(je_kde_scott, add=TRUE)
 plot(jw_kde_scott,main = "KDE Jurong West")
+contour(jw_kde_scott, add=TRUE)
 plot(tp_kde_scott,main = "KDE Tampines")
+contour(tp_kde_scott, add=TRUE)
+```
+
+### 7.0 Nearest Neighbour Analysis
+
+In this section, we will perform the Clark-Evans test of aggregation for a spatial point pattern by using [*clarkevans.test()*](https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test) of **statspat**.
+
+The test hypotheses are:
+
+-   H~0~ = The distribution of trajectory original points are randomly distributed.
+
+-   H~1~= The distribution of trajectory original points are not randomly distributed.
+
+The 95% confident interval will be used.
+
+```{r}
+clarkevans.test(origin_ppp_sg,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"),
+                nsim=99)
+```
+
+```{r}
+clarkevans.test(destination_ppp_sg,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"),
+                nsim=99)
 ```
 
 ## 8.0 Network Constrained Kernel Density Estimation (NKDE)
@@ -836,9 +867,7 @@ plot(tp_kde_scott,main = "KDE Tampines")
 Many real world point event are not randomly distributed. Their distribution, on the other hand, are constrained by network such as roads, rivers, and fault lines just to name a few of them.
 
 ```{r}
-#| eval: false
-pacman::p_load(dodgr)
-sg_network <- weight_streetnet(dodgr_streetnet("singapore"))
+
 ```
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
