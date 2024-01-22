@@ -29,7 +29,7 @@ output:
 
 ## 1.0 Overview
 
-In this exercise, we will
+In this exercise, we will explore how to process and wrangle Grab Posisi dataset.
 
 ## 2.0 Importing Packages
 
@@ -66,8 +66,8 @@ Each trajectory in Grab-Posisi dataset is serialised in a file in Apache Parquet
 -   Firstly, we will use `read_parquet` function from `arrow` package
 
 ```{r}
-df <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00000-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet')
-df_1 <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00001-8bbff892-97d2-4011-9961-703e38972569.c000.snappy.parquet')
+df <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00000.snappy.parquet')
+df_1 <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00001.snappy.parquet')
 ```
 
 -   Next, we will use `head()` function to quickly scan through the data columns and values.
@@ -157,5 +157,15 @@ write_rds(destination_df, "../data/rds/destination_df.rds")
 ```{r}
 #| eval: false
 origin_df <- read_rds("../data/rds/origin_df.rds")
-destination_df <- read_rds("../IS415-GAA/data/rds/destination_df.rds")
+destination_df <- read_rds("../data/rds/destination_df.rds")
+```
+
+### **Visualising as Point Symbol Map**
+
+In the code chunk below, tmap functions are used to plot a point symbol map by using the origin trips locations.
+
+```{r}
+tmap_mode("plot")
+tm_shape(origin_sf) +
+  tm_dots()
 ```
