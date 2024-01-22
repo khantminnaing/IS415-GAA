@@ -60,7 +60,7 @@ Before we start the exercise, we will need to import necessary R packages first.
 -   **maptools**, **ggplot2**, **ggthemes**, **plotly**: Packages used to plot interactive visualisations summary statistics and KDE layers
 
 ```{r}
-pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat,patchwork)
+pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat,patchwork,raster)
 ```
 
 ## 4.0 Importing Datasets into R Environment
@@ -282,6 +282,8 @@ unique(sg_road_sf$fclass)
 
 ```{r}
 #| fig-width: 10
+#| eval: false
+
 tm_shape(sg_sf) +
   tm_polygons() +
 tm_shape(sg_road_sf) +
@@ -573,7 +575,16 @@ After data wrangling is complete, we will start to perform first-order spatial p
 
 Investigation of the intensity of a point pattern is one of the first and most important steps in point pattern analysis (Baddeley et al., 2015). If the point process has an intensity function λ(u), this function can be estimated non-parametrically by kernel estimation (Baddeley et al., 2015). Kernel estimation allows for smoothing of the probability density estimation of a random variable (in this analysis a point event) based on kernels as weights.
 
-### 7.1 Kernel Density Estimation
+### 7.1 Rescaling origin_ppp_sg and destination_ppp_sg
+
+The SVY21 Coordinate References System uses meters as the standard unit. Hence, the `original_ppp_sg` and `destination_ppp_sg` that we have prepared in the previous sections has "metres" as the unit. However, we will need to convert the measuring unit from metre to kilometeres when calculating the kernel density estimators for entirety of Singapore because kilometers provide a more appropriate scale for analyzing large areas.
+
+```{r}
+origin_ppp_sg.km <- rescale(origin_ppp_sg, 1000, "km")
+destination_ppp_sg.km <- rescale(destination_ppp_sg, 1000, "km")
+```
+
+### 7.2 Computing Kernel Density Estimation
 
 Kernel Destiny Estimation (KDE) generates a surface (raster) representing the estimated distribution of point events over the observation window. Each cell in the KDE layer carries a value representing the estimated density of that location (Wilkin, 2020). Hence, this approach is also known as local density approach.
 
@@ -583,9 +594,16 @@ Kernel estimation is implemented in **spatstat** by the function `density.ppp()`
 
 ```{r}
 par(mar = c(0,1,1,1))
-den <- density(origin_ppp_sg)
-plot(den,main = "default density")
-contour(den, add=TRUE)
+kde_default_origin <- density(origin_ppp_sg.km)
+plot(kde_default_origin,main = "Default Density KDE for Origin Points")
+contour(kde_default_origin, add=TRUE)
+```
+
+```{r}
+par(mar = c(0,1,1,1))
+kde_default_destination <- density(destination_ppp_sg.km)
+plot(kde_default_destination,main = "Default Density KDE for Destination Points")
+contour(kde_default_destination, add=TRUE)
 ```
 
 However, the KDE given by default argument may not be what we aim to achieve. In this regards, we can specify smoothing bandwidth through the argument `sigma` or kernel function through the argument `kernel`.
@@ -600,48 +618,123 @@ The kernel bandwidth `sigma` controls the degree of smoothing. In general, a sma
 
 `density()` function of **spatstat** allows us to compute a kernel density for a given set of point events.
 
--   [`bw.diggle()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.diggle.html) (Cross Validated)
+-   [`bw.diggle()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.diggle.html) (Cross Validated) assumes a Cox process, which is more clustered (positively correlated) than a Poisson process;
 
 -   [`bw.CvL()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.CvL.adaptive.html) (Cronie and van Lieshout's Criterion)
 
--   [`bw.scott()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/bw.scott) (Scott's Rule)
+-   [`bw.scott()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/bw.scott) (Scott's Rule of Thumb)
 
--   [`bw.ppl()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.pplHeat.html) (Likelihood Cross Validation)can also be used.
+-   [`bw.ppl()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.pplHeat.html) (Likelihood Cross Validation) assumes an inhomogeneous Poisson process
 
 ```{r}
-bw_diggle <- bw.diggle(origin_ppp_sg)
+bw_diggle <- bw.diggle(origin_ppp_sg.km)
 bw_diggle
 
-bw_CvL <- bw.CvL(origin_ppp_sg)
+bw_CvL <- bw.CvL(origin_ppp_sg.km)
 bw_CvL
 
-bw_scott <- bw.scott(origin_ppp_sg)
+bw_scott <- bw.scott(origin_ppp_sg.km)
 bw_scott
 
-bw_ppl <- bw.ppl(origin_ppp_sg)
+bw_ppl <- bw.ppl(origin_ppp_sg.km)
 bw_ppl
+
+bw_frac <- bw.frac(sg_owin)
+bw_frac
 ```
 
 The commands used for generating bandwidth return a numerical value, the optimised bandwidth, which also belongs to the special class `bw.optim`. The plot method for this class shows the objective function for the optimisation that leads to the result.
 
 ```{r}
 par(mfrow = c(1,2))
-plot(bw_diggle, xlim=c(0,40), ylim=c(-70,200))
+plot(bw_diggle, xlim=c(-0.02,0.05), ylim=c(-60,200))
 plot(bw_CvL)
 
 par(mfrow = c(1,2))
 plot(bw_scott)
-plot(bw_ppl, xlim=c(-1000,6000), ylim=c(-320000,-260000))
+plot(bw_ppl,  xlim=c(-1,5), ylim=c(70000,130000))
 ```
 
-#### 7.2.2 Adaptive Bandwidth
+```{r}
+kde_diggle <- density(origin_ppp_sg.km, bw_diggle)
+kde_CvL <- density(origin_ppp_sg.km, bw_CvL)
+kde_scott <- density(origin_ppp_sg.km, bw_scott)
+kde_ppl <- density(origin_ppp_sg.km, bw_ppl)
+
+par(mar = c(1,1,1,1.5),mfrow = c(2,2))
+plot(kde_diggle,main = "kde_diggle")
+plot(kde_CvL,main = "kde_CvL")
+plot(kde_scott,main = "kde_scott")
+plot(kde_ppl,main = "kde_ppl")
+```
+
+```{r}
+names(kde_diggle)
+```
+
+```{r}
+par(mar = c(1,1,1,1.5),mfrow = c(2,2))
+hist(kde_diggle,main = "kde_diggle")
+hist(kde_CvL,main = "kde_CvL")
+hist(kde_scott,main = "kde_scott")
+hist(kde_ppl,main = "kde_ppl")
+
+```
+
+**`$SE`** is used to extract the standard error of the density estimate from the output of the **`density()`** function
+
+```{r}
+dse_diggle <- density(origin_ppp_sg.km, bw_diggle, se=TRUE)$SE
+dse_CvL <- density(origin_ppp_sg.km, bw_CvL, se=TRUE)$SE
+dse_scott <- density(origin_ppp_sg.km, bw_scott, se=TRUE)$SE
+dse_ppl <- density(origin_ppp_sg.km, bw_ppl, se=TRUE)$SE
+```
+
+```{r}
+par(mar = c(1,1,1,1.5),mfrow = c(2,2))
+plot(dse_diggle,main = "standard deviation_diggle")
+plot(dse_CvL,main = "standard deviation_CvL")
+plot(dse_scott,main = "standard deviation_scott")
+plot(dse_ppl,main = "standard deviation_ppl")
+```
+
+```{r}
+par(mar = c(0,1,1,1))
+kde_scott <- density(origin_ppp_sg.km, bw_scott)
+plot(kde_scott,main = "bw_scott KDE for Origin Points")
+contour(kde_scott, add=TRUE)
+
+kde_scott_dse <- density(origin_ppp_sg.km, bw_scott, se=TRUE)$SE
+plot(kde_scott_dse,main = "Standard Deviation")
+contour(kde_scott_dse, add=TRUE)
+```
+
+Not very smooth, rounded the value to nearest full number.
+
+```{r}
+par(mar = c(0,1,1,1))
+kde_2km <- density(origin_ppp_sg.km, sigma=2)
+plot(kde_2km,main = "2-km Bandwidth KDE for Origin Points")
+contour(kde_2km, add=TRUE)
+
+kde_2km_dse <- density(origin_ppp_sg.km, sigma=2, se=TRUE)$SE
+plot(kde_2km_dse,main = "Standard Deviation")
+contour(kde_2km_dse, add=TRUE)
+```
+
+```{r}
+hist(kde_2km,main = "kde_2km")
+
+```
+
+#### 7.2.2 Spatially Adaptive Bandwidth
 
 A fixed smoothing bandwidth is unsatisfactory if the true intensity varies greatly across the spatial domain, because it is likely to cause over-smoothing in the high-intensity areas and under-smoothing in the low intensity areas (Baddeley et al., 2015)
 
 The fixed bandwidth method is very sensitive to highly skewed distribution of spatial point patterns over geographical units.
 
 ```{r}
-kde_origin_adaptive <- adaptive.density(origin_ppp_sg, method = "kernel")
+kde_origin_adaptive <- adaptive.density(origin_ppp_sg.km, method = "kernel")
 ```
 
 ```{r}
@@ -649,14 +742,79 @@ par(mar = c(0,1,1,1))
 plot(kde_origin_adaptive,main = "adapative density")
 ```
 
-### 7.4 Rescaling KDE Values
+![](images/kerneltypes.png)
 
 ```{r}
-origin_ppp_sg.km <- rescale(origin_ppp_sg, 1000, "km")
-destination_ppp_sg.km <- rescale(destination_ppp_sg, 1000, "km")
+raster_kde_scott <- raster(kde_scott)
+raster_kde_scott
 ```
 
-![](images/kerneltypes.png)
+```{r}
+projection(raster_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
+raster_kde_scott
+```
+
+```{r}
+tmap_mode('view')
+tm_basemap(server = "OpenStreetMap") +
+  tm_shape(raster_kde_scott) +
+  tm_raster("layer",
+            n = 5,
+            title = "KDE_scott",
+            alpha = 0.6,
+            palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
+  tm_shape(mpsz_sf)+
+  tm_polygons(alpha=0.3,id="PLN_AREA_N")+
+  tmap_options(check.and.fix = TRUE)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+### 7.4 Planning Area-Level Kernel Density Estimation
+
+```{r}
+wl= mpsz_sf %>% filter(PLN_AREA_N == "WOODLANDS")
+je = mpsz_sf %>% filter(PLN_AREA_N == "JURONG EAST")
+jw = mpsz_sf %>% filter(PLN_AREA_N == "JURONG WEST")
+tp = mpsz_sf %>% filter(PLN_AREA_N == "TAMPINES")
+
+par(mar = c(1,0,2,0),mfrow=c(2,2))
+plot(st_geometry(wl), main = "Punggol")
+plot(st_geometry(je), main = "Jurong East")
+plot(st_geometry(jw), main = "Jurong West")
+plot(st_geometry(tp), main = "Tampines")
+```
+
+```{r}
+wl_owin = as.owin(wl)
+je_owin = as.owin(je)
+jw_owin = as.owin(jw)
+tp_owin = as.owin(tp)
+
+destination_wl_ppp = destination_ppp_sg.km[wl_owin]
+destination_je_ppp = destination_ppp_sg.km[je_owin]
+destination_jw_ppp = destination_ppp_sg.km[jw_owin]
+destination_tp_ppp = destination_ppp_sg.km[tp_owin]
+```
+
+```{r}
+wl_kde_scott <- density(destination_wl_ppp, sigma=0.01, main="Woodlands")
+je_kde_scott <- density(destination_je_ppp, sigma=0.01, main="Jurong East")
+jw_kde_scott <- density(destination_jw_ppp, sigma=0.01, main="Jurong West")
+tp_kde_scott <- density(destination_tp_ppp, sigma=0.01, main="Tampines")
+
+par(mar = c(1,1,1,1.5),mfrow = c(2,2))
+plot(wl_kde_scott,main = "KDE Woodlands")
+plot(je_kde_scott,main = "KDE Jurong East")
+plot(jw_kde_scott,main = "KDE Jurong West")
+plot(tp_kde_scott,main = "KDE Tampines")
+```
 
 ## 8.0 Network Constrained Kernel Density Estimation (NKDE)
 
