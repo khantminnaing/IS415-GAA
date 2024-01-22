@@ -757,7 +757,7 @@ projection(raster_kde_adaptive) <- CRS("+init=EPSG:3414 +units=km")
 
 ```{r}
 tmap_mode('view')
-tm_basemap(server = "Stadia.OSMBright") +
+tm_basemap(server = "OpenStreetMap.HOT") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_scott) +
   tm_raster("layer",
@@ -773,7 +773,7 @@ tm_basemap(server = "Stadia.OSMBright") +
 ```{r}
 
 tmap_mode('view')
-tm_basemap(server = "Stadia.OSMBright") +
+tm_basemap(server = "OpenStreetMap") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_adaptive) +
   tm_raster("layer",
