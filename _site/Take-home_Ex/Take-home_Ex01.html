@@ -266,6 +266,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#first-order-spatial-point-patterns-analysis" id="toc-first-order-spatial-point-patterns-analysis" class="nav-link" data-scroll-target="#first-order-spatial-point-patterns-analysis">7.0 First-Order Spatial Point Patterns Analysis</a>
   <ul class="collapse">
   <li><a href="#kernel-density-estimation" id="toc-kernel-density-estimation" class="nav-link" data-scroll-target="#kernel-density-estimation">7.1 Kernel Density Estimation</a></li>
+  <li><a href="#bandwidth-selection" id="toc-bandwidth-selection" class="nav-link" data-scroll-target="#bandwidth-selection">7.2 Bandwidth Selection</a></li>
+  <li><a href="#rescaling-kde-values" id="toc-rescaling-kde-values" class="nav-link" data-scroll-target="#rescaling-kde-values">7.4 <strong>Rescaling KDE Values</strong></a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -419,51 +421,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>osm_road_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"~/IS415-GAA/data/geospatial"</span>, </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"gis_osm_roads_free_1"</span>) <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Reading layer `gis_osm_roads_free_1' from data source 
-  `/Users/khantminnaing/IS415-GAA/data/geospatial' using driver `ESRI Shapefile'
-Simple feature collection with 1764130 features and 10 fields
-Geometry type: LINESTRING
-Dimension:     XY
-Bounding box:  xmin: 99.66041 ymin: 0.8021131 xmax: 119.2601 ymax: 7.514393
-Geodetic CRS:  WGS 84</code></pre>
 </div>
-</div>
-<p>After importing the dataset, we will have a quick look at summary of <code>osm_road_sf</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(osm_road_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>    osm_id               code         fclass              name          
- Length:1764130     Min.   :5111   Length:1764130     Length:1764130    
- Class :character   1st Qu.:5122   Class :character   Class :character  
- Mode  :character   Median :5141   Mode  :character   Mode  :character  
-                    Mean   :5132                                        
-                    3rd Qu.:5141                                        
-                    Max.   :5199                                        
-     ref               oneway             maxspeed           layer        
- Length:1764130     Length:1764130     Min.   :  0.000   Min.   :-5.0000  
- Class :character   Class :character   1st Qu.:  0.000   1st Qu.: 0.0000  
- Mode  :character   Mode  :character   Median :  0.000   Median : 0.0000  
-                                       Mean   :  3.146   Mean   : 0.0299  
-                                       3rd Qu.:  0.000   3rd Qu.: 0.0000  
-                                       Max.   :110.000   Max.   : 5.0000  
-    bridge             tunnel                   geometry      
- Length:1764130     Length:1764130     LINESTRING   :1764130  
- Class :character   Class :character   epsg:3414    :      0  
- Mode  :character   Mode  :character   +proj=tmer...:      0  
-                                                              
-                                                              
-                                                              </code></pre>
-</div>
-</div>
-<p>From the code output, we observed that there are a total of <strong>1764130 observations</strong>. This is due to the fact that OpenStreetMap package we downloaded include data for not only Singapore, but also Malaysia and Brunei.</p>
 </section>
 <section id="importing-singapore-master-plan-planning-subzone-boundary-data" class="level3">
 <h3 class="anchored" data-anchor-id="importing-singapore-master-plan-planning-subzone-boundary-data">4.4 Importing Singapore Master Plan Planning Subzone boundary data</h3>
 <p>The <code>MP14_SUBZONE_WEB_PL</code> dataset, which we downloaded from <a href="data.gov.sg">data.gov.sg</a>, is in ESRI shapefile format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the <strong><code>st_read()</code></strong> function of the <strong><code>sf</code></strong> package. This function reads the shapefile data and returns an <strong><code>sf</code></strong> object that can be used for further analysis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>mpsz_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"~/IS415-GAA/data/geospatial"</span>, </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"MP14_SUBZONE_WEB_PL"</span>) <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mpsz_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"~/IS415-GAA/data/geospatial"</span>, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"MP14_SUBZONE_WEB_PL"</span>) <span class="sc">%&gt;%</span> <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `MP14_SUBZONE_WEB_PL' from data source 
   `/Users/khantminnaing/IS415-GAA/data/geospatial' using driver `ESRI Shapefile'
@@ -489,7 +454,7 @@ Reflection
 </div>
 <p>After importing the dataset, we will plot it to see how it looks. The <strong><code>plot()</code></strong> function is used to plot the geometry of the <strong><code>sf</code></strong> object. The <strong><code>st_geometry()</code></strong> function is used to extract the geometry of the <strong><code>mpsz_sf</code></strong> object.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(mpsz_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(mpsz_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -508,30 +473,30 @@ Reflection
 <li><p><code>mday</code>: allows us to parse dates with year, month, and day components</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>origin_df <span class="ot">&lt;-</span> df_trajectories <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(pingtimestamp) <span class="sc">%&gt;%</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>origin_df <span class="ot">&lt;-</span> df_trajectories <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(pingtimestamp) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="extracting-trip-ending-locations-and-temporal-data-values-from-grab-posisi-dataset" class="level3">
 <h3 class="anchored" data-anchor-id="extracting-trip-ending-locations-and-temporal-data-values-from-grab-posisi-dataset">5.2 Extracting Trip Ending Locations and Temporal Data Values from Grab-Posisi dataset</h3>
 <p>Similar to what we did in previous session, we are also interested to extract trip ending locations and associated temporal data into a new df called <code>destination_df</code>. We will use the same functions from previous session here.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> df_trajectories <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pingtimestamp)) <span class="sc">%&gt;%</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>destination_df <span class="ot">&lt;-</span> df_trajectories <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(trj_id) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(pingtimestamp)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>()<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">weekday =</span> <span class="fu">wday</span>(pingtimestamp,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label=</span><span class="cn">TRUE</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">abbr=</span><span class="cn">TRUE</span>),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">starting_hr =</span> <span class="fu">factor</span>(<span class="fu">hour</span>(pingtimestamp)),</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">factor</span>(<span class="fu">mday</span>(pingtimestamp)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Reflection">
 <div class="callout-header d-flex align-content-center">
@@ -550,15 +515,15 @@ Reflection
 <section id="converting-to-sf-tibble-data.frame" class="level3">
 <h3 class="anchored" data-anchor-id="converting-to-sf-tibble-data.frame">5.3 Converting to sf tibble data.frame</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>origin_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(origin_df,</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>),</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>destination_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(destination_df,</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>),</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>origin_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(origin_df,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>destination_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(destination_df,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"rawlng"</span>, <span class="st">"rawlat"</span>),</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="creating-a-coastalline-of-singapore" class="level3">
@@ -566,12 +531,12 @@ Reflection
 <p>The original <code>mpsz_sf</code> dataset we imported include information of all URA Master Plan planning area boundaries. However, for this analysis, we only need the national-level boundary of Singapore. Hence, we will need to union all the subzone boundaries to one single polygon boundary. Also, Grab ride-hailing service is only available on the main Singapore islands. Hence, we will need to remove outer islands which Grab service is not available. In particular, we will remove the following planning subzones: <code>NORTH-EASTERN ISLANDS</code>, <code>SOUTHERN GROUP</code>, <code>SUDONG</code> &amp; <code>SEMAKAU</code>.</p>
 <p>We can remove these subzones using the <strong><code>subset()</code></strong> function. The subset() function is used to extract rows from a data frame that meet certain conditions.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>northeasten.islands <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_sf, mpsz_sf<span class="sc">$</span>SUBZONE_N <span class="sc">==</span> <span class="st">"NORTH-EASTERN ISLANDS"</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>southern.islands <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_sf, mpsz_sf<span class="sc">$</span>SUBZONE_N <span class="sc">==</span> <span class="st">"SOUTHERN GROUP"</span>)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>sudong <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_sf, mpsz_sf<span class="sc">$</span>SUBZONE_N <span class="sc">==</span> <span class="st">"SUDONG"</span>)</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>semakau <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_sf,mpsz_sf<span class="sc">$</span>SUBZONE_N <span class="sc">==</span> <span class="st">"SEMAKAU"</span>)</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>outerislands <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(<span class="fu">list</span>(northeasten.islands,southern.islands,sudong,semakau))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>northeasten.islands <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_sf, mpsz_sf<span class="sc">$</span>SUBZONE_N <span class="sc">==</span> <span class="st">"NORTH-EASTERN ISLANDS"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>southern.islands <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_sf, mpsz_sf<span class="sc">$</span>SUBZONE_N <span class="sc">==</span> <span class="st">"SOUTHERN GROUP"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>sudong <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_sf, mpsz_sf<span class="sc">$</span>SUBZONE_N <span class="sc">==</span> <span class="st">"SUDONG"</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>semakau <span class="ot">&lt;-</span> <span class="fu">subset</span>(mpsz_sf,mpsz_sf<span class="sc">$</span>SUBZONE_N <span class="sc">==</span> <span class="st">"SEMAKAU"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>outerislands <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(<span class="fu">list</span>(northeasten.islands,southern.islands,sudong,semakau))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Reflection">
 <div class="callout-header d-flex align-content-center">
@@ -589,18 +554,18 @@ Reflection
 </div>
 <p>After importing the dataset, we will plot it to see how it looks.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(outerislands))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(outerislands))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>As mentioned earlier, we only need to get national-level boundary of Singapore, without outer islands. To do so, we will need to process the mpsz_sf layer to achieve the outcome. - We will first use <code>st_union()</code> function from the <strong>sf</strong> package to combine the geometries of <code>mpsz_sf</code> and <code>outerislands</code> sf objects into a single geometry each. - Next, we will use <code>st_difference()</code> function then removes the overlapping areas between the two geometries. - Finally, we will store the non-overlapping areas into a new sf objected called <code>sg_sf</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sg_sf <span class="ot">&lt;-</span> <span class="fu">st_difference</span>(<span class="fu">st_union</span>(mpsz_sf), <span class="fu">st_union</span>(outerislands))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>sg_sf <span class="ot">&lt;-</span> <span class="fu">st_difference</span>(<span class="fu">st_union</span>(mpsz_sf), <span class="fu">st_union</span>(outerislands))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>To assess whether the geometry of the newly created <code>sg_sf</code> matches our intended outcome, we will plot it out.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(sg_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(sg_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -610,10 +575,10 @@ Reflection
 <h3 class="anchored" data-anchor-id="extracting-road-layers-within-singapore">5.5 Extracting Road Layers within Singapore</h3>
 <p>As we have seen in Section 4.3., <code>osm_road_sf</code> dataset includes road networks from not only Singapore, but also Malaysia and Brunei. However, our analysis is focused on Singapore. Hence, we will need to remove unecessary data rows. To do so, we will</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>sg_road_sf <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(osm_road_sf,sg_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>sg_road_sf <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(osm_road_sf,sg_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(sg_road_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(sg_road_sf))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -624,10 +589,10 @@ Reflection
 <p>In order to use the capabilities of spatstat packahe, a spatial dataset should be converted into an object of class planar point pattern <code>ppp</code> (Baddeley et al., 2015). A point pattern object contains the spatial coordinates of the points, the marks attached to the points (if any), the window in which the points were observed, and the name of the unit of length for the spatial coordinates. s. Thus, a single object of class <code>ppp</code> contains all the information required to perform spatial point pattern analysis.</p>
 <p>In previous section, we have created sf objects of Grab trajectory origin and destination points. Now, we will convert them into ppp objects using <a href="https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/as.ppp"><code>as.ppp()</code></a> function from <strong>spatstat</strong> package.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>origin_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(origin_sf), <span class="fu">st_bbox</span>(origin_sf))</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(origin_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>origin_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(origin_sf), <span class="fu">st_bbox</span>(origin_sf))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(origin_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -646,10 +611,10 @@ Tip
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>destination_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(destination_sf), <span class="fu">st_bbox</span>(destination_sf))</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(destination_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>destination_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(destination_sf), <span class="fu">st_bbox</span>(destination_sf))</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(destination_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -662,7 +627,7 @@ Tip
 <h4 class="anchored" data-anchor-id="data-error-handling-for-origin_ppp">5.6.1 Data Error Handling for <code>origin_ppp</code></h4>
 <p>We will use <code>summary()</code> function to get summary information of <code>origin_ppp</code> object.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(origin_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(origin_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Planar point pattern:  28000 points
 Average intensity 2.473666e-05 points per square unit
@@ -677,7 +642,7 @@ Window area = 1131920000 square units</code></pre>
 </div>
 <p>We can also check if there is any duplicated points in <code>origin_ppp</code> object using <code>any(duplicated()</code> function.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">duplicated</span>(origin_ppp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">duplicated</span>(origin_ppp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
@@ -692,7 +657,7 @@ Window area = 1131920000 square units</code></pre>
 <h4 class="anchored" data-anchor-id="data-error-handling-for-destination_ppp">5.6.2 Data Error Handling for <code>destination_ppp</code></h4>
 <p>We will use <code>summary()</code> function to get summary information of <code>destination_ppp</code> object.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(destination_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(destination_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Planar point pattern:  28000 points
 Average intensity 2.493661e-05 points per square unit
@@ -707,7 +672,7 @@ Window area = 1122850000 square units</code></pre>
 </div>
 <p>We can also check if there is any duplicated points in <code>destination_ppp</code> object using <code>any(duplicated()</code> function.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">duplicated</span>(destination_ppp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">duplicated</span>(destination_ppp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
@@ -720,15 +685,15 @@ Window area = 1122850000 square units</code></pre>
 <p>Many data types in <strong>spatstat</strong> require us to specify the region of space inside which the data were observed. This is the observation window and it is represented by an object of class <code>owin</code>. In this analysis, our study area is Singapore, hence we will use Singapore boundary as the observation window for spatial point pattern analysis.</p>
 <p>In Section 5.4, we have already created the <code>sg_sf</code> object, which represents the Singapore boundary (without outer islands). To convert this sf object to <code>owin</code> object, we will use <a href="https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/owin.object"><code>as.owin()</code></a> function from <strong>spatstat</strong> package.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>sg_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(sg_sf)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.owin</span>(sg_owin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>sg_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(sg_sf)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.owin</span>(sg_owin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We will use <code>summary()</code> function to get summary information of <code>sg_owin</code> object.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sg_owin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sg_owin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Window: polygonal boundary
 44 separate polygons (24 holes)
@@ -789,22 +754,22 @@ Fraction of frame area: 0.459</code></pre>
 <p>In section 5.5, we have created two <code>ppp</code> objects - <code>origin_ppp</code> and <code>destination_ppp</code>, each representing the spatial points of Grab trajectory origin and destination. In section 5.7, we have created a <code>owin</code> object called <code>sg_owin</code>, which represent the observation window of our analysis.</p>
 <p>The observation window <code>sg_owin</code> and the point pattern <code>origin_ppp</code> or <code>destination_ppp</code> can be combined, so that the custom window replaces the default ractangular extent (as seen in section 5.5).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>origin_ppp_sg <span class="ot">=</span> origin_ppp[sg_owin]</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>destination_ppp_sg <span class="ot">=</span> destination_ppp[sg_owin]</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(origin_ppp_sg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>origin_ppp_sg <span class="ot">=</span> origin_ppp[sg_owin]</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>destination_ppp_sg <span class="ot">=</span> destination_ppp[sg_owin]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(origin_ppp_sg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(destination_ppp_sg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(destination_ppp_sg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-28-2.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>We will use <code>summary()</code> function to get summary information of the newly created <code>origin_ppp_sg</code> object and <code>destination_ppp_sg</code> object.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(origin_ppp_sg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(origin_ppp_sg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Planar point pattern:  28000 points
 Average intensity 3.981136e-05 points per square unit
@@ -864,7 +829,7 @@ enclosing rectangle: [2667.54, 55941.94] x [21494.3, 50256.33] units
 Window area = 703317000 square units
 Fraction of frame area: 0.459</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(destination_ppp_sg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(destination_ppp_sg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Planar point pattern:  27997 points
 Average intensity 3.980709e-05 points per square unit
@@ -932,15 +897,15 @@ Fraction of frame area: 0.459</code></pre>
 <section id="visualising-frequency-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="visualising-frequency-distribution">6.1 Visualising Frequency Distribution</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>origin_df, </span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>weekday)) <span class="sc">+</span> </span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>origin_df, </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>weekday)) <span class="sc">+</span> </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>origin_df, </span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>day)) <span class="sc">+</span> </span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>origin_df, </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span>day)) <span class="sc">+</span> </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-30-2.png" class="img-fluid" width="672"></p>
 </div>
@@ -949,14 +914,14 @@ Fraction of frame area: 0.459</code></pre>
 <section id="creating-point-symbol-maps" class="level3">
 <h3 class="anchored" data-anchor-id="creating-point-symbol-maps">6.2 Creating Point Symbol Maps</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"view"</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(origin_sf) <span class="sc">+</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_dots</span>(<span class="at">alpha=</span><span class="fl">0.4</span>, </span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">size=</span><span class="fl">0.05</span>)</span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(destination_sf) <span class="sc">+</span></span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_dots</span>(<span class="at">alpha=</span><span class="fl">0.4</span>, </span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">size=</span><span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"view"</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(origin_sf) <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_dots</span>(<span class="at">alpha=</span><span class="fl">0.4</span>, </span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">size=</span><span class="fl">0.05</span>)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(destination_sf) <span class="sc">+</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tm_dots</span>(<span class="at">alpha=</span><span class="fl">0.4</span>, </span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">size=</span><span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="measuring-central-tendency" class="level3">
@@ -966,18 +931,18 @@ Fraction of frame area: 0.459</code></pre>
 <h4 class="anchored" data-anchor-id="mean-center">6.2.1 Mean Center</h4>
 <p>Mean center is the arithmetic average of the (x, y) coordinates of all point in the study area. Similar to mean in statistical analysis, mean center is influenced to a greater degree by the outliers. (Yuan et al.,2020)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>origin_xy <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(origin_sf)</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>origin_mc <span class="ot">&lt;-</span> <span class="fu">apply</span>(origin_xy, <span class="dv">2</span>, mean)</span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>destination_xy <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(destination_sf)</span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>destination_mc <span class="ot">&lt;-</span> <span class="fu">apply</span>(destination_xy, <span class="dv">2</span>, mean)</span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>origin_mc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>origin_xy <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(origin_sf)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>origin_mc <span class="ot">&lt;-</span> <span class="fu">apply</span>(origin_xy, <span class="dv">2</span>, mean)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>destination_xy <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(destination_sf)</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>destination_mc <span class="ot">&lt;-</span> <span class="fu">apply</span>(destination_xy, <span class="dv">2</span>, mean)</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>origin_mc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       X        Y 
 28490.57 36939.04 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>destination_mc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>destination_mc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       X        Y 
 28870.96 36590.49 </code></pre>
@@ -989,16 +954,16 @@ Fraction of frame area: 0.459</code></pre>
 <h4 class="anchored" data-anchor-id="median-center">6.2.2 Median Center</h4>
 <p>Median center is the location that minimizes the sum of distances required to travel to all points within an observation window. It can be calculated using an iterative procedure first presented by Kulin and Kuenne (1962). The procedure begins at a predetermined point, such as the median center, as the initial point. Then, the algorithm updates the median center’s new coordinates (x’, y’) continually until the optimal value is reached. The median center, as opposed to the mean center, offers a more reliable indicator of central tendency as it is unaffected by outliers (Yuan et al., 2020).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>origin_medc <span class="ot">&lt;-</span> <span class="fu">apply</span>(origin_xy, <span class="dv">2</span>, median)</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>destination_medc <span class="ot">&lt;-</span> <span class="fu">apply</span>(destination_xy, <span class="dv">2</span>, median)</span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>origin_medc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>origin_medc <span class="ot">&lt;-</span> <span class="fu">apply</span>(origin_xy, <span class="dv">2</span>, median)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>destination_medc <span class="ot">&lt;-</span> <span class="fu">apply</span>(destination_xy, <span class="dv">2</span>, median)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>origin_medc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       X        Y 
 28553.17 36179.05 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>destination_medc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>destination_medc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       X        Y 
 28855.04 35883.86 </code></pre>
@@ -1006,25 +971,28 @@ Fraction of frame area: 0.459</code></pre>
 </div>
 <p>Based on the results, the median centres of origin and destination are, respectively, <strong>(28553.17, 36179.05)</strong> and <strong>(28855.04, 35883.86)</strong>. The two median centres appear to be situated in close proximity to one another.</p>
 <p>Moreover, mean centers and median centers for each origin and destination points are similar. This may imply that the distribution of the data is relatively balanced and there is not a significant difference in the spatial patterns between the origin and destination points. Additionally, this indicates that both the mean center and median center are effective measures for analyzing the central tendency of the data in this context.</p>
-<p>We can try to plot both results together on the same plane for better comparison of the mean center and median center as well.</p>
+</section>
+<section id="plotting-mean-and-median-centers" class="level4">
+<h4 class="anchored" data-anchor-id="plotting-mean-and-median-centers">6.2.3 Plotting Mean and Median Centers</h4>
+<p>We can try to plot both results obtained from previous section on the same plane for better comparison of the mean center and median center.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>, <span class="at">main=</span><span class="st">"mean and median centers of origin_sf"</span>)</span>
-<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(origin_xy, <span class="at">cex=</span>.<span class="dv">5</span>)</span>
-<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(origin_mc[<span class="dv">1</span>], origin_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
-<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(origin_medc[<span class="dv">1</span>], origin_medc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>, <span class="at">main=</span><span class="st">"mean and median centers of origin_sf"</span>)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(origin_xy, <span class="at">cex=</span>.<span class="dv">5</span>)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(origin_mc[<span class="dv">1</span>], origin_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(origin_medc[<span class="dv">1</span>], origin_medc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>, <span class="at">main=</span><span class="st">"mean and median centers of destination_sf"</span>)</span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(destination_xy, <span class="at">cex=</span>.<span class="dv">5</span>)</span>
-<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(destination_mc[<span class="dv">1</span>], destination_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'yellow'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
-<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(destination_medc[<span class="dv">1</span>], destination_medc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'orange'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>, <span class="at">main=</span><span class="st">"mean and median centers of destination_sf"</span>)</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(destination_xy, <span class="at">cex=</span>.<span class="dv">5</span>)</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(destination_mc[<span class="dv">1</span>], destination_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'yellow'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(destination_medc[<span class="dv">1</span>], destination_medc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'orange'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1037,20 +1005,20 @@ Fraction of frame area: 0.459</code></pre>
 <h4 class="anchored" data-anchor-id="standard-distance">6.2.1 Standard Distance</h4>
 <p>Standard distances are defined similarly to standard deviations. This indicator measures how dispersed a group of points is around its mean center (Gimond, 2023).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>origin_sd <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>((origin_xy[,<span class="dv">1</span>] <span class="sc">-</span> origin_mc[<span class="dv">1</span>])<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (origin_xy[,<span class="dv">2</span>] <span class="sc">-</span> origin_mc[<span class="dv">2</span>])<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">nrow</span>(origin_xy))</span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>destination_sd <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>((origin_xy[,<span class="dv">1</span>] <span class="sc">-</span> destination_xy[<span class="dv">1</span>])<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (origin_xy[,<span class="dv">2</span>] <span class="sc">-</span> destination_xy[<span class="dv">2</span>])<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">nrow</span>(origin_xy))</span>
-<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>origin_sd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>origin_sd <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>((origin_xy[,<span class="dv">1</span>] <span class="sc">-</span> origin_mc[<span class="dv">1</span>])<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (origin_xy[,<span class="dv">2</span>] <span class="sc">-</span> origin_mc[<span class="dv">2</span>])<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">nrow</span>(origin_xy))</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>destination_sd <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>((destination_xy[,<span class="dv">1</span>] <span class="sc">-</span> destination_mc[<span class="dv">1</span>])<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (destination_xy[,<span class="dv">2</span>] <span class="sc">-</span> destination_mc[<span class="dv">2</span>])<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">nrow</span>(destination_xy))</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>origin_sd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10187.88</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>destination_sd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>destination_sd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 23452.37</code></pre>
+<pre><code>[1] 9545.69</code></pre>
 </div>
 </div>
-<p>From the results, the origin and destination standard distances are <strong>10187.88</strong> and <strong>23452.37</strong>, respectively. Hence, it appears that destination points are more dispersed than the origin points.</p>
+<p>From the results, the origin and destination standard distances are <strong>10187.88</strong> and <strong>9545.69</strong>, respectively. Hence, it appears that origin points are more dispersed than the origin points.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Reflection">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1061,64 +1029,64 @@ Reflection
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>However, it would be challenging to discern why the destination points are more dispersed without further analysis. Further analysis would be needed to determine the factors contributing to the increased dispersion of destination points. Since it is out of scope for this exercise, we will not explore any further.</p>
+<p>However, it would be challenging to discern why the origin points are more dispersed without further analysis. Further analysis would be needed to determine the factors contributing to the increased dispersion of destination points. Since it is out of scope for this exercise, we will not explore any further.</p>
 </div>
 </div>
 </section>
 <section id="plotting-standard-distances" class="level4">
 <h4 class="anchored" data-anchor-id="plotting-standard-distances">6.2.3 Plotting Standard Distances</h4>
-<p>In this section, we will create a bearing circle using the standard distance values we have calculated earlier.</p>
+<p>In this section, we will create bearing circles of origin and destination points using the standard distance values we have calculated earlier. This can provide visual representation of their dispersion and make intuitive comparison between them.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>, <span class="at">main=</span><span class="st">"standard distance of origin_sf"</span>)</span>
-<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(origin_xy, <span class="at">cex=</span>.<span class="dv">5</span>)</span>
-<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(origin_mc[<span class="dv">1</span>], origin_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
-<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>bearing <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">360</span> <span class="sc">*</span> pi<span class="sc">/</span><span class="dv">180</span></span>
-<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>cx <span class="ot">&lt;-</span> origin_mc[<span class="dv">1</span>] <span class="sc">+</span> origin_sd <span class="sc">*</span> <span class="fu">cos</span>(bearing)</span>
-<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>cy <span class="ot">&lt;-</span> origin_mc[<span class="dv">2</span>] <span class="sc">+</span> origin_sd <span class="sc">*</span> <span class="fu">sin</span>(bearing)</span>
-<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>circle <span class="ot">&lt;-</span> <span class="fu">cbind</span>(cx, cy)</span>
-<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(circle, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>, <span class="at">main=</span><span class="st">"standard distance of origin_sf"</span>)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(origin_xy, <span class="at">cex=</span>.<span class="dv">5</span>)</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(origin_mc[<span class="dv">1</span>], origin_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>bearing <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">360</span> <span class="sc">*</span> pi<span class="sc">/</span><span class="dv">180</span></span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>cx <span class="ot">&lt;-</span> origin_mc[<span class="dv">1</span>] <span class="sc">+</span> origin_sd <span class="sc">*</span> <span class="fu">cos</span>(bearing)</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>cy <span class="ot">&lt;-</span> origin_mc[<span class="dv">2</span>] <span class="sc">+</span> origin_sd <span class="sc">*</span> <span class="fu">sin</span>(bearing)</span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>circle <span class="ot">&lt;-</span> <span class="fu">cbind</span>(cx, cy)</span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(circle, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>,<span class="at">main=</span><span class="st">"standard distance of destination_sf"</span>)</span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(destination_xy, <span class="at">cex=</span>.<span class="dv">5</span>)</span>
-<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(destination_mc[<span class="dv">1</span>], destination_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
-<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>bearing <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">360</span> <span class="sc">*</span> pi<span class="sc">/</span><span class="dv">180</span></span>
-<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>cx <span class="ot">&lt;-</span> destination_mc[<span class="dv">1</span>] <span class="sc">+</span> destination_sd <span class="sc">*</span> <span class="fu">cos</span>(bearing)</span>
-<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>cy <span class="ot">&lt;-</span> destination_mc[<span class="dv">2</span>] <span class="sc">+</span> destination_sd <span class="sc">*</span> <span class="fu">sin</span>(bearing)</span>
-<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>circle <span class="ot">&lt;-</span> <span class="fu">cbind</span>(cx, cy)</span>
-<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(circle, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>,<span class="at">main=</span><span class="st">"standard distance of destination_sf"</span>)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(destination_xy, <span class="at">cex=</span>.<span class="dv">5</span>)</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(destination_mc[<span class="dv">1</span>], destination_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>bearing <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">360</span> <span class="sc">*</span> pi<span class="sc">/</span><span class="dv">180</span></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>cx <span class="ot">&lt;-</span> destination_mc[<span class="dv">1</span>] <span class="sc">+</span> destination_sd <span class="sc">*</span> <span class="fu">cos</span>(bearing)</span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>cy <span class="ot">&lt;-</span> destination_mc[<span class="dv">2</span>] <span class="sc">+</span> destination_sd <span class="sc">*</span> <span class="fu">sin</span>(bearing)</span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>circle <span class="ot">&lt;-</span> <span class="fu">cbind</span>(cx, cy)</span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(circle, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>A better comparison of the standard distances between origin and destination points can also be achieved by trying to plot both results on the same plane.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>,<span class="at">main=</span><span class="st">"standard distances of origin_sf &amp; destination_sf"</span>)</span>
-<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(origin_mc[<span class="dv">1</span>], origin_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
-<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(destination_mc[<span class="dv">1</span>], destination_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
-<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>bearing <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">360</span> <span class="sc">*</span> pi<span class="sc">/</span><span class="dv">180</span></span>
-<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>origin_cx <span class="ot">&lt;-</span> origin_mc[<span class="dv">1</span>] <span class="sc">+</span> origin_sd <span class="sc">*</span> <span class="fu">cos</span>(bearing)</span>
-<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a>origin_cy <span class="ot">&lt;-</span> origin_mc[<span class="dv">2</span>] <span class="sc">+</span> origin_sd <span class="sc">*</span> <span class="fu">sin</span>(bearing)</span>
-<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>destination_cx <span class="ot">&lt;-</span> destination_mc[<span class="dv">1</span>] <span class="sc">+</span> destination_sd <span class="sc">*</span> <span class="fu">cos</span>(bearing)</span>
-<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a>destination_cy <span class="ot">&lt;-</span> destination_mc[<span class="dv">2</span>] <span class="sc">+</span> destination_sd <span class="sc">*</span> <span class="fu">sin</span>(bearing)</span>
-<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a>origin_circle <span class="ot">&lt;-</span> <span class="fu">cbind</span>(origin_cx, origin_cy)</span>
-<span id="cb63-16"><a href="#cb63-16" aria-hidden="true" tabindex="-1"></a>destination_circle <span class="ot">&lt;-</span> <span class="fu">cbind</span>(destination_cx, destination_cy)</span>
-<span id="cb63-17"><a href="#cb63-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-18"><a href="#cb63-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(origin_circle, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span>
-<span id="cb63-19"><a href="#cb63-19" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(destination_circle, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sg_sf, <span class="at">col=</span><span class="st">'light grey'</span>,<span class="at">main=</span><span class="st">"standard distances of origin_sf &amp; destination_sf"</span>)</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(origin_mc[<span class="dv">1</span>], origin_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">cbind</span>(destination_mc[<span class="dv">1</span>], destination_mc[<span class="dv">2</span>]), <span class="at">pch=</span><span class="st">'*'</span>, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">cex=</span><span class="dv">3</span>)</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>bearing <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">360</span> <span class="sc">*</span> pi<span class="sc">/</span><span class="dv">180</span></span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>origin_cx <span class="ot">&lt;-</span> origin_mc[<span class="dv">1</span>] <span class="sc">+</span> origin_sd <span class="sc">*</span> <span class="fu">cos</span>(bearing)</span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>origin_cy <span class="ot">&lt;-</span> origin_mc[<span class="dv">2</span>] <span class="sc">+</span> origin_sd <span class="sc">*</span> <span class="fu">sin</span>(bearing)</span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a>destination_cx <span class="ot">&lt;-</span> destination_mc[<span class="dv">1</span>] <span class="sc">+</span> destination_sd <span class="sc">*</span> <span class="fu">cos</span>(bearing)</span>
+<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a>destination_cy <span class="ot">&lt;-</span> destination_mc[<span class="dv">2</span>] <span class="sc">+</span> destination_sd <span class="sc">*</span> <span class="fu">sin</span>(bearing)</span>
+<span id="cb60-14"><a href="#cb60-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-15"><a href="#cb60-15" aria-hidden="true" tabindex="-1"></a>origin_circle <span class="ot">&lt;-</span> <span class="fu">cbind</span>(origin_cx, origin_cy)</span>
+<span id="cb60-16"><a href="#cb60-16" aria-hidden="true" tabindex="-1"></a>destination_circle <span class="ot">&lt;-</span> <span class="fu">cbind</span>(destination_cx, destination_cy)</span>
+<span id="cb60-17"><a href="#cb60-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-18"><a href="#cb60-18" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(origin_circle, <span class="at">col=</span><span class="st">'red'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb60-19"><a href="#cb60-19" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(destination_circle, <span class="at">col=</span><span class="st">'purple'</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1132,7 +1100,90 @@ Reflection
 <p>Investigation of the intensity of a point pattern is one of the first and most important steps in point pattern analysis (Baddeley et al., 2015). If the point process has an intensity function λ(u), this function can be estimated non-parametrically by kernel estimation (Baddeley et al., 2015). Kernel estimation allows for smoothing of the probability density estimation of a random variable (in this analysis a point event) based on kernels as weights.</p>
 <section id="kernel-density-estimation" class="level3">
 <h3 class="anchored" data-anchor-id="kernel-density-estimation">7.1 Kernel Density Estimation</h3>
-<p>Kernel Destiny Estimation (KDE) produces a surface (raster) that details the estimated distribution of point events over observation window. Each cell within the KDE layer contains a value that is the estimated density at that location (). Hence, this approach is also known as local density approach. To create the KDE layer, a localised density for small subsets of the observation window is computed. However, these subsets overlap one another in each iteration, creating a <strong>moving window</strong>, defined by a <strong>kernel</strong>.</p>
+<p>Kernel Destiny Estimation (KDE) generates a surface (raster) representing the estimated distribution of point events over the observation window. Each cell in the KDE layer carries a value representing the estimated density of that location (Wilkin, 2020). Hence, this approach is also known as local density approach.</p>
+<p>To build the KDE layer, a localised density is calculated&nbsp;for multiple&nbsp;small subsets of the observation window. However, these subsets overlap throughout each iteration, resulting in a moving&nbsp;window defined by a kernel (Wilkin, 2020; Gimond, 2023).</p>
+<p>Kernel estimation is implemented in <strong>spatstat</strong> by the function <code>density.ppp()</code>, a method for the generic command density.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>den <span class="ot">&lt;-</span> <span class="fu">density</span>(origin_ppp_sg)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(den)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>However, the KDE given by default argument may not be what we aim to achieve. In this regards, we can specify smoothing bandwidth through the argument <code>sigma</code> or kernel function through the argument <code>kernel</code>.</p>
+</section>
+<section id="bandwidth-selection" class="level3">
+<h3 class="anchored" data-anchor-id="bandwidth-selection">7.2 Bandwidth Selection</h3>
+<p>The kernel bandwidth <code>sigma</code> controls the degree of smoothing. In general, a small value of <code>sigma</code> produces an irregular intensity surface, while a large value of <code>sigma</code> appears to oversmooth the intensity.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Screenshot 2024-01-22 at 8.20.59 AM.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)</figcaption>
+</figure>
+</div>
+<section id="fixed-bandwidth" class="level4">
+<h4 class="anchored" data-anchor-id="fixed-bandwidth">7.2.1 Fixed Bandwidth</h4>
+<p><code>density()</code> function of <strong>spatstat</strong> allows us to compute a kernel density for a given set of point events.</p>
+<ul>
+<li><p><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.diggle.html"><code>bw.diggle()</code></a> (Cross Validated)</p></li>
+<li><p><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.CvL.adaptive.html"><code>bw.CvL()</code></a> (Cronie and van Lieshout's Criterion)</p></li>
+<li><p><a href="https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/bw.scott"><code>bw.scott()</code></a> (Scott's Rule)</p></li>
+<li><p><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.pplHeat.html"><code>bw.ppl()</code></a> (Likelihood Cross Validation)can also be used.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>bw_diggle <span class="ot">&lt;-</span> <span class="fu">bw.diggle</span>(origin_ppp_sg)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>bw_diggle</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   sigma 
+8.300264 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>bw_CvL <span class="ot">&lt;-</span> <span class="fu">bw.CvL</span>(origin_ppp_sg)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>bw_CvL</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   sigma 
+3147.562 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>bw_scott <span class="ot">&lt;-</span> <span class="fu">bw.scott</span>(origin_ppp_sg)</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>bw_scott</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  sigma.x   sigma.y 
+1592.6707  938.9324 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>bw_ppl <span class="ot">&lt;-</span> <span class="fu">bw.ppl</span>(origin_ppp_sg)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>bw_ppl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   sigma 
+123.8744 </code></pre>
+</div>
+</div>
+<p>The commands used for generating bandwidth return a numerical value, the optimised bandwidth, which also belongs to the special class <code>bw.optim.</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bw_diggle)</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bw_CvL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bw_scott)</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bw_ppl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-42-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="adaptive-bandwidth" class="level4">
+<h4 class="anchored" data-anchor-id="adaptive-bandwidth">7.2.2 Adaptive Bandwidth</h4>
+<p>The fixed bandwidth method is very sensitive to highly skewed distribution of spatial point patterns over geographical units.</p>
+</section>
+</section>
+<section id="rescaling-kde-values" class="level3">
+<h3 class="anchored" data-anchor-id="rescaling-kde-values">7.4 <strong>Rescaling KDE Values</strong></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>origin_ppp_sg.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(origin_ppp_sg, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>destination_ppp_sg.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(destination_ppp_sg, <span class="dv">1000</span>, <span class="st">"km"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><img src="images/kerneltypes.png" class="img-fluid"></p>
 </section>
 </section>
 <section id="references" class="level2">
@@ -1144,6 +1195,7 @@ Reflection
 <p>Pebesma, E.; Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). 314 pages. Chapman and Hall/CRC, Boca Raton. https://doi.org/10.1201/9780429459016</p>
 <p>1. Floch, J.-M., Marcon, E., Puech, F.: Spatial distribution of points. In: Bellefon, M.-P. de (ed.) Handbook of Spatial Analysis : Theory and Application with R. pp.&nbsp;72–111. Insee-Eurostat.</p>
 <p>Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from <a href="https://mgimond.github.io/Spatial/index.html" class="uri">https://mgimond.github.io/Spatial/index.html</a></p>
+<p>Wilkin, J. (2020) Geocomputation 2020-2021 Work Book. University College London. Retrieved from <a href="https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html" class="uri">https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html</a></p>
 
 
 </section>

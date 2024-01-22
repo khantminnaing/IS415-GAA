@@ -80,6 +80,7 @@ Each trajectory in Grab-Posisi dataset is serialised in a file in Apache Parquet
 Firstly, we will use `read_parquet` function from `arrow` package, which allows us to read Parquet files into R environment as a data frame (more specifically, a `tibble`).
 
 ```{r}
+#| eval: false
 df <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00000.snappy.parquet',as_data_frame = TRUE)
 df1 <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00001.snappy.parquet',as_data_frame = TRUE)
 df2 <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00002.snappy.parquet',as_data_frame = TRUE)
@@ -95,10 +96,16 @@ df9 <- read_parquet('~/IS415-GAA/data/GrabPosisi/part-00009.snappy.parquet',as_d
 To consolidate all trajectory instances into a single dataframe, we'll vertically bind all 10 imported dataframes using bind_rows() function from tidyverse package.
 
 ```{r}
+#| eval: false
 df_trajectories <- bind_rows(df,df1,df2,df3,df4,df5,df6,df7,df8,df9)
 ```
 
 To get a quick overview of the dataset, we'll first check the number of trajectory instances using `dim()` function. Then, we'll use `head()` function to quickly scan through the data columns and values
+
+```{r}
+#| echo: false
+df_trajectories <- read_rds("../data/rds/df_trajectories.rds")
+```
 
 ```{r}
 dim(df_trajectories)
@@ -130,17 +137,10 @@ df_trajectories$pingtimestamp <- as_datetime(df_trajectories$pingtimestamp)
 The `gis_osm_roads_free_1` dataset, which we downloaded from OpenStreetMap, is in ESRI shapefile format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the **`st_read()`** function of the **`sf`** package. This function reads the shapefile data and returns an **`sf`** object that can be used for further analysis.
 
 ```{r}
+#| eval: False
 osm_road_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", 
                 layer = "gis_osm_roads_free_1") %>% st_transform(crs = 3414)
 ```
-
-After importing the dataset, we will have a quick look at summary of `osm_road_sf`.
-
-```{r}
-summary(osm_road_sf)
-```
-
-From the code output, we observed that there are a total of **1764130 observations**. This is due to the fact that OpenStreetMap package we downloaded include data for not only Singapore, but also Malaysia and Brunei.
 
 ### 4.4 Importing Singapore Master Plan Planning Subzone boundary data
 
@@ -360,6 +360,7 @@ We will use `summary()` function to get summary information of `sg_owin` object.
 ```{r}
 summary(sg_owin)
 ```
+
 ### 5.8 Combining `ppp` objects and `owin` object
 
 In section 5.5, we have created two `ppp` objects - `origin_ppp` and `destination_ppp`, each representing the spatial points of Grab trajectory origin and destination. In section 5.7, we have created a `owin` object called `sg_owin`, which represent the observation window of our analysis.
@@ -447,7 +448,9 @@ Based on the results, the median centres of origin and destination are, respecti
 
 Moreover, mean centers and median centers for each origin and destination points are similar. This may imply that the distribution of the data is relatively balanced and there is not a significant difference in the spatial patterns between the origin and destination points. Additionally, this indicates that both the mean center and median center are effective measures for analyzing the central tendency of the data in this context.
 
-We can try to plot both results together on the same plane for better comparison of the mean center and median center as well.
+#### 6.2.3 Plotting Mean and Median Centers
+
+We can try to plot both results obtained from previous section on the same plane for better comparison of the mean center and median center.
 
 ```{r}
 par(mar = c(0,0,1,0))
@@ -476,21 +479,21 @@ Standard distances are defined similarly to standard deviations. This indicator 
 ```{r}
 origin_sd <- sqrt(sum((origin_xy[,1] - origin_mc[1])^2 + (origin_xy[,2] - origin_mc[2])^2) / nrow(origin_xy))
 
-destination_sd <- sqrt(sum((origin_xy[,1] - destination_xy[1])^2 + (origin_xy[,2] - destination_xy[2])^2) / nrow(origin_xy))
+destination_sd <- sqrt(sum((destination_xy[,1] - destination_mc[1])^2 + (destination_xy[,2] - destination_mc[2])^2) / nrow(destination_xy))
 
 origin_sd
 destination_sd
 ```
 
-From the results, the origin and destination standard distances are **10187.88** and **23452.37**, respectively. Hence, it appears that destination points are more dispersed than the origin points.
+From the results, the origin and destination standard distances are **10187.88** and **9545.69**, respectively. Hence, it appears that origin points are more dispersed than the origin points.
 
 ::: {.callout-tip title="Reflection"}
-However, it would be challenging to discern why the destination points are more dispersed without further analysis. Further analysis would be needed to determine the factors contributing to the increased dispersion of destination points. Since it is out of scope for this exercise, we will not explore any further.
+However, it would be challenging to discern why the origin points are more dispersed without further analysis. Further analysis would be needed to determine the factors contributing to the increased dispersion of destination points. Since it is out of scope for this exercise, we will not explore any further.
 :::
 
 #### 6.2.3 Plotting Standard Distances
 
-In this section, we will create a bearing circle using the standard distance values we have calculated earlier.  
+In this section, we will create bearing circles of origin and destination points using the standard distance values we have calculated earlier. This can provide visual representation of their dispersion and make intuitive comparison between them.
 
 ```{r}
 par(mar = c(0,0,1,0))
@@ -550,7 +553,76 @@ Investigation of the intensity of a point pattern is one of the first and most i
 
 ### 7.1 Kernel Density Estimation
 
-Kernel Destiny Estimation (KDE) produces a surface (raster) that details the estimated distribution of point events over observation window. Each cell within the KDE layer contains a value that is the estimated density at that location (). Hence, this approach is also known as local density approach. To create the KDE layer, a localised density for small subsets of the observation window is computed. However, these subsets overlap one another in each iteration, creating a **moving window**, defined by a **kernel**.
+Kernel Destiny Estimation (KDE) generates a surface (raster) representing the estimated distribution of point events over the observation window. Each cell in the KDE layer carries a value representing the estimated density of that location (Wilkin, 2020). Hence, this approach is also known as local density approach.
+
+To build the KDE layer, a localised density is calculated for multiple small subsets of the observation window. However, these subsets overlap throughout each iteration, resulting in a moving window defined by a kernel (Wilkin, 2020; Gimond, 2023).
+
+Kernel estimation is implemented in **spatstat** by the function `density.ppp()`, a method for the
+generic command density.
+
+```{r}
+den <- density(origin_ppp_sg)
+plot(den)
+```
+
+However, the KDE given by default argument may not be what we aim to achieve. In this regards, we can specify smoothing bandwidth through the argument `sigma` or kernel function through the argument `kernel`.
+
+### 7.2 Bandwidth Selection
+
+The kernel bandwidth `sigma` controls the degree of smoothing. In general, a small value of `sigma` produces an irregular intensity surface, while a large value of `sigma` appears to oversmooth the intensity.
+
+![Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)](images/Screenshot 2024-01-22 at 8.20.59 AM.png)
+
+#### 7.2.1 Fixed Bandwidth
+
+`density()` function of **spatstat** allows us to compute a kernel density for a given set of point events.
+
+-   [`bw.diggle()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.diggle.html) (Cross Validated)
+
+-   [`bw.CvL()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.CvL.adaptive.html) (Cronie and van Lieshout\'s Criterion)
+
+-   [`bw.scott()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/bw.scott) (Scott\'s Rule)
+
+-   [`bw.ppl()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.pplHeat.html) (Likelihood Cross Validation)can also be used.
+
+```{r}
+bw_diggle <- bw.diggle(origin_ppp_sg)
+bw_diggle
+
+bw_CvL <- bw.CvL(origin_ppp_sg)
+bw_CvL
+
+bw_scott <- bw.scott(origin_ppp_sg)
+bw_scott
+
+bw_ppl <- bw.ppl(origin_ppp_sg)
+bw_ppl
+```
+
+The commands used for generating bandwidth return a numerical value, the optimised bandwidth, which also belongs to the special class `bw.optim.`
+
+```{r}
+par(mfrow = c(1,2))
+plot(bw_diggle)
+plot(bw_CvL)
+
+par(mfrow = c(1,2))
+plot(bw_scott)
+plot(bw_ppl)
+```
+
+#### 7.2.2 Adaptive Bandwidth
+
+The fixed bandwidth method is very sensitive to highly skewed distribution of spatial point patterns over geographical units.
+
+### 7.4 **Rescaling KDE Values**
+
+```{r}
+origin_ppp_sg.km <- rescale(origin_ppp_sg, 1000, "km")
+destination_ppp_sg.km <- rescale(destination_ppp_sg, 1000, "km")
+```
+
+![](images/kerneltypes.png)
 
 ## References
 
@@ -567,3 +639,5 @@ Pebesma, E.; Bivand, R. (2023). Spatial Data Science: With Applications in R (1s
 1\. Floch, J.-M., Marcon, E., Puech, F.: Spatial distribution of points. In: Bellefon, M.-P. de (ed.) Handbook of Spatial Analysis : Theory and Application with R. pp. 72--111. Insee-Eurostat.
 
 Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from <https://mgimond.github.io/Spatial/index.html>
+
+Wilkin, J. (2020) Geocomputation 2020-2021 Work Book. University College London. Retrieved from <https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html>
