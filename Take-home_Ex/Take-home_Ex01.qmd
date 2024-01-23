@@ -771,7 +771,7 @@ tm_basemap(server = "OpenStreetMap.HOT") +
 ```{r}
 
 tmap_mode('view')
-tm_basemap(server = "Esri.WorldImagery") +
+tm_basemap(server = "OpenStreetMap.HOT") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_adaptive) +
   tm_raster("layer",
@@ -786,7 +786,65 @@ tm_basemap(server = "Esri.WorldImagery") +
 ```
 
 ```{r}
+kde_destination_adaptive <- adaptive.density(destination_ppp_sg.km, method = "kernel")
 
+par(mar = c(0,1,1,1))
+plot(kde_destination_adaptive,main = "adapative kernel density for destination points")
+```
+
+```{r}
+kde_destination_diggle <- density(destination_ppp_sg.km, bw_diggle)
+kde_destination_CvL <- density(destination_ppp_sg.km, bw_CvL)
+kde_destination_scott <- density(destination_ppp_sg.km, bw_scott)
+kde_destination_ppl <- density(destination_ppp_sg.km, bw_ppl)
+
+par(mar = c(1,1,1,1.5),mfrow = c(2,2))
+plot(kde_destination_diggle,main = "kde_destination_diggle")
+plot(kde_destination_CvL,main = "kde_destination_CvL")
+plot(kde_destination_scott,main = "kde_destination_scott")
+plot(kde_destination_ppl,main = "kde_destination_ppl")
+```
+
+```{r}
+raster_kde_destination_scott <- raster(kde_destination_scott)
+raster_kde_destination_adaptive <- raster(kde_destination_adaptive)
+
+projection(raster_kde_destination_scott) <- CRS("+init=EPSG:3414 +units=km")
+projection(raster_kde_destination_adaptive) <- CRS("+init=EPSG:3414 +units=km")
+```
+
+```{r}
+tmap_mode('view')
+tm_basemap(server = "OpenStreetMap.HOT") +
+  tm_basemap(server = "Esri.WorldImagery") +
+  tm_shape(raster_kde_destination_scott) +
+  tm_raster("layer",
+            n = 5,
+            title = "KDE_scott",
+            alpha = 0.6,
+            palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
+  tm_shape(mpsz_sf)+
+  tm_polygons(alpha=0.1,id="PLN_AREA_N")+
+  tmap_options(check.and.fix = TRUE)
+
+tmap_mode('plot')
+```
+
+```{r}
+tmap_mode('view')
+tm_basemap(server = "OpenStreetMap.HOT") +
+  tm_basemap(server = "Esri.WorldImagery") +
+  tm_shape(raster_kde_destination_adaptive) +
+  tm_raster("layer",
+            n = 5,
+            title = "KDE_scott",
+            alpha = 0.6,
+            palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
+  tm_shape(mpsz_sf)+
+  tm_polygons(alpha=0.1,id="PLN_AREA_N")+
+  tmap_options(check.and.fix = TRUE)
+
+tmap_mode('plot')
 ```
 
 ### 7.4 Planning Area-Level Kernel Density Estimation
@@ -810,17 +868,17 @@ je_owin = as.owin(je)
 jw_owin = as.owin(jw)
 tp_owin = as.owin(tp)
 
-destination_wl_ppp = destination_ppp_sg[wl_owin]
-destination_je_ppp = destination_ppp_sg[je_owin]
-destination_jw_ppp = destination_ppp_sg[jw_owin]
-destination_tp_ppp = destination_ppp_sg[tp_owin]
+origin_wl_ppp = origin_ppp_sg[wl_owin]
+origin_je_ppp = origin_ppp_sg[je_owin]
+origin_jw_ppp = origin_ppp_sg[jw_owin]
+origin_tp_ppp = origin_ppp_sg[tp_owin]
 ```
 
 ```{r}
-wl_kde_scott <- density(destination_wl_ppp, sigma=bw.scott, main="Woodlands")
-je_kde_scott <- density(destination_je_ppp, sigma=bw.scott, main="Jurong East")
-jw_kde_scott <- density(destination_jw_ppp, sigma=bw.scott, main="Jurong West")
-tp_kde_scott <- density(destination_tp_ppp, sigma=bw.scott, main="Tampines")
+wl_kde_scott <- density(origin_wl_ppp, sigma=bw.scott, main="Woodlands")
+je_kde_scott <- density(origin_je_ppp, sigma=bw.scott, main="Jurong East")
+jw_kde_scott <- density(origin_jw_ppp, sigma=bw.scott, main="Jurong West")
+tp_kde_scott <- density(origin_tp_ppp, sigma=bw.scott, main="Tampines")
 
 par(mar = c(1,1,1,1.5),mfrow = c(2,2))
 
@@ -834,9 +892,11 @@ plot(tp_kde_scott,main = "KDE Tampines")
 contour(tp_kde_scott, add=TRUE)
 ```
 
-### 7.0 Nearest Neighbour Analysis
+### 7.0 Spatial Randomness Test
 
-In this section, we will perform the Clark-Evans test of aggregation for a spatial point pattern by using [*clarkevans.test()*](https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test) of **statspat**.
+Clark and Evans (1954) give a very simple test of spatial randomness called Clark and Evans aggregation index (R). It is the ratio of the observed mean nearest neighbour distance in the pattern to that expected for a Poisson point process of the same intensity. A value *R\>1* suggests ordering, while *R\<1* suggests clustering.
+
+we will perform the Clark-Evans test of aggregation for a spatial point pattern by using [*clarkevans.test()*](https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test) of **statspat**.
 
 The test hypotheses are:
 
@@ -844,7 +904,7 @@ The test hypotheses are:
 
 -   H~1~= The distribution of trajectory original points are not randomly distributed.
 
-The 95% confident interval will be used.
+The 95% confidence interval will be used.
 
 ```{r}
 clarkevans.test(origin_ppp_sg,
@@ -853,6 +913,14 @@ clarkevans.test(origin_ppp_sg,
                 alternative=c("clustered"),
                 nsim=99)
 ```
+
+The test hypotheses are:
+
+-   H~0~ = The distribution of trajectory destination points are randomly distributed.
+
+-   H~1~= The distribution of trajectory destination points are not randomly distributed.
+
+The 95% confidence interval will be used.
 
 ```{r}
 clarkevans.test(destination_ppp_sg,
