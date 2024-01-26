@@ -87,7 +87,7 @@ sg_sf <- st_read(dsn = "../data/geospatial", layer="CostalOutline")
 
 ## 4.0 Geospatial Data Wrangling
 
-### 4.1. Assigning Stanadrd Coordinate Systems
+### 4.1. Assigning Standard Coordinate Systems
 
 ```{r}
 childcare_sf <- st_transform(childcare_sf, crs = 3414)
