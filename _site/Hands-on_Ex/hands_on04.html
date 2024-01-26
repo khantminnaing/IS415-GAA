@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Khant Min Naing">
+<meta name="dcterms.date" content="2024-01-12">
+<meta name="description" content="Spatial Weights and Applications">
+
+<title>IS415 - Geospatial with Khant - Hands-On Exercise 03</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">IS415 - Geospatial with Khant</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-in-class-exercises" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">In-Class Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-in-class-exercises">    
+        <li>
+    <a class="dropdown-item" href="../In-class_Ex/In-class_Ex02.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 02</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../In-class_Ex/In-class_Ex03.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 03</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../In-class_Ex/In-class_Ex03-NKDE.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 03 NKDE</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-hands-on-exercises" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Hands-On Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-hands-on-exercises">    
+        <li>
+    <a class="dropdown-item" href="../Hands-on_Ex/hands_on1.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../Hands-on_Ex/hands_on02.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../Hands-on_Ex/hands_on03.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 3</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../Hands-on_Ex/hands_on08.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 8</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-take-home-exercises" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Take-home Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercises">    
+        <li>
+    <a class="dropdown-item" href="../Take-home_Ex/Take-home_Ex01.html" rel="" target="">
+ <span class="dropdown-text">Take-home Exercise 1</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spatial-weights-and-applications" id="toc-spatial-weights-and-applications" class="nav-link active" data-scroll-target="#spatial-weights-and-applications">Spatial Weights and Applications</a>
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">1.0 Overview</a></li>
+  <li><a href="#importing-packages" id="toc-importing-packages" class="nav-link" data-scroll-target="#importing-packages">2.0 Importing Packages</a></li>
+  <li><a href="#importing-datasets-to-r-environment" id="toc-importing-datasets-to-r-environment" class="nav-link" data-scroll-target="#importing-datasets-to-r-environment">3.0 Importing Datasets to R Environment</a>
+  <ul class="collapse">
+  <li><a href="#importing-geospatial-data" id="toc-importing-geospatial-data" class="nav-link" data-scroll-target="#importing-geospatial-data">3.1 Importing Geospatial Data</a></li>
+  <li><a href="#importing-aspatial-data" id="toc-importing-aspatial-data" class="nav-link" data-scroll-target="#importing-aspatial-data">3.1 Importing Aspatial Data</a></li>
+  </ul></li>
+  <li><a href="#geospatial-data-wrangling" id="toc-geospatial-data-wrangling" class="nav-link" data-scroll-target="#geospatial-data-wrangling">4.0 Geospatial Data Wrangling</a>
+  <ul class="collapse">
+  <li><a href="#performing-relational-joint" id="toc-performing-relational-joint" class="nav-link" data-scroll-target="#performing-relational-joint">4.1. Performing Relational Joint</a></li>
+  </ul></li>
+  <li><a href="#exploratory-spatial-data-analysis" id="toc-exploratory-spatial-data-analysis" class="nav-link" data-scroll-target="#exploratory-spatial-data-analysis">5.0 Exploratory Spatial Data Analysis</a>
+  <ul class="collapse">
+  <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator">5.1 <strong>Visualising Regional Development Indicator</strong></a></li>
+  </ul></li>
+  <li><a href="#computing-contiguity-spatial-weights" id="toc-computing-contiguity-spatial-weights" class="nav-link" data-scroll-target="#computing-contiguity-spatial-weights">6.0 <strong>Computing Contiguity Spatial Weights</strong></a>
+  <ul class="collapse">
+  <li><a href="#computing-queen-contiguity-based-neighbours" id="toc-computing-queen-contiguity-based-neighbours" class="nav-link" data-scroll-target="#computing-queen-contiguity-based-neighbours">6.1 <strong>Computing QUEEN contiguity based neighbours</strong></a></li>
+  <li><a href="#computing-rook-contiguity-based-neighbours" id="toc-computing-rook-contiguity-based-neighbours" class="nav-link" data-scroll-target="#computing-rook-contiguity-based-neighbours">6.2 <strong>Computing ROOK contiguity based neighbours</strong></a></li>
+  <li><a href="#visualising-contiguity-weights" id="toc-visualising-contiguity-weights" class="nav-link" data-scroll-target="#visualising-contiguity-weights">6.3 Visualising Contiguity Weights</a></li>
+  </ul></li>
+  <li><a href="#computing-distance-based-neighbours" id="toc-computing-distance-based-neighbours" class="nav-link" data-scroll-target="#computing-distance-based-neighbours">7.0 Computing Distance Based Neighbours</a>
+  <ul class="collapse">
+  <li><a href="#determining-the-cut-off-distance" id="toc-determining-the-cut-off-distance" class="nav-link" data-scroll-target="#determining-the-cut-off-distance">7.1 Determining the Cut-off Distance</a></li>
+  <li><a href="#computing-fixed-distance-weight-matrix" id="toc-computing-fixed-distance-weight-matrix" class="nav-link" data-scroll-target="#computing-fixed-distance-weight-matrix">7.1 Computing <strong>fixed distance weight matrix</strong></a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Hands-On Exercise 03</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">In-Class Exercise</div>
+    <div class="quarto-category">R</div>
+    <div class="quarto-category">sf</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    <p>Spatial Weights and Applications</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p><a href="https://www.linkedin.com/in/khantminnaing/">Khant Min Naing</a> </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 12, 2024</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">January 26, 2024</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="spatial-weights-and-applications" class="level1">
+<h1>Spatial Weights and Applications</h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">1.0 Overview</h2>
+<p>Spatial weights are a key component in any cross-sectional analysis of spatial dependence. They are an essential element in the construction of spatial autocorrelation statistics, and provide the means to create spatially explicit variables, such as spatially lagged variables and spatially smoothed rates.</p>
+<p>Computing spatial weight is an essential step toward measuring the strength of the spatial relationships between objects. In this exercise, the basic concept of spatial weight will be introduced. This is followed by a discussion of methods to compute spatial weights.</p>
+<p>Particularly, we will explore using <strong>spdep</strong>, an R package specially designed for spatial weight analysis.</p>
+</section>
+<section id="importing-packages" class="level2">
+<h2 class="anchored" data-anchor-id="importing-packages">2.0 Importing Packages</h2>
+<p>In this hands-on exercise, we will use the following R package:</p>
+<ul>
+<li><p><a href="https://r-spatial.github.io/sf/"><strong>sf</strong></a>, a relatively new R package specially designed to import, manage and process vector-based geospatial data in R.</p></li>
+<li><p><strong>spdep</strong>,</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/tmap/"><strong>tmap</strong></a> which provides functions for plotting cartographic quality static point patterns maps or interactive maps by using <a href="https://leafletjs.com/">leaflet</a> API.</p></li>
+<li><p><strong>tidyverse</strong></p></li>
+<li><p><strong>knitr</strong></p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, spdep, tmap, tidyverse, knitr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="importing-datasets-to-r-environment" class="level2">
+<h2 class="anchored" data-anchor-id="importing-datasets-to-r-environment">3.0 Importing Datasets to R Environment</h2>
+<p>In this exercise, we will use the following datasets:</p>
+<ul>
+<li><p><code>Hunan</code> county boundary layer. This is a geospatial data set in ESRI shapefile format.</p></li>
+<li><p><code>Hunan_2012.csv</code> This csv file contains selected Hunan's local development indicators in 2012.</p></li>
+</ul>
+<section id="importing-geospatial-data" class="level3">
+<h3 class="anchored" data-anchor-id="importing-geospatial-data">3.1 Importing Geospatial Data</h3>
+<p>In this section, <code>st_read()</code> of <strong>sf</strong> package will be used to import the three geospatial data sets mentioned in previous section into R environment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>hunan <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"../data/geospatial"</span>, </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">layer =</span> <span class="st">"Hunan"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `Hunan' from data source 
+  `/Users/khantminnaing/IS415-GAA/data/geospatial' using driver `ESRI Shapefile'
+Simple feature collection with 88 features and 7 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+</section>
+<section id="importing-aspatial-data" class="level3">
+<h3 class="anchored" data-anchor-id="importing-aspatial-data">3.1 Importing Aspatial Data</h3>
+<p>In this section, <code>read_csv()</code> of <strong>sf</strong> package will be used to import the csv file into R environment. The output is R dataframe class.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>hunan2012 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"../data/aspatial/Hunan_2012.csv"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>hunan2012</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 88 × 29
+   County    City   avg_wage deposite    FAI Gov_Rev Gov_Exp    GDP GDPPC    GIO
+   &lt;chr&gt;     &lt;chr&gt;     &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+ 1 Anhua     Yiyang    30544   10967   6832.    457.   2703  13225  14567  9277.
+ 2 Anren     Chenz…    28058    4599.  6386.    221.   1455.  4941. 12761  4189.
+ 3 Anxiang   Chang…    31935    5517.  3541     244.   1780. 12482  23667  5109.
+ 4 Baojing   Hunan…    30843    2250   1005.    193.   1379.  4088. 14563  3624.
+ 5 Chaling   Zhuzh…    31251    8241.  6508.    620.   1947  11585  20078  9158.
+ 6 Changning Hengy…    28518   10860   7920     770.   2632. 19886  24418 37392 
+ 7 Changsha  Chang…    54540   24332  33624    5350    7886. 88009  88656 51361 
+ 8 Chengbu   Shaoy…    28597    2581.  1922.    161.   1192.  2570. 10132  1681.
+ 9 Chenxi    Huaih…    33580    4990   5818.    460.   1724.  7755. 17026  6644.
+10 Cili      Zhang…    33099    8117.  4498.    500.   2306. 11378  18714  5843.
+# ℹ 78 more rows
+# ℹ 19 more variables: Loan &lt;dbl&gt;, NIPCR &lt;dbl&gt;, Bed &lt;dbl&gt;, Emp &lt;dbl&gt;,
+#   EmpR &lt;dbl&gt;, EmpRT &lt;dbl&gt;, Pri_Stu &lt;dbl&gt;, Sec_Stu &lt;dbl&gt;, Household &lt;dbl&gt;,
+#   Household_R &lt;dbl&gt;, NOIP &lt;dbl&gt;, Pop_R &lt;dbl&gt;, RSCG &lt;dbl&gt;, Pop_T &lt;dbl&gt;,
+#   Agri &lt;dbl&gt;, Service &lt;dbl&gt;, Disp_Inc &lt;dbl&gt;, RORP &lt;dbl&gt;, ROREmp &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="geospatial-data-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="geospatial-data-wrangling">4.0 Geospatial Data Wrangling</h2>
+<section id="performing-relational-joint" class="level3">
+<h3 class="anchored" data-anchor-id="performing-relational-joint">4.1. Performing Relational Joint</h3>
+<p>In previous section, we have imported a shapefile <code>hunan</code> representing the geographical boundaries of Hunan and a dataframe <code>hunan2012</code> which contains the attribute fields corresponding to counties in <code>Hunan</code>.</p>
+<p>The next step in our analysis involves updating the attribute table of the <code>hunan</code> shapefile with the values from <code>hunan2012</code>.</p>
+<p>Hence, we will need to update the attribute table of <code>Hunan</code> by using <code>left_join()</code> of dplyr package. This function effectively merges the two datasets, ensuring that each county's geographical data is accurately linked with its corresponding attribute data from the <strong><code>hunan2012</code></strong> dataframe.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>hunan <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hunan,hunan2012, <span class="fu">join_by</span>(County))<span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="exploratory-spatial-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-spatial-data-analysis">5.0 Exploratory Spatial Data Analysis</h2>
+<p>In this section, we will carry out exploratory spatial data anlysis.</p>
+<section id="visualising-regional-development-indicator" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-regional-development-indicator">5.1 <strong>Visualising Regional Development Indicator</strong></h3>
+<p>Now, we are going to prepare a basemap and a choropleth map showing the distribution of GDPPC 2012 by using <em>qtm()</em> of <strong>tmap</strong> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>basemap <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(hunan) <span class="sc">+</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_text</span>(<span class="st">"NAME_3"</span>, <span class="at">size=</span><span class="fl">0.2</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>gdppc <span class="ot">&lt;-</span> <span class="fu">qtm</span>(hunan, <span class="st">"GDPPC"</span>, <span class="at">fill.palette =</span> <span class="st">"plasma"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(basemap, gdppc, <span class="at">asp=</span><span class="dv">1</span>, <span class="at">ncol=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hands_on04_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="computing-contiguity-spatial-weights" class="level2">
+<h2 class="anchored" data-anchor-id="computing-contiguity-spatial-weights">6.0 <strong>Computing Contiguity Spatial Weights</strong></h2>
+<p>In this section, we will explore how to use <a href="https://r-spatial.github.io/spdep/reference/poly2nb.html"><em>poly2nb()</em></a> of <strong>spdep</strong> package to compute contiguity weight matrices for the study area.</p>
+<p>The <strong><code>poly2nb()</code></strong> function accepts an argument named <strong><code>queen</code></strong>, which can be set to either <strong><code>TRUE</code></strong> or <strong><code>FALSE</code></strong>. This argument plays a pivotal role in determining the criteria used for identifying neighboring regions. If the <strong><code>queen</code></strong> argument is not explicitly specified, the function defaults to <strong><code>TRUE</code></strong> and the function will generate a list of first-order neighbors using the Queen's contiguity criteria.</p>
+<section id="computing-queen-contiguity-based-neighbours" class="level3">
+<h3 class="anchored" data-anchor-id="computing-queen-contiguity-based-neighbours">6.1 <strong>Computing QUEEN contiguity based neighbours</strong></h3>
+<p>We will start out by computing Queen contiguity weight matrix</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>wm_q <span class="ot">&lt;-</span> <span class="fu">poly2nb</span>(hunan, <span class="at">queen=</span><span class="cn">TRUE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(wm_q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Neighbour list object:
+Number of regions: 88 
+Number of nonzero links: 448 
+Percentage nonzero weights: 5.785124 
+Average number of links: 5.090909 
+Link number distribution:
+
+ 1  2  3  4  5  6  7  8  9 11 
+ 2  2 12 16 24 14 11  4  2  1 
+2 least connected regions:
+30 65 with 1 link
+1 most connected region:
+85 with 11 links</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The summary report above shows that there are 88 area units in Hunan. The most connected area unit has 11 neighbours. There are two area units with only one heighbours.</p>
+</div>
+</div>
+<p>For each polygon in our polygon object, wm_q lists all neighboring polygons. To see the neighbors for the first polygon in the object, we can just use the following code chunk:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>wm_q[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  2  3  4 57 85</code></pre>
+</div>
+</div>
+<p>Polygon 1 has 5 neighbors. The numbers represent the polygon IDs as stored in hunan SpatialPolygonsDataFrame class. We can retrive the county name of Polygon ID=1 by using the code chunk below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>hunan<span class="sc">$</span>County[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Anxiang"</code></pre>
+</div>
+</div>
+<p>The output reveals that Polygon ID=1 is Anxiang county.</p>
+<p>To reveal the county names of the five neighboring polygons, the code chunk will be used:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>hunan<span class="sc">$</span>NAME_3[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">57</span>,<span class="dv">85</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Hanshou" "Jinshi"  "Li"      "Nan"     "Taoyuan"</code></pre>
+</div>
+</div>
+<p>We can retrieve the GDPPC of these five countries by using the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>nb1 <span class="ot">&lt;-</span> wm_q[[<span class="dv">1</span>]]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>nb1 <span class="ot">&lt;-</span> hunan<span class="sc">$</span>GDPPC[nb1]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>nb1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 20981 34592 24473 21311 22879</code></pre>
+</div>
+</div>
+<p>The printed output above shows that the GDPPC of the five nearest neighbours based on Queen's method are 20981, 34592, 24473, 21311 and 22879 respectively.</p>
+<p>You can display the complete weight matrix by using <code>str()</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(wm_q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 88
+ $ : int [1:5] 2 3 4 57 85
+ $ : int [1:5] 1 57 58 78 85
+ $ : int [1:4] 1 4 5 85
+ $ : int [1:4] 1 3 5 6
+ $ : int [1:4] 3 4 6 85
+ $ : int [1:5] 4 5 69 75 85
+ $ : int [1:4] 67 71 74 84
+ $ : int [1:7] 9 46 47 56 78 80 86
+ $ : int [1:6] 8 66 68 78 84 86
+ $ : int [1:8] 16 17 19 20 22 70 72 73
+ $ : int [1:3] 14 17 72
+ $ : int [1:5] 13 60 61 63 83
+ $ : int [1:4] 12 15 60 83
+ $ : int [1:3] 11 15 17
+ $ : int [1:4] 13 14 17 83
+ $ : int [1:5] 10 17 22 72 83
+ $ : int [1:7] 10 11 14 15 16 72 83
+ $ : int [1:5] 20 22 23 77 83
+ $ : int [1:6] 10 20 21 73 74 86
+ $ : int [1:7] 10 18 19 21 22 23 82
+ $ : int [1:5] 19 20 35 82 86
+ $ : int [1:5] 10 16 18 20 83
+ $ : int [1:7] 18 20 38 41 77 79 82
+ $ : int [1:5] 25 28 31 32 54
+ $ : int [1:5] 24 28 31 33 81
+ $ : int [1:4] 27 33 42 81
+ $ : int [1:3] 26 29 42
+ $ : int [1:5] 24 25 33 49 54
+ $ : int [1:3] 27 37 42
+ $ : int 33
+ $ : int [1:8] 24 25 32 36 39 40 56 81
+ $ : int [1:8] 24 31 50 54 55 56 75 85
+ $ : int [1:5] 25 26 28 30 81
+ $ : int [1:3] 36 45 80
+ $ : int [1:6] 21 41 47 80 82 86
+ $ : int [1:6] 31 34 40 45 56 80
+ $ : int [1:4] 29 42 43 44
+ $ : int [1:4] 23 44 77 79
+ $ : int [1:5] 31 40 42 43 81
+ $ : int [1:6] 31 36 39 43 45 79
+ $ : int [1:6] 23 35 45 79 80 82
+ $ : int [1:7] 26 27 29 37 39 43 81
+ $ : int [1:6] 37 39 40 42 44 79
+ $ : int [1:4] 37 38 43 79
+ $ : int [1:6] 34 36 40 41 79 80
+ $ : int [1:3] 8 47 86
+ $ : int [1:5] 8 35 46 80 86
+ $ : int [1:5] 50 51 52 53 55
+ $ : int [1:4] 28 51 52 54
+ $ : int [1:5] 32 48 52 54 55
+ $ : int [1:3] 48 49 52
+ $ : int [1:5] 48 49 50 51 54
+ $ : int [1:3] 48 55 75
+ $ : int [1:6] 24 28 32 49 50 52
+ $ : int [1:5] 32 48 50 53 75
+ $ : int [1:7] 8 31 32 36 78 80 85
+ $ : int [1:6] 1 2 58 64 76 85
+ $ : int [1:5] 2 57 68 76 78
+ $ : int [1:4] 60 61 87 88
+ $ : int [1:4] 12 13 59 61
+ $ : int [1:7] 12 59 60 62 63 77 87
+ $ : int [1:3] 61 77 87
+ $ : int [1:4] 12 61 77 83
+ $ : int [1:2] 57 76
+ $ : int 76
+ $ : int [1:5] 9 67 68 76 84
+ $ : int [1:4] 7 66 76 84
+ $ : int [1:5] 9 58 66 76 78
+ $ : int [1:3] 6 75 85
+ $ : int [1:3] 10 72 73
+ $ : int [1:3] 7 73 74
+ $ : int [1:5] 10 11 16 17 70
+ $ : int [1:5] 10 19 70 71 74
+ $ : int [1:6] 7 19 71 73 84 86
+ $ : int [1:6] 6 32 53 55 69 85
+ $ : int [1:7] 57 58 64 65 66 67 68
+ $ : int [1:7] 18 23 38 61 62 63 83
+ $ : int [1:7] 2 8 9 56 58 68 85
+ $ : int [1:7] 23 38 40 41 43 44 45
+ $ : int [1:8] 8 34 35 36 41 45 47 56
+ $ : int [1:6] 25 26 31 33 39 42
+ $ : int [1:5] 20 21 23 35 41
+ $ : int [1:9] 12 13 15 16 17 18 22 63 77
+ $ : int [1:6] 7 9 66 67 74 86
+ $ : int [1:11] 1 2 3 5 6 32 56 57 69 75 ...
+ $ : int [1:9] 8 9 19 21 35 46 47 74 84
+ $ : int [1:4] 59 61 62 88
+ $ : int [1:2] 59 87
+ - attr(*, "class")= chr "nb"
+ - attr(*, "region.id")= chr [1:88] "1" "2" "3" "4" ...
+ - attr(*, "call")= language poly2nb(pl = hunan, queen = TRUE)
+ - attr(*, "type")= chr "queen"
+ - attr(*, "sym")= logi TRUE</code></pre>
+</div>
+</div>
+</section>
+<section id="computing-rook-contiguity-based-neighbours" class="level3">
+<h3 class="anchored" data-anchor-id="computing-rook-contiguity-based-neighbours">6.2 <strong>Computing ROOK contiguity based neighbours</strong></h3>
+<p>In previous section, we have created neighbours based on QUEEN contiguity. In this section, we will try ROOK contiguity to create another set of neighbours which we will call <code>wm_r</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>wm_r <span class="ot">&lt;-</span> <span class="fu">poly2nb</span>(hunan, <span class="at">queen=</span><span class="cn">FALSE</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(wm_r)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Neighbour list object:
+Number of regions: 88 
+Number of nonzero links: 440 
+Percentage nonzero weights: 5.681818 
+Average number of links: 5 
+Link number distribution:
+
+ 1  2  3  4  5  6  7  8  9 10 
+ 2  2 12 20 21 14 11  3  2  1 
+2 least connected regions:
+30 65 with 1 link
+1 most connected region:
+85 with 10 links</code></pre>
+</div>
+</div>
+<p>The summary report above shows that there are 88 area units in Hunan. The most connect area unit has 10 neighbours. There are two area units with only one neighbours.<br>
+</p>
+</section>
+<section id="visualising-contiguity-weights" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-contiguity-weights">6.3 Visualising Contiguity Weights</h3>
+<p>A connectivity graph takes a point and displays a line to each neighboring point. We are working with polygons at the moment, so we will need to get points in order to make our connectivity graphs. The most typically method for this will be polygon centroids. We will calculate these in the sf package before moving onto the graphs. Getting Latitude and Longitude of Polygon Centroids</p>
+<p>We will need points to associate with each polygon before we can make our connectivity graph. It will be a little more complicated than just running <code>st_centroid()</code> on the sf object. We need the coordinates in a separate data frame for this to work. To do this we will use a mapping function. The mapping function applies a given function to each element of a vector and returns a vector of the same length. Our input vector will be the geometry column. We will be using <code>map_dbl</code> variation of map from the <strong>purrr</strong> package.</p>
+<p>To get our longitude values we map the st_centroid function over the geometry column of us.bound and access the longitude value through double bracket notation <code>[[]]</code>and <code>1</code>. This allows us to get only the longitude, which is the first value in each centroid.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>longitude <span class="ot">&lt;-</span> <span class="fu">map_dbl</span>(hunan<span class="sc">$</span>geometry, <span class="sc">~</span><span class="fu">st_centroid</span>(.x)[[<span class="dv">1</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We do the same for latitude with one key difference. We access the second value per each centroid with <code>[[2]]</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>latitude <span class="ot">&lt;-</span> <span class="fu">map_dbl</span>(hunan<span class="sc">$</span>geometry, <span class="sc">~</span><span class="fu">st_centroid</span>(.x)[[<span class="dv">2</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now that we have latitude and longitude, we use cbind to put longitude and latitude into the same object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">cbind</span>(longitude, latitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then, we will check the first few observations to see if the coordinates are formatted properly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(coords)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     longitude latitude
+[1,]  112.1531 29.44362
+[2,]  112.0372 28.86489
+[3,]  111.8917 29.47107
+[4,]  111.7031 29.74499
+[5,]  111.6138 29.49258
+[6,]  111.0341 29.79863</code></pre>
+</div>
+</div>
+<p>Once we have extracted the coordinates of the centroid of each map unit, we will go ahead and plot neighbours maps.</p>
+<section id="plotting-queen-contiguity-based-neighbours-map" class="level4">
+<h4 class="anchored" data-anchor-id="plotting-queen-contiguity-based-neighbours-map">6.3.1 Plotting QUEEN contiguity based neighbours map</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_q, coords, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col=</span> <span class="st">"grey"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hands_on04_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plotting-rook-contiguity-based-neighbours-map" class="level4">
+<h4 class="anchored" data-anchor-id="plotting-rook-contiguity-based-neighbours-map">6.3.2 Plotting ROOK contiguity based neighbours map</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_r, coords, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hands_on04_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plotting-queen-and-rook-contiguity-based-neighbours-map" class="level4">
+<h4 class="anchored" data-anchor-id="plotting-queen-and-rook-contiguity-based-neighbours-map">6.3.2 Plotting QUEEN and ROOK contiguity based neighbours map</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>, <span class="at">main=</span><span class="st">"Queen Contiguity"</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_q, coords, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col=</span> <span class="st">"grey"</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>, <span class="at">main=</span><span class="st">"Rook Contiguity"</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_r, coords, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hands_on04_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="computing-distance-based-neighbours" class="level2">
+<h2 class="anchored" data-anchor-id="computing-distance-based-neighbours">7.0 Computing Distance Based Neighbours</h2>
+<p>In this section, we will explore how to derive distance-based weight matrices by using <a href="https://r-spatial.github.io/spdep/reference/dnearneigh.html"><code>dnearneigh()</code></a> of <strong>spdep</strong> package.</p>
+<p>The function identifies neighbours of region points by Euclidean distance with a distance band with lower d1= and upper d2= bounds controlled by the bounds= argument. If unprojected coordinates are used and either specified in the coordinates object x or with x as a two column matrix and longlat=TRUE, great circle distances in <strong>km</strong> will be calculated assuming the WGS84 reference ellipsoid.</p>
+<section id="determining-the-cut-off-distance" class="level3">
+<h3 class="anchored" data-anchor-id="determining-the-cut-off-distance">7.1 Determining the Cut-off Distance</h3>
+<p>Firstly, we need to determine the upper limit for distance band. This can be achieved by following the steps below.</p>
+<ul>
+<li><p>Return a matrix with the indices of points belonging to the set of the k nearest neighbours of each other by using <a href="https://r-spatial.github.io/spdep/reference/knearneigh.html"><code>knearneigh()</code></a> of <strong>spdep</strong>.</p></li>
+<li><p>Convert the knn object returned by <em>knearneigh()</em> into a neighbours list of class nb with a list of integer vectors containing neighbour region number ids by using <a href="https://r-spatial.github.io/spdep/reference/knn2nb.html"><code>knn2nb()</code></a>.</p></li>
+<li><p>Return the length of neighbour relationship edges by using <a href="https://r-spatial.github.io/spdep/reference/nbdists.html"><code>nbdists()</code></a> of <strong>spdep</strong>. The function returns in the units of the coordinates if the coordinates are projected, in km otherwise.</p></li>
+<li><p>Remove the list structure of the returned object by using <a href="https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/unlist"><strong><code>unlist()</code></strong></a>.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>k1 <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(coords))</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>k1dists <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">nbdists</span>(k1, coords, <span class="at">longlat =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(k1dists)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  24.79   32.57   38.01   39.07   44.52   61.79 </code></pre>
+</div>
+</div>
+<p>The summary report shows that the largest first nearest neighbour distance is 61.79 km, so using this as the upper threshold gives certainty that all units will have at least one neighbour.</p>
+</section>
+<section id="computing-fixed-distance-weight-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="computing-fixed-distance-weight-matrix">7.1 Computing <strong>fixed distance weight matrix</strong></h3>
+<p>Now, we will compute the distance weight matrix by using <code>dnearneigh()</code> as shown in the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>wm_d62 <span class="ot">&lt;-</span> <span class="fu">dnearneigh</span>(coords, <span class="dv">0</span>, <span class="dv">62</span>, <span class="at">longlat =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>wm_d62</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Neighbour list object:
+Number of regions: 88 
+Number of nonzero links: 324 
+Percentage nonzero weights: 4.183884 
+Average number of links: 3.681818 </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Average number of links: 3.681818" in the output refers to the average number of neighboring regions each region has within the distance range of 0-62. In the context of spatial analysis, a "link" is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62 units).</p>
+<p>So, an average of 3.681818 means that, on average, each region in our study area has about 3 to 4 neighboring regions within a distance of 62 units.</p>
+</div>
+</div>
+<p>Next, we will use <code>str()</code> to display the content of <code>wm_d62</code> weight matrix. This time, we will combine <a href="https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/table"><code>table()</code></a> and <a href="https://r-spatial.github.io/spdep/reference/card.html"><code>card()</code></a> of <strong>spdep</strong> to display the matrix more neatly than simply using <code>str()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(hunan<span class="sc">$</span>County, <span class="fu">card</span>(wm_d62))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               
+                1 2 3 4 5 6
+  Anhua         1 0 0 0 0 0
+  Anren         0 0 0 1 0 0
+  Anxiang       0 0 0 0 1 0
+  Baojing       0 0 0 0 1 0
+  Chaling       0 0 1 0 0 0
+  Changning     0 0 1 0 0 0
+  Changsha      0 0 0 1 0 0
+  Chengbu       0 1 0 0 0 0
+  Chenxi        0 0 0 1 0 0
+  Cili          0 1 0 0 0 0
+  Dao           0 0 0 1 0 0
+  Dongan        0 0 1 0 0 0
+  Dongkou       0 0 0 1 0 0
+  Fenghuang     0 0 0 1 0 0
+  Guidong       0 0 1 0 0 0
+  Guiyang       0 0 0 1 0 0
+  Guzhang       0 0 0 0 0 1
+  Hanshou       0 0 0 1 0 0
+  Hengdong      0 0 0 0 1 0
+  Hengnan       0 0 0 0 1 0
+  Hengshan      0 0 0 0 0 1
+  Hengyang      0 0 0 0 0 1
+  Hongjiang     0 0 0 0 1 0
+  Huarong       0 0 0 1 0 0
+  Huayuan       0 0 0 1 0 0
+  Huitong       0 0 0 1 0 0
+  Jiahe         0 0 0 0 1 0
+  Jianghua      0 0 1 0 0 0
+  Jiangyong     0 1 0 0 0 0
+  Jingzhou      0 1 0 0 0 0
+  Jinshi        0 0 0 1 0 0
+  Jishou        0 0 0 0 0 1
+  Lanshan       0 0 0 1 0 0
+  Leiyang       0 0 0 1 0 0
+  Lengshuijiang 0 0 1 0 0 0
+  Li            0 0 1 0 0 0
+  Lianyuan      0 0 0 0 1 0
+  Liling        0 1 0 0 0 0
+  Linli         0 0 0 1 0 0
+  Linwu         0 0 0 1 0 0
+  Linxiang      1 0 0 0 0 0
+  Liuyang       0 1 0 0 0 0
+  Longhui       0 0 1 0 0 0
+  Longshan      0 1 0 0 0 0
+  Luxi          0 0 0 0 1 0
+  Mayang        0 0 0 0 0 1
+  Miluo         0 0 0 0 1 0
+  Nan           0 0 0 0 1 0
+  Ningxiang     0 0 0 1 0 0
+  Ningyuan      0 0 0 0 1 0
+  Pingjiang     0 1 0 0 0 0
+  Qidong        0 0 1 0 0 0
+  Qiyang        0 0 1 0 0 0
+  Rucheng       0 1 0 0 0 0
+  Sangzhi       0 1 0 0 0 0
+  Shaodong      0 0 0 0 1 0
+  Shaoshan      0 0 0 0 1 0
+  Shaoyang      0 0 0 1 0 0
+  Shimen        1 0 0 0 0 0
+  Shuangfeng    0 0 0 0 0 1
+  Shuangpai     0 0 0 1 0 0
+  Suining       0 0 0 0 1 0
+  Taojiang      0 1 0 0 0 0
+  Taoyuan       0 1 0 0 0 0
+  Tongdao       0 1 0 0 0 0
+  Wangcheng     0 0 0 1 0 0
+  Wugang        0 0 1 0 0 0
+  Xiangtan      0 0 0 1 0 0
+  Xiangxiang    0 0 0 0 1 0
+  Xiangyin      0 0 0 1 0 0
+  Xinhua        0 0 0 0 1 0
+  Xinhuang      1 0 0 0 0 0
+  Xinning       0 1 0 0 0 0
+  Xinshao       0 0 0 0 0 1
+  Xintian       0 0 0 0 1 0
+  Xupu          0 1 0 0 0 0
+  Yanling       0 0 1 0 0 0
+  Yizhang       1 0 0 0 0 0
+  Yongshun      0 0 0 1 0 0
+  Yongxing      0 0 0 1 0 0
+  You           0 0 0 1 0 0
+  Yuanjiang     0 0 0 0 1 0
+  Yuanling      1 0 0 0 0 0
+  Yueyang       0 0 1 0 0 0
+  Zhijiang      0 0 0 0 1 0
+  Zhongfang     0 0 0 1 0 0
+  Zhuzhou       0 0 0 0 1 0
+  Zixing        0 0 1 0 0 0</code></pre>
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

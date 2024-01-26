@@ -930,6 +930,9 @@ clarkevans.test(destination_ppp_sg,
                 nsim=99)
 ```
 
+```{r}
+```
+
 ## 8.0 Network Constrained Kernel Density Estimation (NKDE)
 
 Many real world point event are not randomly distributed. Their distribution, on the other hand, are constrained by network such as roads, rivers, and fault lines just to name a few of them.
