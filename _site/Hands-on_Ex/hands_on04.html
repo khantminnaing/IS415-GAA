@@ -155,6 +155,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Hands-On Exercise 3</span></a>
   </li>  
         <li>
+    <a class="dropdown-item" href="../Hands-on_Ex/hands_on04.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 4</span></a>
+  </li>  
+        <li>
     <a class="dropdown-item" href="../Hands-on_Ex/hands_on08.html" rel="" target="">
  <span class="dropdown-text">Hands-On Exercise 8</span></a>
   </li>  
@@ -224,7 +228,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#determining-the-cut-off-distance" id="toc-determining-the-cut-off-distance" class="nav-link" data-scroll-target="#determining-the-cut-off-distance">7.1 Determining the Cut-off Distance</a></li>
   <li><a href="#computing-fixed-distance-weight-matrix" id="toc-computing-fixed-distance-weight-matrix" class="nav-link" data-scroll-target="#computing-fixed-distance-weight-matrix">7.1 Computing <strong>fixed distance weight matrix</strong></a></li>
+  <li><a href="#computing-adaptive-distance-weight-matrix" id="toc-computing-adaptive-distance-weight-matrix" class="nav-link" data-scroll-target="#computing-adaptive-distance-weight-matrix">7.2 Computing <strong>adaptive distance weight matrix</strong></a></li>
   </ul></li>
+  <li><a href="#spatial-weights-based-on-inverse-distance-weighted-idw-matrix" id="toc-spatial-weights-based-on-inverse-distance-weighted-idw-matrix" class="nav-link" data-scroll-target="#spatial-weights-based-on-inverse-distance-weighted-idw-matrix">8.0 Spatial Weights based on Inverse Distance Weighted (IDW) Matrix</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -694,7 +700,7 @@ Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Average number of links: 3.681818" in the output refers to the average number of neighboring regions each region has within the distance range of 0-62. In the context of spatial analysis, a "link" is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62 units).</p>
+<p>Average number of links: 3.681818" in the output refers to the average number of neighboring regions each region has within the distance range of 0-62km. In the context of spatial analysis, a "link" is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62km).</p>
 <p>So, an average of 3.681818 means that, on average, each region in our study area has about 3 to 4 neighboring regions within a distance of 62 units.</p>
 </div>
 </div>
@@ -794,9 +800,166 @@ Tip
   Zixing        0 0 1 0 0 0</code></pre>
 </div>
 </div>
-
-
+<section id="plotting-fixed-distance-weight-matrix" class="level4">
+<h4 class="anchored" data-anchor-id="plotting-fixed-distance-weight-matrix">7.1.1 Plotting fixed distance weight matrix</h4>
+<p>Next, we will plot the distance weight matrix by using the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_d62, coords, <span class="at">add=</span><span class="cn">TRUE</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(k1, coords, <span class="at">add=</span><span class="cn">TRUE</span>, <span class="at">col=</span><span class="st">"purple"</span>, <span class="at">length=</span><span class="fl">0.08</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hands_on04_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The purple lines show the links of 1st nearest neighbours and the black lines show the links of neighbours within the cut-off distance of 62km.</p>
+<p>Alternatively, we can plot both of them next to each other by using the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>, <span class="at">main=</span><span class="st">"1st nearest neighbours"</span>)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(k1, coords, <span class="at">add=</span><span class="cn">TRUE</span>, <span class="at">col=</span><span class="st">"purple"</span>, <span class="at">length=</span><span class="fl">0.08</span>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>, <span class="at">main=</span><span class="st">"Distance link"</span>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_d62, coords, <span class="at">add=</span><span class="cn">TRUE</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hands_on04_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 </section>
+</section>
+<section id="computing-adaptive-distance-weight-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="computing-adaptive-distance-weight-matrix">7.2 Computing <strong>adaptive distance weight matrix</strong></h3>
+<p>One of the characteristics of fixed distance weight matrix is that more densely settled areas (usually the urban areas) tend to have more neighbours and the less densely settled areas (usually the rural counties) tend to have lesser neighbours. Having many neighbours smoothes the neighbour relationship across more neighbours.</p>
+<p>It is possible to control the numbers of neighbours directly using k-nearest neighbours, either accepting asymmetric neighbours or imposing symmetry as shown in the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>knn6 <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(coords, <span class="at">k=</span><span class="dv">6</span>))</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>knn6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Neighbour list object:
+Number of regions: 88 
+Number of nonzero links: 528 
+Percentage nonzero weights: 6.818182 
+Average number of links: 6 
+Non-symmetric neighbours list</code></pre>
+</div>
+</div>
+<p>Similarly, we can display the content of the matrix by using <code>str()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(knn6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 88
+ $ : int [1:6] 2 3 4 5 57 64
+ $ : int [1:6] 1 3 57 58 78 85
+ $ : int [1:6] 1 2 4 5 57 85
+ $ : int [1:6] 1 3 5 6 69 85
+ $ : int [1:6] 1 3 4 6 69 85
+ $ : int [1:6] 3 4 5 69 75 85
+ $ : int [1:6] 9 66 67 71 74 84
+ $ : int [1:6] 9 46 47 78 80 86
+ $ : int [1:6] 8 46 66 68 84 86
+ $ : int [1:6] 16 19 22 70 72 73
+ $ : int [1:6] 10 14 16 17 70 72
+ $ : int [1:6] 13 15 60 61 63 83
+ $ : int [1:6] 12 15 60 61 63 83
+ $ : int [1:6] 11 15 16 17 72 83
+ $ : int [1:6] 12 13 14 17 60 83
+ $ : int [1:6] 10 11 17 22 72 83
+ $ : int [1:6] 10 11 14 16 72 83
+ $ : int [1:6] 20 22 23 63 77 83
+ $ : int [1:6] 10 20 21 73 74 82
+ $ : int [1:6] 18 19 21 22 23 82
+ $ : int [1:6] 19 20 35 74 82 86
+ $ : int [1:6] 10 16 18 19 20 83
+ $ : int [1:6] 18 20 41 77 79 82
+ $ : int [1:6] 25 28 31 52 54 81
+ $ : int [1:6] 24 28 31 33 54 81
+ $ : int [1:6] 25 27 29 33 42 81
+ $ : int [1:6] 26 29 30 37 42 81
+ $ : int [1:6] 24 25 33 49 52 54
+ $ : int [1:6] 26 27 37 42 43 81
+ $ : int [1:6] 26 27 28 33 49 81
+ $ : int [1:6] 24 25 36 39 40 54
+ $ : int [1:6] 24 31 50 54 55 56
+ $ : int [1:6] 25 26 28 30 49 81
+ $ : int [1:6] 36 40 41 45 56 80
+ $ : int [1:6] 21 41 46 47 80 82
+ $ : int [1:6] 31 34 40 45 56 80
+ $ : int [1:6] 26 27 29 42 43 44
+ $ : int [1:6] 23 43 44 62 77 79
+ $ : int [1:6] 25 40 42 43 44 81
+ $ : int [1:6] 31 36 39 43 45 79
+ $ : int [1:6] 23 35 45 79 80 82
+ $ : int [1:6] 26 27 37 39 43 81
+ $ : int [1:6] 37 39 40 42 44 79
+ $ : int [1:6] 37 38 39 42 43 79
+ $ : int [1:6] 34 36 40 41 79 80
+ $ : int [1:6] 8 9 35 47 78 86
+ $ : int [1:6] 8 21 35 46 80 86
+ $ : int [1:6] 49 50 51 52 53 55
+ $ : int [1:6] 28 33 48 51 52 54
+ $ : int [1:6] 32 48 51 52 54 55
+ $ : int [1:6] 28 48 49 50 52 54
+ $ : int [1:6] 28 48 49 50 51 54
+ $ : int [1:6] 48 50 51 52 55 75
+ $ : int [1:6] 24 28 49 50 51 52
+ $ : int [1:6] 32 48 50 52 53 75
+ $ : int [1:6] 32 34 36 78 80 85
+ $ : int [1:6] 1 2 3 58 64 68
+ $ : int [1:6] 2 57 64 66 68 78
+ $ : int [1:6] 12 13 60 61 87 88
+ $ : int [1:6] 12 13 59 61 63 87
+ $ : int [1:6] 12 13 60 62 63 87
+ $ : int [1:6] 12 38 61 63 77 87
+ $ : int [1:6] 12 18 60 61 62 83
+ $ : int [1:6] 1 3 57 58 68 76
+ $ : int [1:6] 58 64 66 67 68 76
+ $ : int [1:6] 9 58 67 68 76 84
+ $ : int [1:6] 7 65 66 68 76 84
+ $ : int [1:6] 9 57 58 66 78 84
+ $ : int [1:6] 4 5 6 32 75 85
+ $ : int [1:6] 10 16 19 22 72 73
+ $ : int [1:6] 7 19 73 74 84 86
+ $ : int [1:6] 10 11 14 16 17 70
+ $ : int [1:6] 10 19 21 70 71 74
+ $ : int [1:6] 19 21 71 73 84 86
+ $ : int [1:6] 6 32 50 53 55 69
+ $ : int [1:6] 58 64 65 66 67 68
+ $ : int [1:6] 18 23 38 61 62 63
+ $ : int [1:6] 2 8 9 46 58 68
+ $ : int [1:6] 38 40 41 43 44 45
+ $ : int [1:6] 34 35 36 41 45 47
+ $ : int [1:6] 25 26 28 33 39 42
+ $ : int [1:6] 19 20 21 23 35 41
+ $ : int [1:6] 12 13 15 16 22 63
+ $ : int [1:6] 7 9 66 68 71 74
+ $ : int [1:6] 2 3 4 5 56 69
+ $ : int [1:6] 8 9 21 46 47 74
+ $ : int [1:6] 59 60 61 62 63 88
+ $ : int [1:6] 59 60 61 62 63 87
+ - attr(*, "region.id")= chr [1:88] "1" "2" "3" "4" ...
+ - attr(*, "call")= language knearneigh(x = coords, k = 6)
+ - attr(*, "sym")= logi FALSE
+ - attr(*, "type")= chr "knn"
+ - attr(*, "knn-k")= num 6
+ - attr(*, "class")= chr "nb"</code></pre>
+</div>
+</div>
+<p>Notably, it is observed that each county has exactly six neighbours.</p>
+<section id="plotting-adaptive-distance-weight-matrix" class="level4">
+<h4 class="anchored" data-anchor-id="plotting-adaptive-distance-weight-matrix">7.1.1 Plotting adaptive distance weight matrix</h4>
+<p>We can plot the adoptive weight matrix we obtained in previous section using the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(knn6, coords, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> <span class="st">"purple"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hands_on04_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="spatial-weights-based-on-inverse-distance-weighted-idw-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-weights-based-on-inverse-distance-weighted-idw-matrix">8.0 Spatial Weights based on Inverse Distance Weighted (IDW) Matrix</h2>
+
+
 </section>
 </section>
 

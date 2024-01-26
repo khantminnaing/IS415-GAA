@@ -268,7 +268,7 @@ wm_d62
 ```
 
 ::: {.callout-tip}
-Average number of links: 3.681818\" in the output refers to the average number of neighboring regions each region has within the distance range of 0-62. In the context of spatial analysis, a \"link\" is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62 units).
+Average number of links: 3.681818\" in the output refers to the average number of neighboring regions each region has within the distance range of 0-62km. In the context of spatial analysis, a \"link\" is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62km).
 
 So, an average of 3.681818 means that, on average, each region in our study area has about 3 to 4 neighboring regions within a distance of 62 units.
 :::
@@ -278,3 +278,56 @@ Next, we will use `str()` to display the content of `wm_d62` weight matrix. This
 ```{r}
 table(hunan$County, card(wm_d62))
 ```
+
+#### 7.1.1 Plotting fixed distance weight matrix
+
+Next, we will plot the distance weight matrix by using the code chunk below.
+
+```{r}
+plot(hunan$geometry, border="lightgrey")
+plot(wm_d62, coords, add=TRUE)
+plot(k1, coords, add=TRUE, col="purple", length=0.08)
+
+```
+
+The purple lines show the links of 1st nearest neighbours and the black lines show the links of neighbours within the cut-off distance of 62km.
+
+Alternatively, we can plot both of them next to each other by using the code chunk below.
+
+```{r}
+par(mfrow=c(1,2))
+plot(hunan$geometry, border="lightgrey", main="1st nearest neighbours")
+plot(k1, coords, add=TRUE, col="purple", length=0.08)
+plot(hunan$geometry, border="lightgrey", main="Distance link")
+plot(wm_d62, coords, add=TRUE, pch = 19, cex = 0.6)
+```
+
+### 7.2 Computing **adaptive distance weight matrix**
+
+One of the characteristics of fixed distance weight matrix is that more densely settled areas (usually the urban areas) tend to have more neighbours and the less densely settled areas (usually the rural counties) tend to have lesser neighbours. Having many neighbours smoothes the neighbour relationship across more neighbours.
+
+It is possible to control the numbers of neighbours directly using k-nearest neighbours, either accepting asymmetric neighbours or imposing symmetry as shown in the code chunk below.
+
+```{r}
+knn6 <- knn2nb(knearneigh(coords, k=6))
+knn6
+```
+
+Similarly, we can display the content of the matrix by using `str()`.
+
+```{r}
+str(knn6)
+```
+
+Notably, it is observed that each county has exactly six neighbours.
+
+#### 7.1.1 Plotting adaptive distance weight matrix
+
+We can plot the adoptive weight matrix we obtained in previous section using the code chunk below.
+
+```{r}
+plot(hunan$geometry, border="lightgrey")
+plot(knn6, coords, pch = 19, cex = 0.6, add = TRUE, col = "purple")
+```
+
+## 8.0 Spatial Weights based on Inverse Distance Weighted (IDW) Matrix 
