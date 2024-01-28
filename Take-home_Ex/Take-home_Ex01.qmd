@@ -149,7 +149,7 @@ The `MP14_SUBZONE_WEB_PL` dataset, which we downloaded from [data.gov.sg](data.g
 
 ```{r}
 mpsz_sf <- st_read(dsn = "~/IS415-GAA/data/geospatial", 
-                layer = "MP14_SUBZONE_WEB_PL") %>% st_transform(crs = 3414)
+                layer = "MPSZ-2019") %>% st_transform(crs = 3414)
 ```
 
 ::: {.callout-tip title="Reflection"}
@@ -418,10 +418,6 @@ destination_day <-  ggplot(data=destination_sf,
 origin_day + destination_day
 ```
 
-```{r}
-
-```
-
 ### 6.2 Creating Point Symbol Maps
 
 ```{r eval=FALSE}
@@ -585,22 +581,13 @@ origin_ppp_sg.km <- rescale(origin_ppp_sg, 1000, "km")
 destination_ppp_sg.km <- rescale(destination_ppp_sg, 1000, "km")
 ```
 
-### 7.2 Computing Kernel Density Estimation
+### 7.2 Computing Default Kernel Density Estimation
 
-Kernel Destiny Estimation (KDE) generates a surface (raster) representing the estimated distribution of point events over the observation window. Each cell in the KDE layer carries a value representing the estimated density of that location (Wilkin, 2020). Hence, this approach is also known as local density approach.
+Kernel Destiny Estimation (KDE) generates a surface (raster) representing the estimated distribution of point events over the observation window. Each cell in the KDE layer carries a value representing the estimated density of that location (Wilkin, 2020). Hence, this approach is also known as local density approach. To build the KDE layer, a localised density is calculated for multiple small subsets of the observation window. However, these subsets overlap throughout each iteration, resulting in a moving window defined by a kernel (Wilkin, 2020; Gimond, 2023).
 
-To build the KDE layer, a localised density is calculated for multiple small subsets of the observation window. However, these subsets overlap throughout each iteration, resulting in a moving window defined by a kernel (Wilkin, 2020; Gimond, 2023).
+In this section, we will focus on **destination points** as we would like to identify areas that exert a \'pull\' effect on people, hence resulting in cluster of trajectory destinations. Analyzing the destination of Grab trajectories can provide interesting insights into pull factors within a given area and help identify popular destinations or areas of high mobility demand.
 
 Kernel estimation is implemented in **spatstat** by the function `density.ppp()`, a method for the generic command density.
-
-In this section, we will focus on **destination points** as we would like to identify areas that pull people in. Analysing the destination of Grab trajectories can
-
-```{r}
-par(mar = c(0,1,1,1))
-kde_default_origin <- density(origin_ppp_sg.km)
-plot(kde_default_origin,main = "Default Density KDE for Origin Points")
-contour(kde_default_origin, add=TRUE)
-```
 
 ```{r}
 par(mar = c(0,1,1,1))
@@ -609,17 +596,15 @@ plot(kde_default_destination,main = "Default Density KDE for Destination Points"
 contour(kde_default_destination, add=TRUE)
 ```
 
-However, the KDE given by default argument may not be what we aim to achieve. In this regards, we can specify smoothing bandwidth through the argument `sigma` or kernel function through the argument `kernel`.
+![Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)](images/Screenshot%202024-01-22%20at%208.20.59%20AM.png){alt="Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)"}
 
-### 7.3 Bandwidth Selection
+When `sigma` value is not specified, an isotropic Gaussian kernel will be used, with a default value of **`sigma`** calculated by a simple rule of thumb that depends only on the size of the window. Hence, the KDE given by default argument may not be what we aim to achieve. Looking at the KDE plot we have created above, there are signs of oversmoothing where only a single spatial cluster in the CBD area being observable. This can severely limit our analysis as potential small-scale clusters and other interesting details are being masked by the oversmoothing effect.
 
-The kernel bandwidth `sigma` controls the degree of smoothing. In general, a small value of `sigma` produces an irregular intensity surface, while a large value of `sigma` appears to oversmooth the intensity.
+To overcome this challenge, we can specify smoothing bandwidth through the argument `sigma` or kernel function through the argument `kernel` to compute and plot more intuitive and detailed KDE maps.
 
-![Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)](images/Screenshot%202024-01-22%20at%208.20.59%20AM.png)
+### 7.3 Creating KDE Layers with Fixed Bandwidth
 
-#### 7.3.1 Creating KDE Layers with Fixed Bandwidth
-
-#### 7.3.1.1 Computing Fixed Bandwidths Using Different Bandwidth Selection Methods
+#### 7.3.1 Computing Fixed Bandwidths Using Different Bandwidth Selection Methods
 
 `density()` function of **spatstat** allows us to compute a kernel density for a given set of point events.
 
@@ -627,7 +612,7 @@ The kernel bandwidth `sigma` controls the degree of smoothing. In general, a sma
 
 -   [`bw.CvL()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.CvL.adaptive.html) **Cronie and van Lieshout's Criterion for Bandwidth Selection for Kernel Density**: The bandwidth σ is chosen to minimize the discrepancy between the area of the observation window and the sum of reciprocal estimated intensity values at the points of the point process. This method aims to choose a bandwidth that best represents the underlying point process, taking into account both the observed points and the area they occupy.
 
--   [`bw.scott()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/bw.scott) **Scott's Rule for Bandwidth Selection for Kernel Density**: The bandwidth σ is computed by the rule of thumb of Scott (1992). The bandwidth is proportional to $n^{-1/(d-4)}$ where n is the number of points and d is the number of spatial dimensions. This rule is very fast to compute. It typically produces a larger bandwidth than Diggle\'s method. It is useful for estimating gradual trend.
+-   [`bw.scott()`](https://www.rdocumentation.org/packages/spatstat/versions/1.64-1/topics/bw.scott) **Scott's Rule for Bandwidth Selection for Kernel Density**: The bandwidth σ is computed by the rule of thumb of Scott (1992). The bandwidth is proportional to $n^{-1/(d-4)}$ where n is the number of points and d is the number of spatial dimensions. This rule is very fast to compute. It typically produces a larger bandwidth than Diggle's method. It is useful for estimating gradual trend.
 
 -   [`bw.ppl()`](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/bw.pplHeat.html) **Likelihood Cross Validation Bandwidth Selection for Kernel Density**: This approach, explained by Loader (1999), uses likelihood cross-validation to determine the bandwidth (σ) by maximizing the point process likelihood. This method is beneficial when the aim is to maximize the likelihood of observing the given data.
 
@@ -668,7 +653,7 @@ plot(bw_scott)
 plot(bw_ppl,  xlim=c(-1,5), ylim=c(70000,130000))
 ```
 
-#### 7.3.1.2 Plotting Fixed-Bandwidth KDE Layers 
+#### 7.3.2 Plotting Fixed-Bandwidth KDE Layers
 
 In practice, there are no definite method to choose the KDE bandwidth. Many literature has outlined a diverse range of approaches for KDE bandwidth selection. According to Wolff and Asche (2009), the choice of bandwidth in many existing studies is mostly conducted by visually comparing different bandwidth setting.
 
@@ -698,7 +683,7 @@ hist(kde_ppl,main = "kde_ppl")
 
 ```
 
-::: {.callout-tip}
+::: callout-tip
 We can interpret the outputs as below:
 
 1.  **kde_diggle**: The sharp peak at the beginning indicates that the Diggle method for bandwidth selection has indentified a high concentration of points in the first bin. The rest of the bins has little to no concentration. This may suggest that one specific area in our observation window has observed a relatively high spatial clustering than the rest of the window.
@@ -733,7 +718,7 @@ The standard error (SE) of the density estimate provides a measure of the uncert
 However, in many applications of KDE, the focus is often on the shape of the density estimate rather than its absolute value. In such cases, the standard error might not be as relevant. Hence, in this analysis, we will not use standard error as a criteria for choosing the bandwidth.
 :::
 
-#### 7.3.1.3 Choosing Fixed KDE Bandwidth Selection Method
+#### 7.3.3 Choosing Fixed KDE Bandwidth Selection Method
 
 Upon the exploration of various fixed bandwidth selection methods for computing KDE vales, and subsequent plotting of the respective KDE estimates, their distributions and associated standard errors, we will now select the KDE bandwidth to be used in our analysis. As we have seen in Section 7.3.1.2, each KDE bandwidth method has produced a distinct KDE and there is no definite method to choose the KDE bandwidth.
 
@@ -753,32 +738,97 @@ plot(kde_fixed_scott,main = "Fixed-Bandwidth KDE for Grab Destination Points (Us
 contour(kde_fixed_scott, add=TRUE)
 ```
 
-#### 7.3.2 Creating KDE Layers with Spatially Adaptive Bandwidth
+#### 7.3.4 Kernel Function Selection for Fixed Bandwidth
 
-A fixed smoothing bandwidth is unsatisfactory if the true intensity varies greatly across the spatial domain, because it is likely to cause over-smoothing in the high-intensity areas and under-smoothing in the low intensity areas (Baddeley et al., 2015)
+Kernel functions are important because they control how we weight points within the radius. The default kernel in `density.ppp()` is the `gaussian`. But there are other options. We can use the `epanechnikov`, `quartic` or `disc.`
 
-The fixed bandwidth method is very sensitive to highly skewed distribution of spatial point patterns over geographical units.
+-   gaussian
 
-#### 7.3.2.1 Dirichlet-type Adaptive Density Estimate
+-   epanechnikov
 
-Adaptive estimators of intensity can be calculated based on Dirichlet-Voronoï tessellations (Pebesma & Bivand, 2023). This method adjusts the bandwidth based on the location, and can provide an accurate density estimate in areas where density changes rapidly (Burman & Nolan, 1989). The Dirichlet-Voronoï estimator is computed in **spatstat** by the function `adaptive.density()` with argument `f=1`.
+-   quartic
+
+-   disc
 
 ```{r}
-kde_destination_dirichlet_adaptive <- adaptive.density(destination_ppp_sg.km, f=1, method = "kernel")
+kde_fixed_scott.gaussian <- density(destination_ppp_sg.km, 
+                          sigma=bw_fixed_scott, 
+                          edge=TRUE, 
+                          kernel="gaussian")
+
+
+kde_fixed_scott.epanechnikov <- density(destination_ppp_sg.km, 
+                          sigma=bw_fixed_scott, 
+                          edge=TRUE, 
+                          kernel="epanechnikov")
+   
+kde_fixed_scott.quartic <- density(destination_ppp_sg.km, 
+                          sigma=bw_fixed_scott, 
+                          edge=TRUE, 
+                          kernel="quartic")
+       
+   
+kde_fixed_scott.disc <- density(destination_ppp_sg.km, 
+                          sigma=bw_fixed_scott, 
+                          edge=TRUE, 
+                          kernel="disc")
+         
+par(mar = c(1,1,1,1.5),mfrow = c(2,2))
+plot(kde_fixed_scott.gaussian, main="Gaussian")
+plot(kde_fixed_scott.epanechnikov, main="Epanechnikov")
+plot(kde_fixed_scott.quartic, main="Quartic")
+plot(kde_fixed_scott.disc, main="Disc")
+```
+
+### 7.4 Creating KDE Layers with Spatially Adaptive Bandwidth
+
+Fixed bandwidth kernels are commonly employed in statistical literature due to their ease of implementation. However, their application in spatial datasets often yields suboptimal estimations due to a lack of spatial and temporal adaptability (González & Moraga, 2022). Consequently, the more intuitive \'adaptive smoothing\' approach has emerged. In this technique, the amount of smoothing is inversely related to the density of the points.
+
+In **spatstat** packages, there are three main approaches (Pebesma & Bivand, 2023) in creating KDE layers with spatially adapative bandwidth.
+
+-   [**Voronoi-Dirichlet Adaptive Density Estimate**](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/densityVoronoi.html)**:** It computes the intensity function estimate of a point pattern dataset by creating tessellations. On default, the input point pattern data is used to construct a Voronoi/Dirichlet tessellation (Barr and Schoenberg, 2010). The intensity estimate at a given location equals the reciprocal of the size of the Voronoi/Dirichlet cell containing that location.
+
+-   [**Adaptive Kernel Density Estimate**](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/densityAdaptiveKernel.html): It computes an estimate of the intensity function of a point pattern dataset using the partitioning technique of Davies and Baddeley (2018). It dynamically specifies the smoothing bandwidth to be applied to each of the points. The partitioning method of Davies and Baddeley (2018) accelerates this computation by partitioning the range of bandwidths into *n*-groups intervals, correspondingly subdividing the point patterns into *n*-groups, sub-patterns according to bandwidth, and applying fixed-bandwidth smoothing to each sub-pattern.
+
+-   [**Nearest-Neighbour Adaptive Density Estimate**](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/nndensity.html): It computes an estimate of the intensity function of a point pattern dataset using the distance from each spatial location to the kth nearest points (Cressie, 1991: Silverman, 1986;Burman & Nolan, 1989). The default value of k is the square root of the number of points in the dataset. This estimator of intensity is relatively fast to compute and is spatially adaptive. Some studies suggest the use of the nearest neighbor distance as a suitable parameter for determining the bandwidth (Krisp et al., 2009).
+
+#### 7.4.1 Voronoi-Dirichlet Adaptive Density Estimate
+
+The Dirichlet-Voronoï estimator is computed in **spatstat** by the function `adaptive.density()` with argument `method="voronoi"`.
+
+```{r}
+kde_destination_dirichlet_adaptive <- adaptive.density(destination_ppp_sg.km, f=1, method = "voronoi")
 ```
 
 ```{r}
 par(mar = c(0,1,1,1))
-plot(kde_destination_dirichlet_adaptive,main = "Dirichlet-type Adaptive Density Estimate")
+plot(kde_destination_dirichlet_adaptive,main = "Voronoi-Dirichlet Adaptive Density Estimate")
 ```
 
 ```{r}
-hist(kde_destination_dirichlet_adaptive,main = "Dirichlet-type Adaptive Density Estimate")
+hist(kde_destination_dirichlet_adaptive,main = "Voronoi-Dirichlet Adaptive Density Estimate")
 ```
 
-#### 7.3.2.2 Nearest-Neighbour Density Estimate
+#### 7.4.2 Adaptive Kernel Density Estimate
 
-Another strategy is to use a nearest-neighbour density estimate approach (Pebesma & Bivand, 2023). This method uses the nearest-neighbour distance to adaptively estimate the density, which can effectively capture local features in the data (Burman & Nolan, 1989). We can use the **spatstat** function `nndensity()` to calculate the nearest-neighbour density estimate.
+The Adaptive Kernel estimator is computed in **spatstat** by the function `adaptive.density()` with argument `method="kernel"`.
+
+```{r}
+kde_destination_kernel_adaptive <- adaptive.density(destination_ppp_sg.km, method = "kernel")
+```
+
+```{r}
+par(mar = c(0,1,1,1))
+plot(kde_destination_kernel_adaptive,main = "Adaptive Kernel Density Estimate")
+```
+
+```{r}
+hist(kde_destination_kernel_adaptive,main = "Adaptive Kernel Density Estimate")
+```
+
+#### 7.4.3 Nearest-Neighbour Density Estimate
+
+The Nearest-Neighbour estimator is computed in **spatstat** by the function `nndensity()`.
 
 ```{r}
 kde_adaptive_nn <- nndensity(destination_ppp_sg.km, k=10)
@@ -834,7 +884,7 @@ tm_basemap(server = "OpenStreetMap.HOT") +
   tmap_options(check.and.fix = TRUE)
 ```
 
-### 7.4 Planning Area-Level Kernel Density Estimation
+### 7.6 Planning Area-Level Kernel Density Estimation
 
 ```{r}
 wl= mpsz_sf %>% filter(PLN_AREA_N == "WOODLANDS")
