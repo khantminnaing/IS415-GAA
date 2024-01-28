@@ -846,11 +846,13 @@ hist(kde_adaptive_nn,main = "Nearest-Neighbour Adaptive Density Estimate")
 ```{r}
 raster_kde_fixed_scott <- raster(kde_fixed_scott)
 raster_kde_adaptive_nn <- raster(kde_adaptive_nn)
+raster_kde_adaptive_kernel <- raster(kde_destination_kernel_adaptive)
 ```
 
 ```{r}
 projection(raster_kde_fixed_scott) <- CRS("+init=EPSG:3414 +units=km")
 projection(raster_kde_adaptive_nn) <- CRS("+init=EPSG:3414 +units=km")
+projection(raster_kde_adaptive_kernel) <- CRS("+init=EPSG:3414 +units=km")
 ```
 
 ```{r}
@@ -859,7 +861,7 @@ tm_basemap(server = "OpenStreetMap.HOT") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_fixed_scott) +
   tm_raster("layer",
-            n = 5,
+            n = 7,
             title = "KDE_Fixed_scott",
             alpha = 0.6,
             palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
@@ -874,8 +876,24 @@ tm_basemap(server = "OpenStreetMap.HOT") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_adaptive_nn) +
   tm_raster("layer",
-            n = 5,
+            n = 7,
             title = "KDE_Adaptive_nn",
+            style = "pretty",
+            alpha = 0.6,
+            palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
+  tm_shape(mpsz_sf)+
+  tm_polygons(alpha=0.1,id="PLN_AREA_N")+
+  tmap_options(check.and.fix = TRUE)
+```
+
+```{r}
+tmap_mode('view')
+tm_basemap(server = "OpenStreetMap.HOT") +
+  tm_basemap(server = "Esri.WorldImagery") +
+  tm_shape(raster_kde_adaptive_kernel) +
+  tm_raster("layer",
+            n = 7,
+            title = "KDE_Adaptive_Kernel",
             style = "pretty",
             alpha = 0.6,
             palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
