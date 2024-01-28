@@ -61,7 +61,7 @@ Before we start the exercise, we will need to import necessary R packages first.
 -   **maptools**, **ggplot2**, **ggthemes**, **plotly**: Packages used to plot interactive visualisations summary statistics and KDE layers
 
 ```{r}
-pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat,patchwork,raster)
+pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat,patchwork,raster,spNetwork)
 ```
 
 ## 4.0 Importing Datasets into R Environment
@@ -267,7 +267,7 @@ As we have seen in Section 4.3., `osm_road_sf` dataset includes road networks fr
 
 ```{r}
 #| eval: false
-sg_road_sf <- st_intersection(osm_road_sf,sg_sf)
+sg_road_sf <- st_intersection(osm_road_sf,lsg_sf)
 ```
 
 ```{r}
@@ -281,13 +281,37 @@ Next, we will look at the classification of road networks as provided by OpenStr
 unique(sg_road_sf$fclass)
 ```
 
+Looking at the road classification, it is observed that not all categories are relevant to our analysis, which is primarily concerned with driving networks where taxis can facilitate pick-ups or drop-offs. Hence, we will implement a filtering process on the dataset to exclude road segments that fall outside the scope of our analysis.
+
+Firstly we will specify the road classes that we want to retain.
+
+```{r}
+driving_classes <- c("primary", "primary_link", "residential", "secondary", "secondary_link", "service", "tertiary", "tertiary_link") 
+```
+
+Next, we will filter `sg_road_sf` object to remove all the rows that does not have our desired `f_class` attribute value.
+
+```{r}
+sg_driving_sf <- sg_road_sf %>%
+  filter(fclass %in% driving_classes)
+unique(sg_driving_sf$fclass)
+```
+
+::: callout-tip
+**Why `motorway` and `motorway_link` classes are not included?**
+
+According to OpenStreetMap, fclass [`motorway`](https://wiki.openstreetmap.org/wiki/Tag:highway%3Dmotorway) refers to expressway. In Singapore, stopping or parking a vehicle on an expressway is illegal under the Road Traffic Act. Hence, `motorway` (and `motorway_link`) are not relevant for network constraint kernel density estimation (NKDE) analysis that we will carry out later.
+:::
+
+Now that we have filterd out the dataset, we will now plot to see the driving road network of Singapore using `tmap`.
+
 ```{r}
 #| fig-width: 10
-#| eval: false
+tmap_mode("plot")
 
 tm_shape(sg_sf) +
   tm_polygons() +
-tm_shape(sg_road_sf) +
+tm_shape(sg_driving_sf) +
   tm_lines(col="fclass", palette ="viridis") +
   tm_layout(main.title = "Road Network in Singapore",
             main.title.position = "center",
@@ -585,7 +609,7 @@ destination_ppp_sg.km <- rescale(destination_ppp_sg, 1000, "km")
 
 Kernel Destiny Estimation (KDE) generates a surface (raster) representing the estimated distribution of point events over the observation window. Each cell in the KDE layer carries a value representing the estimated density of that location (Wilkin, 2020). Hence, this approach is also known as local density approach. To build the KDE layer, a localised density is calculated for multiple small subsets of the observation window. However, these subsets overlap throughout each iteration, resulting in a moving window defined by a kernel (Wilkin, 2020; Gimond, 2023).
 
-In this section, we will focus on **destination points** as we would like to identify areas that exert a \'pull\' effect on people, hence resulting in cluster of trajectory destinations. Analyzing the destination of Grab trajectories can provide interesting insights into pull factors within a given area and help identify popular destinations or areas of high mobility demand.
+In this section, we will focus on **destination points** as we would like to identify areas that exert a 'pull' effect on people, hence resulting in cluster of trajectory destinations. Analyzing the destination of Grab trajectories can provide interesting insights into pull factors within a given area and help identify popular destinations or areas of high mobility demand.
 
 Kernel estimation is implemented in **spatstat** by the function `density.ppp()`, a method for the generic command density.
 
@@ -596,7 +620,9 @@ plot(kde_default_destination,main = "Default Density KDE for Destination Points"
 contour(kde_default_destination, add=TRUE)
 ```
 
-![Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)](images/Screenshot%202024-01-22%20at%208.20.59%20AM.png){alt="Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)"}
+`sigma` argument in `density()` function controls the bandwidth of kernel function. The choice of the bandwidth affects the kernel density estimation strongly. A smaller bandwidth will produce a finer density estimate with all little peaks and valleys. A larger bandwidth will result into a smoother distribution of point densities. Generally speaking, if the bandwidth is too small the estimate is too noisy, while if bandwidth is too high the estimate may miss crucial elements of the point pattern due to over-smoothing (Scott, 2009).
+
+![Density Estimates with Different Smoothing Bandwidth (Ref, Baddeley et al., 2015)](images/Screenshot%202024-01-22%20at%208.20.59%20AM.png)
 
 When `sigma` value is not specified, an isotropic Gaussian kernel will be used, with a default value of **`sigma`** calculated by a simple rule of thumb that depends only on the size of the window. Hence, the KDE given by default argument may not be what we aim to achieve. Looking at the KDE plot we have created above, there are signs of oversmoothing where only a single spatial cluster in the CBD area being observable. This can severely limit our analysis as potential small-scale clusters and other interesting details are being masked by the oversmoothing effect.
 
@@ -738,6 +764,19 @@ plot(kde_fixed_scott,main = "Fixed-Bandwidth KDE for Grab Destination Points (Us
 contour(kde_fixed_scott, add=TRUE)
 ```
 
+However, upon visual inspection, there are signs of a certian degree of over-smoothing when we directly use the bandwidth provide by `bw_scott` method. Automatic bandwidth selection methods provides a starting point for bandwidth selection, and further fine-tuning might be necessary based on the results of the plot we have created above.
+
+To do so, we will use rule of thumb adjustment by diving the bandwidth value by 2, to reduce the bandwidth size, and hence possible over-smoothing effect.
+
+```{r}
+par(mar = c(0,1,1,1))
+kde_fixed_scott <- density(destination_ppp_sg.km, sigma=bw_fixed_scott/2)
+plot(kde_fixed_scott,main = "Fixed-Bandwidth KDE for Grab Destination Points (Using bw_scott)")
+contour(kde_fixed_scott, add=TRUE)
+```
+
+Looking at the plot created, it appears that by reducing the bandwidth (thus making the point cluster buffers smaller), the over-smoothing effects have been minimized. However, we still can observe the Grab destination hotspot areas, which we can investigate further in subsequent sections.
+
 #### 7.3.4 Kernel Function Selection for Fixed Bandwidth
 
 Kernel functions are important because they control how we weight points within the radius. The default kernel in `density.ppp()` is the `gaussian`. But there are other options. We can use the `epanechnikov`, `quartic` or `disc.`
@@ -782,7 +821,7 @@ plot(kde_fixed_scott.disc, main="Disc")
 
 ### 7.4 Creating KDE Layers with Spatially Adaptive Bandwidth
 
-Fixed bandwidth kernels are commonly employed in statistical literature due to their ease of implementation. However, their application in spatial datasets often yields suboptimal estimations due to a lack of spatial and temporal adaptability (González & Moraga, 2022). Consequently, the more intuitive \'adaptive smoothing\' approach has emerged. In this technique, the amount of smoothing is inversely related to the density of the points.
+Fixed bandwidth kernels are commonly employed in statistical literature due to their ease of implementation. However, their application in spatial datasets often yields suboptimal estimations due to a lack of spatial and temporal adaptability (González & Moraga, 2022). Consequently, the more intuitive 'adaptive smoothing' approach has emerged. In this technique, the amount of smoothing is inversely related to the density of the points.
 
 In **spatstat** packages, there are three main approaches (Pebesma & Bivand, 2023) in creating KDE layers with spatially adapative bandwidth.
 
@@ -805,10 +844,6 @@ par(mar = c(0,1,1,1))
 plot(kde_destination_dirichlet_adaptive,main = "Voronoi-Dirichlet Adaptive Density Estimate")
 ```
 
-```{r}
-hist(kde_destination_dirichlet_adaptive,main = "Voronoi-Dirichlet Adaptive Density Estimate")
-```
-
 #### 7.4.2 Adaptive Kernel Density Estimate
 
 The Adaptive Kernel estimator is computed in **spatstat** by the function `adaptive.density()` with argument `method="kernel"`.
@@ -820,10 +855,6 @@ kde_destination_kernel_adaptive <- adaptive.density(destination_ppp_sg.km, metho
 ```{r}
 par(mar = c(0,1,1,1))
 plot(kde_destination_kernel_adaptive,main = "Adaptive Kernel Density Estimate")
-```
-
-```{r}
-hist(kde_destination_kernel_adaptive,main = "Adaptive Kernel Density Estimate")
 ```
 
 #### 7.4.3 Nearest-Neighbour Density Estimate
@@ -839,9 +870,22 @@ par(mar = c(0,1,1,1))
 plot(kde_adaptive_nn,main = "Nearest-Neighbour Adaptive Density Estimate")
 ```
 
+#### 7.4.3 Choosing Adaptive KDE Method
+
+Similar to what we did for fixed bandwidth, we can try to plot histograms to compare the distribution of KDE values obtained from `density()` function using different adaptive bandwidth selection methods.
+
 ```{r}
-hist(kde_adaptive_nn,main = "Nearest-Neighbour Adaptive Density Estimate")
+#| fig-width: 10
+
+par(mar = c(2,2,2,2),mfrow = c(2,2))
+hist(kde_destination_dirichlet_adaptive,main = "Voronoi-Dirichlet Adaptive")
+hist(kde_destination_kernel_adaptive,main = "Adaptive Kernel")
+hist(kde_adaptive_nn,main = "Nearest-Neighbour Adaptive")
 ```
+
+From the outputs, it seems that there is no significance difference between the distribution of KDE values obtained across different methods. All three methods identified a high concentration of points in a specific area. Hence, we will choose to go with `Adapative Kernel` method because it provides the most
+
+### 7.5 Plotting Interactive KDE Maps
 
 ```{r}
 raster_kde_fixed_scott <- raster(kde_fixed_scott)
@@ -861,10 +905,10 @@ tm_basemap(server = "OpenStreetMap.HOT") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_fixed_scott) +
   tm_raster("layer",
-            n = 7,
+            n = 10,
             title = "KDE_Fixed_scott",
             alpha = 0.6,
-            palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
+            palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e")) +
   tm_shape(mpsz_sf)+
   tm_polygons(alpha=0.1,id="PLN_AREA_N")+
   tmap_options(check.and.fix = TRUE)
@@ -880,7 +924,7 @@ tm_basemap(server = "OpenStreetMap.HOT") +
             title = "KDE_Adaptive_nn",
             style = "pretty",
             alpha = 0.6,
-            palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
+            palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e")) +
   tm_shape(mpsz_sf)+
   tm_polygons(alpha=0.1,id="PLN_AREA_N")+
   tmap_options(check.and.fix = TRUE)
@@ -896,7 +940,7 @@ tm_basemap(server = "OpenStreetMap.HOT") +
             title = "KDE_Adaptive_Kernel",
             style = "pretty",
             alpha = 0.6,
-            palette = c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e")) +
+            palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e")) +
   tm_shape(mpsz_sf)+
   tm_polygons(alpha=0.1,id="PLN_AREA_N")+
   tmap_options(check.and.fix = TRUE)
@@ -908,35 +952,48 @@ tm_basemap(server = "OpenStreetMap.HOT") +
 wl= mpsz_sf %>% filter(PLN_AREA_N == "WOODLANDS")
 je = mpsz_sf %>% filter(PLN_AREA_N == "JURONG EAST")
 jw = mpsz_sf %>% filter(PLN_AREA_N == "JURONG WEST")
-tp = mpsz_sf %>% filter(PLN_AREA_N == "TAMPINES")
-#central = mpsz_sf %>% filter(REGION_N == "CENTRAL REGION")
+tn = mpsz_sf %>% filter(PLN_AREA_N == "TAMPINES")
+tp = mpsz_sf %>% filter(PLN_AREA_N == "TOA PAYOH")
+pg = mpsz_sf %>% filter(PLN_AREA_N == "PUNGGOL")
 
-par(mar = c(1,1,2,0),mfrow=c(2,2))
+
+par(mar = c(1,1,1,0),mfrow=c(2,3))
 plot(st_geometry(wl), main = "Punggol")
 plot(st_geometry(je), main = "Jurong East")
 plot(st_geometry(jw), main = "Jurong West")
-plot(st_geometry(tp), main = "Tampines")
+plot(st_geometry(tn), main = "Tampines")
+plot(st_geometry(tp), main = "Toa Payoh")
+plot(st_geometry(pg), main = "Punggol")
 ```
 
 ```{r}
 wl_owin = as.owin(wl)
 je_owin = as.owin(je)
 jw_owin = as.owin(jw)
+tn_owin = as.owin(tn)
 tp_owin = as.owin(tp)
+pg_owin = as.owin(pg)
 
-origin_wl_ppp = origin_ppp_sg[wl_owin]
-origin_je_ppp = origin_ppp_sg[je_owin]
-origin_jw_ppp = origin_ppp_sg[jw_owin]
-origin_tp_ppp = origin_ppp_sg[tp_owin]
+destination_wl_ppp = destination_ppp_sg[wl_owin]
+destination_je_ppp = destination_ppp_sg[je_owin]
+destination_jw_ppp = destination_ppp_sg[jw_owin]
+destination_tn_ppp = destination_ppp_sg[tn_owin]
+destination_tp_ppp = destination_ppp_sg[tp_owin]
+destination_pg_ppp = destination_ppp_sg[pg_owin]
 ```
 
 ```{r}
-wl_kde_scott <- density(origin_wl_ppp, sigma=bw.scott, main="Woodlands")
-je_kde_scott <- density(origin_je_ppp, sigma=bw.scott, main="Jurong East")
-jw_kde_scott <- density(origin_jw_ppp, sigma=bw.scott, main="Jurong West")
-tp_kde_scott <- density(origin_tp_ppp, sigma=bw.scott, main="Tampines")
+#| fig-width: 10
+#| fig-height: 15
 
-par(mar = c(1,1,1,1.5),mfrow = c(2,2))
+wl_kde_scott <- density(destination_wl_ppp, sigma=bw.scott, main="Woodlands")
+je_kde_scott <- density(destination_je_ppp, sigma=bw.scott, main="Jurong East")
+jw_kde_scott <- density(destination_jw_ppp, sigma=bw.scott, main="Jurong West")
+tn_kde_scott <- density(destination_tn_ppp, sigma=bw.scott, main="Tampines")
+tp_kde_scott <- density(destination_tp_ppp, sigma=bw.scott, main="Toa Payoh")
+pg_kde_scott <- density(destination_pg_ppp, sigma=bw.scott, main="Punggol")
+
+par(mar = c(1,1,1,1.5),mfrow = c(3,2))
 
 plot(wl_kde_scott,main = "KDE Woodlands")
 contour(wl_kde_scott, add=TRUE)
@@ -944,8 +1001,12 @@ plot(je_kde_scott,main = "KDE Jurong East")
 contour(je_kde_scott, add=TRUE)
 plot(jw_kde_scott,main = "KDE Jurong West")
 contour(jw_kde_scott, add=TRUE)
-plot(tp_kde_scott,main = "KDE Tampines")
+plot(tn_kde_scott,main = "KDE Tampines")
+contour(tn_kde_scott, add=TRUE)
+plot(tp_kde_scott,main = "KDE Toa Payoh")
 contour(tp_kde_scott, add=TRUE)
+plot(pg_kde_scott,main = "KDE Punggol")
+contour(pg_kde_scott, add=TRUE)
 ```
 
 ### 7.0 Spatial Randomness Test
@@ -986,15 +1047,192 @@ clarkevans.test(destination_ppp_sg,
                 nsim=99)
 ```
 
-```{r}
-```
-
 ## 8.0 Network Constrained Kernel Density Estimation (NKDE)
 
 Many real world point event are not randomly distributed. Their distribution, on the other hand, are constrained by network such as roads, rivers, and fault lines just to name a few of them.
 
-```{r}
+### 8.1 Extracting Road Networks for Focus Planning Areas
 
+```{r}
+wl_network = st_intersection(sg_driving_sf,st_union(wl))
+je_network = st_intersection(sg_driving_sf,st_union(je))
+jw_network = st_intersection(sg_driving_sf,st_union(jw))
+tn_network = st_intersection(sg_driving_sf,st_union(tn))
+tp_network = st_intersection(sg_driving_sf,st_union(tp))
+pg_network = st_intersection(sg_driving_sf,st_union(pg))
+```
+
+```{r}
+wl_destination = st_intersection(destination_sf,st_union(wl))
+je_destination = st_intersection(destination_sf,st_union(je))
+jw_destination = st_intersection(destination_sf,st_union(jw))
+tn_destination = st_intersection(destination_sf,st_union(tn))
+tp_destination = st_intersection(destination_sf,st_union(tp))
+pg_destination = st_intersection(destination_sf,st_union(pg))
+```
+
+```{r}
+#| fig-width : 10
+tmap_mode("plot")
+tm_shape(st_union(wl)) +
+  tm_polygons(col="white") +
+  tm_shape(wl_destination) + 
+  tm_dots() + 
+tm_shape(wl_network) +
+  tm_lines(col="fclass", palette ="Spectral") +
+  tm_layout(main.title = "Road Network and Destination Points in Woodlands",
+            main.title.position = "center",
+            main.title.size = 0.9,
+            legend.outside = TRUE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
+```
+
+```{r}
+#| fig-width: 10
+
+tm_shape(st_union(je)) +
+  tm_polygons(col="white") +
+  tm_shape(je_destination) + 
+  tm_dots() + 
+tm_shape(je_network) +
+  tm_lines(col="fclass", palette ="Spectral") +
+  tm_layout(main.title = "Road Network and Destination Points in Jurong East",
+            main.title.position = "center",
+            main.title.size = 0.9,
+            legend.outside = TRUE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
+
+tm_shape(st_union(jw)) +
+  tm_polygons(col="white") +
+  tm_shape(jw_destination) + 
+  tm_dots() + 
+tm_shape(jw_network) +
+  tm_lines(col="fclass", palette ="Spectral") +
+  tm_layout(main.title = "Road Network and Destination Points in Jurong West",
+            main.title.position = "center",
+            main.title.size = 0.9,
+            legend.outside = TRUE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
+
+tm_shape(st_union(tn)) +
+  tm_polygons(col="white") +
+  tm_shape(tn_destination) + 
+  tm_dots() + 
+tm_shape(tn_network) +
+  tm_lines(col="fclass", palette ="Spectral") +
+  tm_layout(main.title = "Road Network and Destination Points in Tampines",
+            main.title.position = "center",
+            main.title.size = 0.9,
+            legend.outside = TRUE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
+
+tm_shape(st_union(tp)) +
+  tm_polygons(col="white") +
+  tm_shape(tp_destination) + 
+  tm_dots() + 
+tm_shape(tp_network) +
+  tm_lines(col="fclass", palette ="Spectral") +
+  tm_layout(main.title = "Road Network and Destination Points in Toa Payoh",
+            main.title.position = "center",
+            main.title.size = 0.9,
+            legend.outside = TRUE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
+```
+
+### 8.3 **Data Preparation**
+
+::: {callout-note}
+For illustrative purpose, I'll use "Punggol" as a example to demonstrate step-by-step data preparation. We will create maps for the remaining planning areas at the end.
+:::
+
+#### 8.3.1 **Preparing the lixels objects**
+
+Before computing NetKDE, the SpatialLines object need to be cut into lixels with a specified minimal distance. This task can be performed by using with `lixelize_lines()` of spNetwork
+
+```{r}
+pg_lixels <- lixelize_lines(pg_network, 
+                         700, 
+                         mindist = 350)
+```
+
+-   The length of a lixel, *lx_length* is set to 700m, and
+
+-   The minimum length of a lixel, *mindist* is set to 350m.
+
+After cut, if the length of the final lixel is shorter than the minimum distance, then it is added to the previous lixel. If NULL, then mindist = maxdist/10. Also note that the segments that are already shorter than the minimum distance are not modified.
+
+#### 8.3.2 **Generating line centre points**
+
+Next, *lines_center()* of **spNetwork** will be used to generate a SpatialPointsDataFrame (i.e. samples) with line centre points. The points are located at center of the line based on the length of the line.
+
+```{r}
+pg_samples <- lines_center(pg_lixels)
+```
+
+### 8.4 **Performing NetKDE**
+
+#### 8.4.1 **Computing NetKDE densities**
+
+We are ready to compute the NetKDE
+
+```{r}
+pg_densities <- densities <- nkde(pg_network, 
+                  events = pg_destination,
+                  w = rep(1,nrow(pg_destination)),
+                  samples = pg_samples,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+#### 8.4.1 **Visualising NetKDE densities**
+
+Before we can visualise the NetKDE values, code chunk below will be used to insert the computed density values (i.e. densities) into *samples* and *lixels* objects as *density* field.
+
+```{r}
+pg_samples$density <- pg_densities
+pg_lixels$density <- pg_densities
+```
+
+Similar to what we did in KDE, we will rescle the density values.
+
+```{r}
+pg_samples$density <- pg_samples$density*1000
+pg_lixels$density <- pg_lixels$density*1000
+```
+
+Now we can plot the NetKDE map using `tmap`.
+
+```{r}
+tmap_mode('view')
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(pg_lixels)+
+  tm_lines(col="density", palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(pg_destination)+
+  tm_dots(size=0.005)
+```
+
+We can also compare with traditonal KDE as below.
+
+```{r}
+raster_pg_kde_scott = raster(pg_kde_scott)
+projection(raster_pg_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
+class(raster_pg_kde_scott)
 ```
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
