@@ -1072,7 +1072,7 @@ pg_destination = st_intersection(destination_sf,st_union(pg))
 ```
 
 ```{r}
-#| fig-width : 10
+
 tmap_mode("plot")
 tm_shape(st_union(wl)) +
   tm_polygons(col="white") +
@@ -1089,7 +1089,6 @@ tm_shape(wl_network) +
 ```
 
 ```{r}
-#| fig-width: 10
 
 tm_shape(st_union(je)) +
   tm_polygons(col="white") +
