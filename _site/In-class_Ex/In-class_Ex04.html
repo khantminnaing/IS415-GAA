@@ -211,6 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#performing-relational-joint" id="toc-performing-relational-joint" class="nav-link" data-scroll-target="#performing-relational-joint">4.1. Performing Relational Joint</a></li>
   <li><a href="#conversion-to-spatialpoint-object" id="toc-conversion-to-spatialpoint-object" class="nav-link" data-scroll-target="#conversion-to-spatialpoint-object">4.2 Conversion to SpatialPoint Object</a></li>
   </ul></li>
+  <li><a href="#geographically-weighted-summary-statistics-gwss" id="toc-geographically-weighted-summary-statistics-gwss" class="nav-link" data-scroll-target="#geographically-weighted-summary-statistics-gwss">5.0 <strong>Geographically Weighted Summary Statistics (GWSS)</strong></a></li>
   </ul></li>
   </ul>
 </nav>
@@ -352,6 +353,270 @@ Geodetic CRS:  WGS 84</code></pre>
 </section>
 <section id="conversion-to-spatialpoint-object" class="level3">
 <h3 class="anchored" data-anchor-id="conversion-to-spatialpoint-object">4.2 Conversion to SpatialPoint Object</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>hunan_sp <span class="ot">&lt;-</span> hunan <span class="sc">%&gt;%</span> <span class="fu">as_Spatial</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="geographically-weighted-summary-statistics-gwss" class="level2">
+<h2 class="anchored" data-anchor-id="geographically-weighted-summary-statistics-gwss">5.0 <strong>Geographically Weighted Summary Statistics (GWSS)</strong></h2>
+<p>This function calculates basic and robust GWSS, including geographically weighted means, standard deviations and skew. Robust alternatives include geographically weighted medians, inter-quartile ranges and quantile imbalances. This function also calculates basic geographically weighted covariances together with basic and robust geographically weighted correlations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>gwstat <span class="ot">&lt;-</span> <span class="fu">gwss</span>(<span class="at">data=</span> hunan_sp,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">vars =</span> <span class="st">"GDPPC"</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">bw =</span> <span class="dv">6</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">kernel =</span> <span class="st">"bisquare"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">adaptive =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">longlat =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>What can we learn from this code chunk?</strong></p>
+<ol type="1">
+<li><p>The <strong><code>data</code></strong> argument is set to <strong><code>hunan_sp</code></strong>, which means the data being used is stored in the <strong><code>hunan_sp</code></strong> variable.</p></li>
+<li><p>The <strong><code>vars</code></strong> argument is set to <strong><code>"GDPPC"</code></strong>. This indicates that the variable of interest in the <strong><code>hunan_sp</code></strong> data is <strong><code>"GDPPC"</code></strong>.</p></li>
+<li><p>The <strong><code>bw</code></strong> argument is set to <strong><code>6</code></strong>. This is the bandwidth parameter for the geographical weighting, which controls the degree of smoothing.</p></li>
+<li><p>The <strong><code>kernel</code></strong> argument is set to <strong><code>"bisquare"</code></strong>. This means the bisquare kernel function is used for weighting.</p></li>
+<li><p>The <strong><code>adaptive</code></strong> argument is set to <strong><code>TRUE</code></strong>, which means the bandwidth is adaptive. In other words, the bandwidth adjusts depending on the density of the data points.</p></li>
+<li><p>The <strong><code>longlat</code></strong> argument is set to <strong><code>T</code></strong> (short for <strong><code>TRUE</code></strong>). This indicates that the data's coordinates are in longitude and latitude.</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>gwstat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ***********************************************************************
+   *                       Package   GWmodel                             *
+   ***********************************************************************
+
+   ***********************Calibration information*************************
+
+   Local summary statistics calculated for variables:
+    GDPPC
+   Number of summary points: 88
+   Kernel function: bisquare 
+   Summary points: the same locations as observations are used.
+   Adaptive bandwidth: 6 (number of nearest neighbours)
+   Distance metric: Great Circle distance metric is used.
+
+   ************************Local Summary Statistics:**********************
+   Summary information for Local means:
+GDPPC_LM 
+    Min.  1st Qu.   Median  3rd Qu.     Max. 
+10313.11 17616.21 21981.39 28547.05 73545.30 
+   Summary information for local standard deviation :
+GDPPC_LSD 
+      Min.    1st Qu.     Median    3rd Qu.       Max. 
+  926.3095  3319.0782  5041.7997  7602.3637 24377.4421 
+   Summary information for local variance :
+GDPPC_LVar 
+       Min.     1st Qu.      Median     3rd Qu.        Max. 
+   858049.3  11030994.6  25419746.0  57798649.1 594259684.0 
+   Summary information for Local skewness:
+GDPPC_LSKe 
+       Min.     1st Qu.      Median     3rd Qu.        Max. 
+-3.74328455 -0.06903772  0.74202796  1.20539540  5.98374890 
+   Summary information for localized coefficient of variation:
+GDPPC_LCV 
+      Min.    1st Qu.     Median    3rd Qu.       Max. 
+0.04955751 0.15100369 0.22079470 0.33316203 0.95567593 
+
+   ************************************************************************</code></pre>
+</div>
+</div>
+<p>The output of the <code>gwss()</code> function is a SpatialPointsDataFrame (SDF). We can view the values inside this dataframe.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>gwstat_df <span class="ot">&lt;-</span> gwstat[[<span class="st">"SDF"</span>]]<span class="sc">@</span>data</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>gwstat_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   GDPPC_LM  GDPPC_LSD  GDPPC_LVar  GDPPC_LSKe  GDPPC_LCV
+1  26797.76  5368.4595  28820357.0  0.66633204 0.20033243
+2  21194.35  1698.0390   2883336.3  2.09614479 0.08011754
+3  27755.09  4825.3960  23284446.3  0.64707878 0.17385627
+4  27142.60  4146.6643  17194824.5  1.16119871 0.15277327
+5  27681.99  4332.3440  18769204.5  0.92967739 0.15650406
+6  24249.16  3670.7229  13474206.9 -0.85466668 0.15137523
+7  59246.71 22419.9966 502656247.4 -0.62939642 0.37841757
+8  50685.94 16702.7409 278981554.2 -0.86488843 0.32953402
+9  69729.10 15306.7753 234297370.2 -0.84589675 0.21951775
+10 19740.12  8635.5046  74571939.8  1.07796143 0.43745947
+11 24375.01 22290.1025 496848668.9  1.18483157 0.91446544
+12 29322.23  5962.4104  35550337.5 -1.88571194 0.20334096
+13 23969.10  5043.2717  25434589.3  0.56523820 0.21040723
+14 25383.12 24258.0380 588452406.9  1.03964154 0.95567593
+15 21816.34  5040.3276  25404902.6  1.04816353 0.23103455
+16 36359.36 16102.9533 259305105.8  0.56214571 0.44288329
+17 42389.06 24307.7075 590864643.0 -0.32129825 0.57344291
+18 23672.87  2642.5387   6983010.8 -2.57545765 0.11162733
+19 27607.43  3389.1128  11486085.5  1.50576400 0.12276090
+20 22223.48  1889.3881   3569787.4  0.97182679 0.08501764
+21 24679.04  2679.7697   7181165.8 -1.15519704 0.10858485
+22 26558.82  7204.3387  51902495.6  0.01029577 0.27125975
+23 19778.52  2879.7720   8293087.0  1.11653676 0.14560101
+24 18458.67  5484.3159  30077721.1  1.62822457 0.29711324
+25 23423.43  7021.5422  49302054.4  0.03116617 0.29976582
+26 16541.26  2397.1846   5746493.9  0.60063497 0.14492156
+27 16545.42  3392.6269  11509917.5  0.06849616 0.20504933
+28 15066.82  4122.0062  16990935.1  3.08938061 0.27358169
+29 14821.56  3662.2795  13412290.8  0.44253465 0.24709131
+30 16915.67  2471.5922   6108768.0  0.72194074 0.14611257
+31 15183.78  3588.4893  12877255.6  2.94946079 0.23633700
+32 21541.65  5069.4678  25699503.7 -1.43147322 0.23533329
+33 19601.11  3108.9744   9665722.0  0.50522382 0.15861214
+34 32412.12 24242.1346 587681090.0  0.53522173 0.74793418
+35 20599.49  4617.7969  21324048.0  1.19120123 0.22417046
+36 28859.13 23348.8623 545169370.5  0.85575588 0.80906328
+37 11984.64  2493.0666   6215381.2  0.86286370 0.20802177
+38 17861.63  4667.0959  21781784.0 -0.94299674 0.26129176
+39 12911.26  2058.7063   4238271.6  0.57312479 0.15945051
+40 10313.11  1358.4328   1845339.8  1.46878192 0.13171898
+41 22146.45  4918.0988  24187695.5 -1.25740463 0.22207165
+42 14975.46  2055.6929   4225873.1 -1.70732382 0.13727074
+43 12164.44  1245.7923   1551998.4  1.22251626 0.10241262
+44 13193.61  3927.1815  15422754.5  1.39569677 0.29765777
+45 28443.02 24377.4421 594259684.0  0.77640738 0.85706245
+46 47125.62 15312.7089 234479054.1 -0.27861152 0.32493383
+47 38611.99 14830.2228 219935507.2  0.36610524 0.38408332
+48 17657.75  5844.9396  34163319.0  1.30857144 0.33101270
+49 17491.60  6505.9155  42326936.2  1.45654920 0.37194513
+50 15515.46  7517.4264  56511699.0  1.54877539 0.48451204
+51 20510.72  6286.3751  39518511.4  0.76211517 0.30649211
+52 26867.31  6659.8455  44353542.2 -0.81626138 0.24787916
+53 10537.76  1827.5034   3339768.6  1.73988753 0.17342427
+54 21458.65  6410.2129  41090829.2  0.92850266 0.29872402
+55 11158.95  2038.4420   4155245.7  0.87994007 0.18267325
+56 17755.28 12355.3608 152654940.8  3.44850457 0.69586971
+57 24456.63  3410.7395  11633143.6  0.67835216 0.13946070
+58 26336.34  4277.4598  18296661.9  0.62670078 0.16241662
+59 16996.88  1726.1703   2979664.0  0.32191512 0.10155806
+60 21694.07  5586.4342  31208247.3  0.41714732 0.25750971
+61 13001.25  1283.9048   1648411.5  5.98374890 0.09875244
+62 18465.25  3787.5902  14345839.6 -0.53021537 0.20511986
+63 18303.20  7692.6257  59176489.7  1.19968844 0.42028858
+64 26403.02  3950.9600  15610084.7 -0.16628639 0.14964046
+65 29483.86  5240.6913  27464845.8 -0.03662150 0.17774779
+66 39627.60  5939.7432  35280549.4  2.79485609 0.14988906
+67 31222.95 20177.8114 407144072.6  1.17435721 0.64624938
+68 38729.57 13251.8288 175610966.4  1.87097064 0.34216308
+69 21023.94  4320.0698  18663002.8  0.33292211 0.20548333
+70 21779.33  7897.1802  62365454.8  0.84949897 0.36259973
+71 36145.76  7572.2763  57339368.9  0.60666792 0.20949281
+72 18320.55  7250.8272  52574495.5  2.82295265 0.39577568
+73 32111.38  6803.2988  46284874.5 -0.78168385 0.21186567
+74 31241.75  6281.7162  39459957.9  1.01170224 0.20106800
+75 14149.53  3479.5527  12107287.0  0.61165691 0.24591292
+76 30094.68  5357.3059  28700726.8  1.43635637 0.17801508
+77 20612.58  1021.5081   1043478.9 -1.22827158 0.04955751
+78 28030.22 16659.8549 277550765.8  1.55786400 0.59435324
+79 11568.42  4599.1330  21152024.5  2.42445803 0.39755941
+80 30072.20 20122.3972 404910869.5  1.07612199 0.66913621
+81 20798.53  6099.8177  37207775.7  0.91816728 0.29328120
+82 20711.07  2402.3836   5771447.0  1.04546797 0.11599516
+83 31736.24  3995.0473  15960402.8 -3.74328455 0.12588280
+84 73545.30 17307.2896 299542274.1 -0.94731806 0.23532827
+85 22871.95  1329.5897   1767808.8  3.12696176 0.05813188
+86 32486.94 11032.8903 121724668.1  1.59450531 0.33961003
+87 17429.45  2571.4590   6612401.6 -0.50838795 0.14753533
+88 17096.49   926.3095    858049.3 -0.68882538 0.05418127</code></pre>
+</div>
+</div>
+<p>GDPPC_LM refers to <strong>local means</strong></p>
+<p>GDPPC_LSD refers to <strong>local standard deviation</strong></p>
+<p>GDPPC_LVar refers to <strong>local variance</strong></p>
+<p>GDPPC_LSKe refers to <strong>local skew</strong></p>
+<p>GDPPC_LCV refers to <strong>local coefficients of variation</strong></p>
+<section id="homework-plot-different-thematic-maps-using-gwss-results" class="level4">
+<h4 class="anchored" data-anchor-id="homework-plot-different-thematic-maps-using-gwss-results">Homework: Plot Different Thematic Maps Using GWSS Results</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>gwstat_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   GDPPC_LM  GDPPC_LSD  GDPPC_LVar  GDPPC_LSKe  GDPPC_LCV
+1  26797.76  5368.4595  28820357.0  0.66633204 0.20033243
+2  21194.35  1698.0390   2883336.3  2.09614479 0.08011754
+3  27755.09  4825.3960  23284446.3  0.64707878 0.17385627
+4  27142.60  4146.6643  17194824.5  1.16119871 0.15277327
+5  27681.99  4332.3440  18769204.5  0.92967739 0.15650406
+6  24249.16  3670.7229  13474206.9 -0.85466668 0.15137523
+7  59246.71 22419.9966 502656247.4 -0.62939642 0.37841757
+8  50685.94 16702.7409 278981554.2 -0.86488843 0.32953402
+9  69729.10 15306.7753 234297370.2 -0.84589675 0.21951775
+10 19740.12  8635.5046  74571939.8  1.07796143 0.43745947
+11 24375.01 22290.1025 496848668.9  1.18483157 0.91446544
+12 29322.23  5962.4104  35550337.5 -1.88571194 0.20334096
+13 23969.10  5043.2717  25434589.3  0.56523820 0.21040723
+14 25383.12 24258.0380 588452406.9  1.03964154 0.95567593
+15 21816.34  5040.3276  25404902.6  1.04816353 0.23103455
+16 36359.36 16102.9533 259305105.8  0.56214571 0.44288329
+17 42389.06 24307.7075 590864643.0 -0.32129825 0.57344291
+18 23672.87  2642.5387   6983010.8 -2.57545765 0.11162733
+19 27607.43  3389.1128  11486085.5  1.50576400 0.12276090
+20 22223.48  1889.3881   3569787.4  0.97182679 0.08501764
+21 24679.04  2679.7697   7181165.8 -1.15519704 0.10858485
+22 26558.82  7204.3387  51902495.6  0.01029577 0.27125975
+23 19778.52  2879.7720   8293087.0  1.11653676 0.14560101
+24 18458.67  5484.3159  30077721.1  1.62822457 0.29711324
+25 23423.43  7021.5422  49302054.4  0.03116617 0.29976582
+26 16541.26  2397.1846   5746493.9  0.60063497 0.14492156
+27 16545.42  3392.6269  11509917.5  0.06849616 0.20504933
+28 15066.82  4122.0062  16990935.1  3.08938061 0.27358169
+29 14821.56  3662.2795  13412290.8  0.44253465 0.24709131
+30 16915.67  2471.5922   6108768.0  0.72194074 0.14611257
+31 15183.78  3588.4893  12877255.6  2.94946079 0.23633700
+32 21541.65  5069.4678  25699503.7 -1.43147322 0.23533329
+33 19601.11  3108.9744   9665722.0  0.50522382 0.15861214
+34 32412.12 24242.1346 587681090.0  0.53522173 0.74793418
+35 20599.49  4617.7969  21324048.0  1.19120123 0.22417046
+36 28859.13 23348.8623 545169370.5  0.85575588 0.80906328
+37 11984.64  2493.0666   6215381.2  0.86286370 0.20802177
+38 17861.63  4667.0959  21781784.0 -0.94299674 0.26129176
+39 12911.26  2058.7063   4238271.6  0.57312479 0.15945051
+40 10313.11  1358.4328   1845339.8  1.46878192 0.13171898
+41 22146.45  4918.0988  24187695.5 -1.25740463 0.22207165
+42 14975.46  2055.6929   4225873.1 -1.70732382 0.13727074
+43 12164.44  1245.7923   1551998.4  1.22251626 0.10241262
+44 13193.61  3927.1815  15422754.5  1.39569677 0.29765777
+45 28443.02 24377.4421 594259684.0  0.77640738 0.85706245
+46 47125.62 15312.7089 234479054.1 -0.27861152 0.32493383
+47 38611.99 14830.2228 219935507.2  0.36610524 0.38408332
+48 17657.75  5844.9396  34163319.0  1.30857144 0.33101270
+49 17491.60  6505.9155  42326936.2  1.45654920 0.37194513
+50 15515.46  7517.4264  56511699.0  1.54877539 0.48451204
+51 20510.72  6286.3751  39518511.4  0.76211517 0.30649211
+52 26867.31  6659.8455  44353542.2 -0.81626138 0.24787916
+53 10537.76  1827.5034   3339768.6  1.73988753 0.17342427
+54 21458.65  6410.2129  41090829.2  0.92850266 0.29872402
+55 11158.95  2038.4420   4155245.7  0.87994007 0.18267325
+56 17755.28 12355.3608 152654940.8  3.44850457 0.69586971
+57 24456.63  3410.7395  11633143.6  0.67835216 0.13946070
+58 26336.34  4277.4598  18296661.9  0.62670078 0.16241662
+59 16996.88  1726.1703   2979664.0  0.32191512 0.10155806
+60 21694.07  5586.4342  31208247.3  0.41714732 0.25750971
+61 13001.25  1283.9048   1648411.5  5.98374890 0.09875244
+62 18465.25  3787.5902  14345839.6 -0.53021537 0.20511986
+63 18303.20  7692.6257  59176489.7  1.19968844 0.42028858
+64 26403.02  3950.9600  15610084.7 -0.16628639 0.14964046
+65 29483.86  5240.6913  27464845.8 -0.03662150 0.17774779
+66 39627.60  5939.7432  35280549.4  2.79485609 0.14988906
+67 31222.95 20177.8114 407144072.6  1.17435721 0.64624938
+68 38729.57 13251.8288 175610966.4  1.87097064 0.34216308
+69 21023.94  4320.0698  18663002.8  0.33292211 0.20548333
+70 21779.33  7897.1802  62365454.8  0.84949897 0.36259973
+71 36145.76  7572.2763  57339368.9  0.60666792 0.20949281
+72 18320.55  7250.8272  52574495.5  2.82295265 0.39577568
+73 32111.38  6803.2988  46284874.5 -0.78168385 0.21186567
+74 31241.75  6281.7162  39459957.9  1.01170224 0.20106800
+75 14149.53  3479.5527  12107287.0  0.61165691 0.24591292
+76 30094.68  5357.3059  28700726.8  1.43635637 0.17801508
+77 20612.58  1021.5081   1043478.9 -1.22827158 0.04955751
+78 28030.22 16659.8549 277550765.8  1.55786400 0.59435324
+79 11568.42  4599.1330  21152024.5  2.42445803 0.39755941
+80 30072.20 20122.3972 404910869.5  1.07612199 0.66913621
+81 20798.53  6099.8177  37207775.7  0.91816728 0.29328120
+82 20711.07  2402.3836   5771447.0  1.04546797 0.11599516
+83 31736.24  3995.0473  15960402.8 -3.74328455 0.12588280
+84 73545.30 17307.2896 299542274.1 -0.94731806 0.23532827
+85 22871.95  1329.5897   1767808.8  3.12696176 0.05813188
+86 32486.94 11032.8903 121724668.1  1.59450531 0.33961003
+87 17429.45  2571.4590   6612401.6 -0.50838795 0.14753533
+88 17096.49   926.3095    858049.3 -0.68882538 0.05418127</code></pre>
+</div>
+</div>
 
 
 </section>

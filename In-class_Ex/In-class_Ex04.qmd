@@ -96,4 +96,59 @@ hunan <- left_join(hunan,hunan2012, join_by(County))%>%
 ### 4.2 Conversion to SpatialPoint Object
 
 ```{r}
+hunan_sp <- hunan %>% as_Spatial()
+```
+
+## 5.0 **Geographically Weighted Summary Statistics (GWSS)**
+
+This function calculates basic and robust GWSS, including geographically weighted means, standard deviations and skew. Robust alternatives include geographically weighted medians, inter-quartile ranges and quantile imbalances. This function also calculates basic geographically weighted covariances together with basic and robust geographically weighted correlations.
+
+```{r}
+gwstat <- gwss(data= hunan_sp,
+               vars = "GDPPC",
+               bw = 6,
+               kernel = "bisquare",
+               adaptive = TRUE,
+               longlat = T)
+```
+
+**What can we learn from this code chunk?**
+
+1.  The **`data`** argument is set to **`hunan_sp`**, which means the data being used is stored in the **`hunan_sp`** variable.
+
+2.  The **`vars`** argument is set to **`"GDPPC"`**. This indicates that the variable of interest in the **`hunan_sp`** data is **`"GDPPC"`**.
+
+3.  The **`bw`** argument is set to **`6`**. This is the bandwidth parameter for the geographical weighting, which controls the degree of smoothing.
+
+4.  The **`kernel`** argument is set to **`"bisquare"`**. This means the bisquare kernel function is used for weighting.
+
+5.  The **`adaptive`** argument is set to **`TRUE`**, which means the bandwidth is adaptive. In other words, the bandwidth adjusts depending on the density of the data points.
+
+6.  The **`longlat`** argument is set to **`T`** (short for **`TRUE`**). This indicates that the data\'s coordinates are in longitude and latitude.
+
+```{r}
+gwstat
+```
+
+The output of the `gwss()` function is a SpatialPointsDataFrame (SDF). We can view the values inside this dataframe.
+
+```{r}
+gwstat_df <- gwstat[["SDF"]]@data
+gwstat_df
+```
+
+GDPPC_LM refers to **local means**
+
+GDPPC_LSD refers to **local standard deviation**
+
+GDPPC_LVar refers to **local variance**
+
+GDPPC_LSKe refers to **local skew**
+
+GDPPC_LCV refers to **local coefficients of variation**
+
+#### Homework: Plot Different Thematic Maps Using GWSS Results
+
+```{r}
+gwstat_df
 ```
