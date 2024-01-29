@@ -209,7 +209,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#geospatial-data-wrangling" id="toc-geospatial-data-wrangling" class="nav-link" data-scroll-target="#geospatial-data-wrangling">4.0 Geospatial Data Wrangling</a>
   <ul class="collapse">
   <li><a href="#performing-relational-joint" id="toc-performing-relational-joint" class="nav-link" data-scroll-target="#performing-relational-joint">4.1. Performing Relational Joint</a></li>
-  <li><a href="#conversion-to-spatialpoint" id="toc-conversion-to-spatialpoint" class="nav-link" data-scroll-target="#conversion-to-spatialpoint">4.2 Conversion to SpatialPoint</a></li>
+  <li><a href="#conversion-to-spatialpoint-object" id="toc-conversion-to-spatialpoint-object" class="nav-link" data-scroll-target="#conversion-to-spatialpoint-object">4.2 Conversion to SpatialPoint Object</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -274,6 +274,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In this hands-on exercise, we will use the following R package:</p>
 <ul>
 <li><p><a href="https://r-spatial.github.io/sf/"><strong>sf</strong></a></p></li>
+<li><p>sp</p></li>
 <li><p><strong>spdep</strong>,</p></li>
 <li><p><a href="https://cran.r-project.org/web/packages/tmap/"><strong>tmap</strong></a></p></li>
 <li><p><strong>tidyverse</strong></p></li>
@@ -281,7 +282,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>GWmodel</strong></p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, spdep, tmap, tidyverse, knitr, GWmodel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, sp, spdep, tmap, tidyverse, knitr, GWmodel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="importing-datasets-to-r-environment" class="level2">
@@ -349,8 +350,8 @@ Geodetic CRS:  WGS 84</code></pre>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="conversion-to-spatialpoint" class="level3">
-<h3 class="anchored" data-anchor-id="conversion-to-spatialpoint">4.2 Conversion to SpatialPoint</h3>
+<section id="conversion-to-spatialpoint-object" class="level3">
+<h3 class="anchored" data-anchor-id="conversion-to-spatialpoint-object">4.2 Conversion to SpatialPoint Object</h3>
 
 
 </section>
