@@ -158,10 +158,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../Hands-on_Ex/hands_on04.html" rel="" target="">
  <span class="dropdown-text">Hands-On Exercise 4</span></a>
   </li>  
-        <li>
-    <a class="dropdown-item" href="../Hands-on_Ex/hands_on08.html" rel="" target="">
- <span class="dropdown-text">Hands-On Exercise 8</span></a>
-  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -216,7 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#exploratory-spatial-data-analysis" id="toc-exploratory-spatial-data-analysis" class="nav-link" data-scroll-target="#exploratory-spatial-data-analysis">5.0 Exploratory Spatial Data Analysis</a>
   <ul class="collapse">
-  <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator">5.1 <strong>Visualising Regional Development Indicator</strong></a></li>
+  <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator">5.1 Visualising Regional Development Indicator</a></li>
   </ul></li>
   <li><a href="#computing-contiguity-spatial-weights" id="toc-computing-contiguity-spatial-weights" class="nav-link" data-scroll-target="#computing-contiguity-spatial-weights">6.0 <strong>Computing Contiguity Spatial Weights</strong></a>
   <ul class="collapse">
@@ -284,7 +280,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">January 26, 2024</p>
+      <p class="date-modified">January 29, 2024</p>
     </div>
   </div>
     
@@ -320,7 +316,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In this exercise, we will use the following datasets:</p>
 <ul>
 <li><p><code>Hunan</code> county boundary layer. This is a geospatial data set in ESRI shapefile format.</p></li>
-<li><p><code>Hunan_2012.csv</code> This csv file contains selected Hunan's local development indicators in 2012.</p></li>
+<li><p><code>Hunan_2012.csv</code> This csv file contains selected Hunan’s local development indicators in 2012.</p></li>
 </ul>
 <section id="importing-geospatial-data" class="level3">
 <h3 class="anchored" data-anchor-id="importing-geospatial-data">3.1 Importing Geospatial Data</h3>
@@ -374,7 +370,7 @@ Geodetic CRS:  WGS 84</code></pre>
 <h3 class="anchored" data-anchor-id="performing-relational-joint">4.1. Performing Relational Joint</h3>
 <p>In previous section, we have imported a shapefile <code>hunan</code> representing the geographical boundaries of Hunan and a dataframe <code>hunan2012</code> which contains the attribute fields corresponding to counties in <code>Hunan</code>.</p>
 <p>The next step in our analysis involves updating the attribute table of the <code>hunan</code> shapefile with the values from <code>hunan2012</code>.</p>
-<p>Hence, we will need to update the attribute table of <code>Hunan</code> by using <code>left_join()</code> of dplyr package. This function effectively merges the two datasets, ensuring that each county's geographical data is accurately linked with its corresponding attribute data from the <strong><code>hunan2012</code></strong> dataframe.</p>
+<p>Hence, we will need to update the attribute table of <code>Hunan</code> by using <code>left_join()</code> of dplyr package. This function effectively merges the two datasets, ensuring that each county’s geographical data is accurately linked with its corresponding attribute data from the <strong><code>hunan2012</code></strong> dataframe.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>hunan <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hunan,hunan2012, <span class="fu">join_by</span>(County))<span class="sc">%&gt;%</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -385,7 +381,7 @@ Geodetic CRS:  WGS 84</code></pre>
 <h2 class="anchored" data-anchor-id="exploratory-spatial-data-analysis">5.0 Exploratory Spatial Data Analysis</h2>
 <p>In this section, we will carry out exploratory spatial data anlysis.</p>
 <section id="visualising-regional-development-indicator" class="level3">
-<h3 class="anchored" data-anchor-id="visualising-regional-development-indicator">5.1 <strong>Visualising Regional Development Indicator</strong></h3>
+<h3 class="anchored" data-anchor-id="visualising-regional-development-indicator">5.1 Visualising Regional Development Indicator</h3>
 <p>Now, we are going to prepare a basemap and a choropleth map showing the distribution of GDPPC 2012 by using <em>qtm()</em> of <strong>tmap</strong> package.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>basemap <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(hunan) <span class="sc">+</span></span>
@@ -403,7 +399,7 @@ Geodetic CRS:  WGS 84</code></pre>
 <section id="computing-contiguity-spatial-weights" class="level2">
 <h2 class="anchored" data-anchor-id="computing-contiguity-spatial-weights">6.0 <strong>Computing Contiguity Spatial Weights</strong></h2>
 <p>In this section, we will explore how to use <a href="https://r-spatial.github.io/spdep/reference/poly2nb.html"><em>poly2nb()</em></a> of <strong>spdep</strong> package to compute contiguity weight matrices for the study area.</p>
-<p>The <strong><code>poly2nb()</code></strong> function accepts an argument named <strong><code>queen</code></strong>, which can be set to either <strong><code>TRUE</code></strong> or <strong><code>FALSE</code></strong>. This argument plays a pivotal role in determining the criteria used for identifying neighboring regions. If the <strong><code>queen</code></strong> argument is not explicitly specified, the function defaults to <strong><code>TRUE</code></strong> and the function will generate a list of first-order neighbors using the Queen's contiguity criteria.</p>
+<p>The <strong><code>poly2nb()</code></strong> function accepts an argument named <strong><code>queen</code></strong>, which can be set to either <strong><code>TRUE</code></strong> or <strong><code>FALSE</code></strong>. This argument plays a pivotal role in determining the criteria used for identifying neighboring regions. If the <strong><code>queen</code></strong> argument is not explicitly specified, the function defaults to <strong><code>TRUE</code></strong> and the function will generate a list of first-order neighbors using the Queen’s contiguity criteria.</p>
 <section id="computing-queen-contiguity-based-neighbours" class="level3">
 <h3 class="anchored" data-anchor-id="computing-queen-contiguity-based-neighbours">6.1 <strong>Computing QUEEN contiguity based neighbours</strong></h3>
 <p>We will start out by computing Queen contiguity weight matrix</p>
@@ -470,7 +466,7 @@ Tip
 <pre><code>[1] 20981 34592 24473 21311 22879</code></pre>
 </div>
 </div>
-<p>The printed output above shows that the GDPPC of the five nearest neighbours based on Queen's method are 20981, 34592, 24473, 21311 and 22879 respectively.</p>
+<p>The printed output above shows that the GDPPC of the five nearest neighbours based on Queen’s method are 20981, 34592, 24473, 21311 and 22879 respectively.</p>
 <p>You can display the complete weight matrix by using <code>str()</code> function.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(wm_q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -650,7 +646,7 @@ Link number distribution:
 <section id="plotting-queen-and-rook-contiguity-based-neighbours-map" class="level4">
 <h4 class="anchored" data-anchor-id="plotting-queen-and-rook-contiguity-based-neighbours-map">6.3.2 Plotting QUEEN and ROOK contiguity based neighbours map</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>),<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>, <span class="at">main=</span><span class="st">"Queen Contiguity"</span>)</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_q, coords, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">add =</span> <span class="cn">TRUE</span>, <span class="at">col=</span> <span class="st">"grey"</span>)</span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>, <span class="at">main=</span><span class="st">"Rook Contiguity"</span>)</span>
@@ -710,7 +706,7 @@ Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Average number of links: 3.681818" in the output refers to the average number of neighboring regions each region has within the distance range of 0-62km. In the context of spatial analysis, a "link" is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62km).</p>
+<p>Average number of links: 3.681818” in the output refers to the average number of neighboring regions each region has within the distance range of 0-62km. In the context of spatial analysis, a “link” is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62km).</p>
 <p>So, an average of 3.681818 means that, on average, each region in our study area has about 3 to 4 neighboring regions within a distance of 62 units.</p>
 </div>
 </div>
@@ -976,7 +972,7 @@ Non-symmetric neighbours list</code></pre>
 </div>
 <section id="row-standardised-weights-matrix" class="level3">
 <h3 class="anchored" data-anchor-id="row-standardised-weights-matrix"><strong>8.1 Row-standardised weights matrix</strong></h3>
-<p>Next, we need to assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight (style="W"). This is accomplished by assigning the fraction 1/(#ofneighbors) to each neighboring county then summing the weighted income values. While this is the most intuitive way to summaries the neighbors' values it has one drawback in that polygons along the edges of the study area will base their lagged values on fewer polygons thus potentially over- or under-estimating the true nature of the spatial autocorrelation in the data. For this example, we'll stick with the style="W" option for simplicity's sake but note that other more robust options are available, notably style="B".</p>
+<p>Next, we need to assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight (style=“W”). This is accomplished by assigning the fraction 1/(#ofneighbors) to each neighboring county then summing the weighted income values. While this is the most intuitive way to summaries the neighbors’ values it has one drawback in that polygons along the edges of the study area will base their lagged values on fewer polygons thus potentially over- or under-estimating the true nature of the spatial autocorrelation in the data. For this example, we’ll stick with the style=“W” option for simplicity’s sake but note that other more robust options are available, notably style=“B”.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>rswm_q <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(wm_q, <span class="at">style=</span><span class="st">"W"</span>, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>rswm_q</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -995,7 +991,7 @@ W 88 7744 88 37.86334 365.9147</code></pre>
 </div>
 </div>
 <p>The zero.policy=TRUE option allows for lists of non-neighbors. This should be used with caution since the user may not be aware of missing neighbors in their dataset however, a zero.policy of FALSE would return an error.</p>
-<p>To see the weight of the first polygon's eight neighbors, we will use the code chunk below.</p>
+<p>To see the weight of the first polygon’s eight neighbors, we will use the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>rswm_q<span class="sc">$</span>weights[<span class="dv">10</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1013,7 +1009,7 @@ Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Each neighbor is assigned a 0.125 of the total weight. This means that when R computes the average neighboring income values, each neighbor's income will be multiplied by by its corresponding weight, (in this case, <code>0.125</code>) before being tallied.</p>
+<p>Each neighbor is assigned a 0.125 of the total weight. This means that when R computes the average neighboring income values, each neighbor’s income will be multiplied by by its corresponding weight, (in this case, <code>0.125</code>) before being tallied.</p>
 </div>
 </div>
 <p>Using the same method, we can also derive a row standardised distance weight matrix by using the code chunk below.</p>

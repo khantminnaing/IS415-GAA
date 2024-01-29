@@ -58,7 +58,7 @@ In this exercise, we will use the following datasets:
 
 -   `Hunan` county boundary layer. This is a geospatial data set in ESRI shapefile format.
 
--   `Hunan_2012.csv` This csv file contains selected Hunan\'s local development indicators in 2012.
+-   `Hunan_2012.csv` This csv file contains selected Hunan's local development indicators in 2012.
 
 ### 3.1 Importing Geospatial Data
 
@@ -86,7 +86,7 @@ In previous section, we have imported a shapefile `hunan` representing the geogr
 
 The next step in our analysis involves updating the attribute table of the `hunan` shapefile with the values from `hunan2012`.
 
-Hence, we will need to update the attribute table of `Hunan` by using `left_join()` of dplyr package. This function effectively merges the two datasets, ensuring that each county\'s geographical data is accurately linked with its corresponding attribute data from the **`hunan2012`** dataframe.
+Hence, we will need to update the attribute table of `Hunan` by using `left_join()` of dplyr package. This function effectively merges the two datasets, ensuring that each county's geographical data is accurately linked with its corresponding attribute data from the **`hunan2012`** dataframe.
 
 ```{r}
 hunan <- left_join(hunan,hunan2012, join_by(County))%>%
@@ -97,7 +97,7 @@ hunan <- left_join(hunan,hunan2012, join_by(County))%>%
 
 In this section, we will carry out exploratory spatial data anlysis.
 
-### 5.1 **Visualising Regional Development Indicator**
+### 5.1 Visualising Regional Development Indicator
 
 Now, we are going to prepare a basemap and a choropleth map showing the distribution of GDPPC 2012 by using *qtm()* of **tmap** package.
 
@@ -116,7 +116,7 @@ tmap_arrange(basemap, gdppc, asp=1, ncol=2)
 
 In this section, we will explore how to use [*poly2nb()*](https://r-spatial.github.io/spdep/reference/poly2nb.html) of **spdep** package to compute contiguity weight matrices for the study area.
 
-The **`poly2nb()`** function accepts an argument named **`queen`**, which can be set to either **`TRUE`** or **`FALSE`**. This argument plays a pivotal role in determining the criteria used for identifying neighboring regions. If the **`queen`** argument is not explicitly specified, the function defaults to **`TRUE`** and the function will generate a list of first-order neighbors using the Queen\'s contiguity criteria.
+The **`poly2nb()`** function accepts an argument named **`queen`**, which can be set to either **`TRUE`** or **`FALSE`**. This argument plays a pivotal role in determining the criteria used for identifying neighboring regions. If the **`queen`** argument is not explicitly specified, the function defaults to **`TRUE`** and the function will generate a list of first-order neighbors using the Queen's contiguity criteria.
 
 ### 6.1 **Computing QUEEN contiguity based neighbours**
 
@@ -127,7 +127,7 @@ wm_q <- poly2nb(hunan, queen=TRUE)
 summary(wm_q)
 ```
 
-::: {.callout-tip}
+::: callout-tip
 The summary report above shows that there are 88 area units in Hunan. The most connected area unit has 11 neighbours. There are two area units with only one heighbours.
 :::
 
@@ -159,7 +159,7 @@ nb1 <- hunan$GDPPC[nb1]
 nb1
 ```
 
-The printed output above shows that the GDPPC of the five nearest neighbours based on Queen\'s method are 20981, 34592, 24473, 21311 and 22879 respectively.
+The printed output above shows that the GDPPC of the five nearest neighbours based on Queen's method are 20981, 34592, 24473, 21311 and 22879 respectively.
 
 You can display the complete weight matrix by using `str()` function.
 
@@ -227,7 +227,7 @@ plot(wm_r, coords, pch = 19, cex = 0.6, add = TRUE, col = "grey")
 #### 6.3.2 Plotting QUEEN and ROOK contiguity based neighbours map
 
 ```{r}
-par(mfrow=c(1,2))
+par(mar = c(0,0,1,0),mfrow=c(1,2))
 plot(hunan$geometry, border="lightgrey", main="Queen Contiguity")
 plot(wm_q, coords, pch = 19, cex = 0.6, add = TRUE, col= "grey")
 plot(hunan$geometry, border="lightgrey", main="Rook Contiguity")
@@ -269,8 +269,8 @@ wm_d62 <- dnearneigh(coords, 0, 62, longlat = TRUE)
 wm_d62
 ```
 
-::: {.callout-tip}
-Average number of links: 3.681818\" in the output refers to the average number of neighboring regions each region has within the distance range of 0-62km. In the context of spatial analysis, a \"link\" is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62km).
+::: callout-tip
+Average number of links: 3.681818" in the output refers to the average number of neighboring regions each region has within the distance range of 0-62km. In the context of spatial analysis, a "link" is a connection between two regions that are considered neighbors based on the criteria we have set (in this case, distance of up to 62km).
 
 So, an average of 3.681818 means that, on average, each region in our study area has about 3 to 4 neighboring regions within a distance of 62 units.
 :::
@@ -332,7 +332,7 @@ plot(hunan$geometry, border="lightgrey")
 plot(knn6, coords, pch = 19, cex = 0.6, add = TRUE, col = "purple")
 ```
 
-## 8.0 Spatial Weights based on Inverse Distance Weighted (IDW) method 
+## 8.0 Spatial Weights based on Inverse Distance Weighted (IDW) method
 
 In this section, you will learn how to derive a spatial weight matrix based on Inversed Distance Weighted (IDW) method.
 
@@ -345,7 +345,7 @@ ids <- lapply(dist, function(x) 1/(x))
 
 ### **8.1 Row-standardised weights matrix**
 
-Next, we need to assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight (style=\"W\"). This is accomplished by assigning the fraction 1/(#ofneighbors) to each neighboring county then summing the weighted income values. While this is the most intuitive way to summaries the neighbors\' values it has one drawback in that polygons along the edges of the study area will base their lagged values on fewer polygons thus potentially over- or under-estimating the true nature of the spatial autocorrelation in the data. For this example, we\'ll stick with the style=\"W\" option for simplicity\'s sake but note that other more robust options are available, notably style=\"B\".
+Next, we need to assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight (style="W"). This is accomplished by assigning the fraction 1/(#ofneighbors) to each neighboring county then summing the weighted income values. While this is the most intuitive way to summaries the neighbors' values it has one drawback in that polygons along the edges of the study area will base their lagged values on fewer polygons thus potentially over- or under-estimating the true nature of the spatial autocorrelation in the data. For this example, we'll stick with the style="W" option for simplicity's sake but note that other more robust options are available, notably style="B".
 
 ```{r}
 rswm_q <- nb2listw(wm_q, style="W", zero.policy = TRUE)
@@ -354,14 +354,14 @@ rswm_q
 
 The zero.policy=TRUE option allows for lists of non-neighbors. This should be used with caution since the user may not be aware of missing neighbors in their dataset however, a zero.policy of FALSE would return an error.
 
-To see the weight of the first polygon\'s eight neighbors, we will use the code chunk below.
+To see the weight of the first polygon's eight neighbors, we will use the code chunk below.
 
 ```{r}
 rswm_q$weights[10]
 ```
 
-::: {.callout-tip}
-Each neighbor is assigned a 0.125 of the total weight. This means that when R computes the average neighboring income values, each neighbor\'s income will be multiplied by by its corresponding weight, (in this case, `0.125`) before being tallied.
+::: callout-tip
+Each neighbor is assigned a 0.125 of the total weight. This means that when R computes the average neighboring income values, each neighbor's income will be multiplied by by its corresponding weight, (in this case, `0.125`) before being tallied.
 :::
 
 Using the same method, we can also derive a row standardised distance weight matrix by using the code chunk below.

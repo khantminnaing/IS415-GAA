@@ -1,0 +1,99 @@
+---
+title: "In-Class Exercise 04"
+description: |
+ GWmodel
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 01-29-2024
+date-modified: "last-modified"
+categories:
+  - In-Class Exercise
+  - R
+  - sf
+format:
+  html:  
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+output:
+  distill::distill_article:
+    toc: true
+    self_contained: false
+---
+
+# In-Class Exercise 04
+
+## 1.0 Overview
+
+Spatial weights are a key component in any cross-sectional analysis of spatial dependence. They are an essential element in the construction of spatial autocorrelation statistics, and provide the means to create spatially explicit variables, such as spatially lagged variables and spatially smoothed rates. Computing spatial weight is an essential step toward measuring the strength of the spatial relationships between objects. In this exercise, the basic concept of spatial weight will be introduced. This is followed by a discussion of methods to compute spatial weights. Particularly, we will explore using **spdep** and **GWmodel**.
+
+## 2.0 Importing Packages
+
+In this hands-on exercise, we will use the following R package:
+
+-   [**sf**](https://r-spatial.github.io/sf/)
+
+-   sp
+
+-   **spdep**,
+
+-   [**tmap**](https://cran.r-project.org/web/packages/tmap/)
+
+-   **tidyverse**
+
+-   **knitr**
+
+-   **GWmodel**
+
+```{r}
+pacman::p_load(sf, sp, spdep, tmap, tidyverse, knitr, GWmodel)
+```
+
+## 3.0 Importing Datasets to R Environment
+
+In this exercise, we will use the following datasets:
+
+-   `Hunan` county boundary layer. This is a geospatial data set in ESRI shapefile format.
+
+-   `Hunan_2012.csv` This csv file contains selected Hunan's local development indicators in 2012.
+
+### 3.1 Importing Geospatial Data
+
+In this section, `st_read()` of **sf** package will be used to import the three geospatial data sets mentioned in previous section into R environment.
+
+```{r}
+hunan <- st_read(dsn = "../data/geospatial", 
+                 layer = "Hunan")
+```
+
+### 3.1 Importing Aspatial Data
+
+In this section, `read_csv()` of **sf** package will be used to import the csv file into R environment. The output is R dataframe class.
+
+```{r}
+hunan2012 <- read_csv("../data/aspatial/Hunan_2012.csv")
+hunan2012
+```
+
+## 4.0 Geospatial Data Wrangling
+
+### 4.1. Performing Relational Joint
+
+In previous section, we have imported a shapefile `hunan` representing the geographical boundaries of Hunan and a dataframe `hunan2012` which contains the attribute fields corresponding to counties in `Hunan`.
+
+The next step in our analysis involves updating the attribute table of the `hunan` shapefile with the values from `hunan2012`.
+
+Hence, we will need to update the attribute table of `Hunan` by using `left_join()` of dplyr package. This function effectively merges the two datasets, ensuring that each county's geographical data is accurately linked with its corresponding attribute data from the **`hunan2012`** dataframe.
+
+```{r}
+hunan <- left_join(hunan,hunan2012, join_by(County))%>%
+  select(1:4, 7, 15)
+```
+
+### 4.2 Conversion to SpatialPoint Object
+
+```{r}
+```

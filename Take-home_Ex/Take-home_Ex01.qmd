@@ -61,7 +61,7 @@ Before we start the exercise, we will need to import necessary R packages first.
 -   **maptools**, **ggplot2**, **ggthemes**, **plotly**: Packages used to plot interactive visualisations summary statistics and KDE layers
 
 ```{r}
-pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat,patchwork,raster,spNetwork)
+pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat,patchwork,raster,spNetwork,gifski)
 ```
 
 ## 4.0 Importing Datasets into R Environment
@@ -184,7 +184,7 @@ origin_df <- df_trajectories %>%
   mutate(weekday = wday(pingtimestamp,
                        label=TRUE,
                        abbr=TRUE),
-         starting_hr = factor(hour(pingtimestamp)),
+         pickup_hr = factor(hour(pingtimestamp)),
          day = factor(mday(pingtimestamp)))
 ```
 
@@ -200,7 +200,7 @@ destination_df <- df_trajectories %>%
   mutate(weekday = wday(pingtimestamp,
                        label=TRUE,
                        abbr=TRUE),
-         starting_hr = factor(hour(pingtimestamp)),
+         dropoff_hr = factor(hour(pingtimestamp)),
          day = factor(mday(pingtimestamp)))
 ```
 
@@ -428,21 +428,7 @@ summary(destination_ppp_sg)
 
 ## 6.0 Exploratory Spatial Data Analysis
 
-### 6.1 Visualising Frequency Distribution
-
-```{r}
-origin_day <- ggplot(data=origin_df, 
-              aes(x=weekday)) + 
-              geom_bar()
-
-destination_day <-  ggplot(data=destination_sf, 
-                    aes(x=weekday)) + 
-                    geom_bar()
-
-origin_day + destination_day
-```
-
-### 6.2 Creating Point Symbol Maps
+### 6.1 Creating Point Symbol Maps
 
 ```{r eval=FALSE}
 tmap_mode("view")
@@ -1143,6 +1129,24 @@ tm_shape(tp_network) +
   tm_borders(alpha = 0.5)
 ```
 
+```{r}
+#| eval: false
+pg_network
+
+tm_shape(st_union(tp)) +
+  tm_polygons(col="white") +
+  tm_shape(pg_destination) + 
+  tm_dots() + 
+tm_shape(pg_network) +
+  tm_lines(col="fclass", palette ="Spectral") +
+  tm_layout(main.title = "Road Network and Destination Points in Punggol",
+            main.title.position = "center",
+            main.title.size = 0.9,
+            legend.outside = TRUE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
+```
+
 ### 8.3 **Data Preparation**
 
 ::: {callout-note}
@@ -1202,15 +1206,15 @@ pg_densities <- densities <- nkde(pg_network,
 Before we can visualise the NetKDE values, code chunk below will be used to insert the computed density values (i.e. densities) into *samples* and *lixels* objects as *density* field.
 
 ```{r}
-pg_samples$density <- pg_densities
-pg_lixels$density <- pg_densities
+pg_samples$nkde_density <- pg_densities
+pg_lixels$nkde_density <- pg_densities
 ```
 
 Similar to what we did in KDE, we will rescle the density values.
 
 ```{r}
-pg_samples$density <- pg_samples$density*1000
-pg_lixels$density <- pg_lixels$density*1000
+pg_samples$nkde_density <- pg_samples$nkde_density*1000
+pg_lixels$nkde_density <- pg_lixels$nkde_density*1000
 ```
 
 Now we can plot the NetKDE map using `tmap`.
@@ -1221,7 +1225,7 @@ tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(pg_lixels)+
-  tm_lines(col="density", palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_density", palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
 tm_shape(pg_destination)+
   tm_dots(size=0.005)
 ```
@@ -1229,12 +1233,210 @@ tm_shape(pg_destination)+
 We can also compare with traditonal KDE as below.
 
 ```{r}
+#| eval: false
 raster_pg_kde_scott = raster(pg_kde_scott)
 projection(raster_pg_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
-class(raster_pg_kde_scott)
+
+tmap_mode('view')
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(raster_pg_kde_scott)+
+  tm_raster("layer",
+            n = 7,
+            title = "KDE_Adaptive_Kernel",
+            style = "pretty",
+            alpha = 0.6,
+            palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))
+```
+
+```{r}
+#class(raster_pg_kde_scott)
 ```
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
+
+### 9.1 Visualising Frequency Distribution
+
+```{r}
+origin_day <- ggplot(data=origin_sf, 
+              aes(x=weekday)) + 
+              geom_bar()
+
+destination_day <-  ggplot(data=destination_sf, 
+                    aes(x=weekday)) + 
+                    geom_bar()
+
+origin_day + destination_day
+```
+
+### 9.2 Plotting Frequency of Trip Origination By Hour
+
+```{r}
+origin_sf$pickup_hr_num <- as.numeric(origin_sf$pickup_hr)
+pickup_hr_num <- origin_sf$pickup_hr_num
+
+ggplot(data=origin_sf, 
+                    aes(x=pickup_hr_num), bins = 24) + 
+                    geom_bar() +
+    scale_x_continuous(breaks = pickup_hr_num)
+```
+
+### 9.3 Plotting Frequency of Trip Destination By Hour
+
+```{r}
+destination_sf$dropoff_hr_num <- as.numeric(destination_sf$dropoff_hr)
+dropoff_hr_num <- destination_sf$dropoff_hr_num
+
+ggplot(data=destination_sf, 
+                    aes(x=dropoff_hr_num), bins = 24) + 
+                    geom_bar() +
+    scale_x_continuous(breaks = dropoff_hr_num)
+
+```
+
+```{r}
+
+w <- rep(1,nrow(destination_sf))
+samples <- seq(0, max(destination_sf$dropoff_hr_num), 0.5)
+
+bw_bcv <- bw.bcv(destination_sf$dropoff_hr_num)
+bw_ucv <- bw.ucv(destination_sf$dropoff_hr_num)
+bw_SJ <- bw.SJ(destination_sf$dropoff_hr_num)
+
+time_kernel_values <- data.frame(
+  bw_bcv = tkde(destination_sf$dropoff_hr_num, w = w, samples = samples, bw = bw_bcv, kernel_name = "quartic"),
+  bw_ucv = tkde(destination_sf$dropoff_hr_num, w = w, samples = samples, bw = bw_ucv, kernel_name = "quartic"),
+  bw_SJ = tkde(destination_sf$dropoff_hr_num, w = w, samples = samples, bw = bw_SJ, kernel_name = "quartic"),
+  time = samples
+)
+
+df_time <- reshape2::melt(time_kernel_values,id.vars = "time")
+df_time$variable <- as.factor(df_time$variable)
+
+ggplot(data = df_time) + 
+  geom_line(aes(x = time, y = value)) +
+  scale_x_continuous(breaks = dropoff_hr_num) +
+  facet_wrap(vars(variable), ncol=2, scales = "free")  + 
+  theme(axis.text = element_text(size = 5))
+```
+
+### Punggol
+
+```{r}
+#| echo: false
+pg_destination = st_intersection(destination_sf,st_union(pg))
+```
+
+```{r}
+
+w_pg <- rep(1,nrow(pg_destination))
+samples_pg <- seq(0, max(pg_destination$dropoff_hr_num), 0.5)
+
+bw_bcv <- bw.bcv(pg_destination$dropoff_hr_num)
+bw_ucv <- bw.ucv(pg_destination$dropoff_hr_num)
+bw_SJ <- bw.SJ(pg_destination$dropoff_hr_num)
+
+time_kernel_values <- data.frame(
+  bw_bcv = tkde(pg_destination$dropoff_hr_num, w = w_pg, samples = samples_pg, bw = bw_bcv, kernel_name = "quartic"),
+  bw_ucv = tkde(pg_destination$dropoff_hr_num, w = w_pg, samples = samples_pg, bw = bw_ucv, kernel_name = "quartic"),
+  bw_SJ = tkde(pg_destination$dropoff_hr_num, w = w_pg, samples = samples_pg, bw = bw_SJ, kernel_name = "quartic"),
+  time = samples_pg
+)
+
+df_time <- reshape2::melt(time_kernel_values,id.vars = "time")
+df_time$variable <- as.factor(df_time$variable)
+
+ggplot(data = df_time) + 
+  geom_line(aes(x = time, y = value)) +
+  scale_x_continuous(breaks = dropoff_hr_num) +
+  facet_wrap(vars(variable), ncol=2, scales = "free")  + 
+  theme(axis.text = element_text(size = 5))
+```
+
+```{r}
+cv_scores <- bws_tnkde_cv_likelihood_calc(
+  bw_net_range = c(100,1000),
+  bw_net_step = 100,
+  bw_time_range = c(3,24),
+  bw_time_step = 3,
+  lines = pg_network,
+  events = pg_destination,
+  time_field = "dropoff_hr_num",
+  w = rep(1, nrow(pg_destination)),
+  kernel_name = "quartic",
+  method = "discontinuous", 
+  diggle_correction = FALSE,
+  study_area = NULL,
+  max_depth = 10,
+  digits = 2,
+  tol = 0.1,
+  agg = 15,
+  sparse=TRUE,
+  grid_shape=c(1,1),
+  sub_sample=1,
+  verbose = FALSE,
+  check = TRUE)
+```
+
+```{r}
+knitr::kable(cv_scores)
+```
+
+According to the "leave one out cross validation" method, the optimal set of bandwidths is 800 metres and 6 hrs. As expected, larger bandwidths are required because the density of the events are spread both in space and time.
+
+```{r}
+# choosing sample in times (every 1 hr)
+pg_sample_time <- seq(0, max(pg_destination$dropoff_hr_num), 1.0)
+
+# calculating densities
+tnkde_densities <- tnkde(lines = pg_network,
+                   events = pg_destination,
+                   time_field = "dropoff_hr_num",
+                   w = rep(1, nrow(pg_destination)), 
+                   samples_loc = pg_samples,
+                   samples_time = pg_sample_time, 
+                   kernel_name = "quartic",
+                   bw_net = 700, bw_time = 60,
+                   adaptive = TRUE,
+                   trim_bw_net = 900,
+                   trim_bw_time = 80,
+                   method = "discontinuous",
+                   div = "bw", max_depth = 10,
+                   digits = 2, tol = 0.01,
+                   agg = 15, grid_shape = c(1,1), 
+                   verbose  = FALSE)
+```
+
+```{r}
+# creating a color palette for all the densities
+library(classInt)
+library(viridis)
+all_densities <- c(tnkde_densities$k)
+color_breaks <- classIntervals(all_densities, n = 10, style = "kmeans")
+
+# generating a map at each sample time
+all_maps <- lapply(1:ncol(tnkde_densities$k), function(i){
+  time <- pg_sample_time[[i]]
+  
+  pg_samples$tnkde_density <- tnkde_densities$k[,i]
+  map1 <- tm_shape(pg_samples) + 
+  tm_dots(col = "tnkde_density", size = 0.01,
+          breaks = color_breaks$brks, palette = viridis(10)) + 
+    tm_layout(legend.show=FALSE, main.title = as.character(time), main.title.size = 0.5)
+  return(map1)
+})
+```
+
+```{r}
+#| eval: false
+
+# creating a gif with all the maps
+tmap_animation(all_maps, filename = "images/animated_ma.gif", 
+               width = 1000, height = 1000, dpi = 300, delay = 50)
+```
+```
+![](images/animated_map.gif)
 
 ## References
 
