@@ -1058,6 +1058,10 @@ pg_destination = st_intersection(destination_sf,st_union(pg))
 ```
 
 ```{r}
+je_network
+```
+
+```{r}
 
 tmap_mode("plot")
 tm_shape(st_union(wl)) +
@@ -1147,13 +1151,13 @@ tm_shape(pg_network) +
   tm_borders(alpha = 0.5)
 ```
 
-### 8.3 **Data Preparation**
+### 8.3 Data Preparation
 
 ::: {callout-note}
 For illustrative purpose, I'll use "Punggol" as a example to demonstrate step-by-step data preparation. We will create maps for the remaining planning areas at the end.
 :::
 
-#### 8.3.1 **Preparing the lixels objects**
+#### 8.3.1 Preparing the lixels objects
 
 Before computing NetKDE, the SpatialLines object need to be cut into lixels with a specified minimal distance. This task can be performed by using with `lixelize_lines()` of spNetwork
 
@@ -1169,7 +1173,7 @@ pg_lixels <- lixelize_lines(pg_network,
 
 After cut, if the length of the final lixel is shorter than the minimum distance, then it is added to the previous lixel. If NULL, then mindist = maxdist/10. Also note that the segments that are already shorter than the minimum distance are not modified.
 
-#### 8.3.2 **Generating line centre points**
+#### 8.3.2 Generating line centre points
 
 Next, *lines_center()* of **spNetwork** will be used to generate a SpatialPointsDataFrame (i.e. samples) with line centre points. The points are located at center of the line based on the length of the line.
 
@@ -1177,9 +1181,9 @@ Next, *lines_center()* of **spNetwork** will be used to generate a SpatialPoints
 pg_samples <- lines_center(pg_lixels)
 ```
 
-### 8.4 **Performing NetKDE**
+### 8.4 Performing NetKDE
 
-#### 8.4.1 **Computing NetKDE densities**
+#### 8.4.1 Computing NetKDE densities
 
 We are ready to compute the NetKDE
 
@@ -1201,7 +1205,7 @@ pg_densities <- densities <- nkde(pg_network,
                   verbose = FALSE)
 ```
 
-#### 8.4.1 **Visualising NetKDE densities**
+#### 8.4.1 Visualising NetKDE densities
 
 Before we can visualise the NetKDE values, code chunk below will be used to insert the computed density values (i.e. densities) into *samples* and *lixels* objects as *density* field.
 
@@ -1225,9 +1229,9 @@ tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(pg_lixels)+
-  tm_lines(col="nkde_density", palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_density", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
 tm_shape(pg_destination)+
-  tm_dots(size=0.005)
+  tm_dots(size=0.01)
 ```
 
 We can also compare with traditonal KDE as below.
@@ -1238,9 +1242,7 @@ raster_pg_kde_scott = raster(pg_kde_scott)
 projection(raster_pg_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
 
 tmap_mode('view')
-tm_basemap(server = "Esri.WorldTopoMap") +
-  tm_basemap(server = "Esri.WorldGrayCanvas")+
-  tm_basemap(server = "OpenStreetMap") +
+tm_basemap(server = "Esri.WorldGrayCanvas") +
 tm_shape(raster_pg_kde_scott)+
   tm_raster("layer",
             n = 7,
@@ -1250,8 +1252,55 @@ tm_shape(raster_pg_kde_scott)+
             palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))
 ```
 
+### 8.5 Plotting NetKDE for Other Planning Areas
+
 ```{r}
-#class(raster_pg_kde_scott)
+unique_types <- unique(st_geometry_type(tn_network))
+
+# debugging: filter roads_tampines to keep only linestrings
+if ("LINESTRING" %in% unique_types) {
+  tn_network <- st_cast(tn_network, "LINESTRING")
+} else {
+  # handle the case when no linestrings are found
+  stop("No linestrings found in roads_tampines.")
+}
+
+tn_network
+```
+
+```{r}
+tn_lixels <- lixelize_lines(tn_network, 
+                         700, 
+                         mindist = 350)
+tn_samples <- lines_center(tn_lixels)
+
+tn_densities <- densities <- nkde(tn_network, 
+                  events = tn_destination,
+                  w = rep(1,nrow(tn_destination)),
+                  samples = tn_samples,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+
+tn_samples$nkde_density <- tn_densities*1000
+tn_lixels$nkde_density <- tn_densities*1000
+
+tmap_mode('view')
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(tn_lixels)+
+  tm_lines(col="nkde_density", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(tn_destination)+
+  tm_dots(size=0.01)
 ```
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
@@ -1295,6 +1344,8 @@ ggplot(data=destination_sf,
 
 ```
 
+### 9.4 Bandwidth Selection
+
 ```{r}
 
 w <- rep(1,nrow(destination_sf))
@@ -1321,7 +1372,8 @@ ggplot(data = df_time) +
   theme(axis.text = element_text(size = 5))
 ```
 
-### Punggol
+### 9.5 TNKDE Implementing at Punggol Planning Area
+
 
 ```{r}
 #| echo: false
@@ -1435,8 +1487,8 @@ all_maps <- lapply(1:ncol(tnkde_densities$k), function(i){
 tmap_animation(all_maps, filename = "images/animated_ma.gif", 
                width = 1000, height = 1000, dpi = 300, delay = 50)
 ```
-```
-![](images/animated_map.gif)
+
+\`\`\` ![](images/animated_map.gif)
 
 ## References
 

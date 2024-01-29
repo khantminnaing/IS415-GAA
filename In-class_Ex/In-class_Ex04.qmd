@@ -124,7 +124,7 @@ gwstat <- gwss(data= hunan_sp,
 
 5.  The **`adaptive`** argument is set to **`TRUE`**, which means the bandwidth is adaptive. In other words, the bandwidth adjusts depending on the density of the data points.
 
-6.  The **`longlat`** argument is set to **`T`** (short for **`TRUE`**). This indicates that the data\'s coordinates are in longitude and latitude.
+6.  The **`longlat`** argument is set to **`T`** (short for **`TRUE`**). This indicates that the data's coordinates are in longitude and latitude.
 
 ```{r}
 gwstat
