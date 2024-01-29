@@ -887,7 +887,7 @@ projection(raster_kde_adaptive_kernel) <- CRS("+init=EPSG:3414 +units=km")
 
 ```{r}
 tmap_mode('view')
-tm_basemap(server = "OpenStreetMap.HOT") +
+kde_fixed_scott <- tm_basemap(server = "OpenStreetMap.HOT") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_fixed_scott) +
   tm_raster("layer",
@@ -898,11 +898,9 @@ tm_basemap(server = "OpenStreetMap.HOT") +
   tm_shape(mpsz_sf)+
   tm_polygons(alpha=0.1,id="PLN_AREA_N")+
   tmap_options(check.and.fix = TRUE)
-```
 
-```{r}
 tmap_mode('view')
-tm_basemap(server = "OpenStreetMap.HOT") +
+kde_adaptive_nn <- tm_basemap(server = "OpenStreetMap.HOT") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_adaptive_nn) +
   tm_raster("layer",
@@ -914,11 +912,9 @@ tm_basemap(server = "OpenStreetMap.HOT") +
   tm_shape(mpsz_sf)+
   tm_polygons(alpha=0.1,id="PLN_AREA_N")+
   tmap_options(check.and.fix = TRUE)
-```
 
-```{r}
 tmap_mode('view')
-tm_basemap(server = "OpenStreetMap.HOT") +
+kde_adaptive_kernel <- tm_basemap(server = "OpenStreetMap.HOT") +
   tm_basemap(server = "Esri.WorldImagery") +
   tm_shape(raster_kde_adaptive_kernel) +
   tm_raster("layer",
@@ -930,6 +926,9 @@ tm_basemap(server = "OpenStreetMap.HOT") +
   tm_shape(mpsz_sf)+
   tm_polygons(alpha=0.1,id="PLN_AREA_N")+
   tmap_options(check.and.fix = TRUE)
+
+tmap_arrange(kde_fixed_scott, kde_adaptive_nn, kde_adaptive_kernel ,ncol=1,nrow=3,sync = TRUE)
+
 ```
 
 ### 7.6 Planning Area-Level Kernel Density Estimation
@@ -1152,10 +1151,18 @@ tm_shape(pg_network) +
 ```
 
 ### 8.3 Data Preparation
-
 ::: {callout-note}
 For illustrative purpose, I'll use "Punggol" as a example to demonstrate step-by-step data preparation. We will create maps for the remaining planning areas at the end.
 :::
+
+The `spNetwork` package contains `nkde` function that is specifically designed to implement Network Constrained Kernel Density Estimation (NetKDE).
+
+The three main inputs are:
+- lines, a “SpatialLinesDataFrame” (object defined in the sp package), representing the lines of
+the network.
+- events, a “SpatialPointsDataframe” (object defined in the sp package), representing the realizations of the spatial process.
+- samples, a “SpatialPointsDataframe” providing the locations where the density must be estimated.
+
 
 #### 8.3.1 Preparing the lixels objects
 
@@ -1175,7 +1182,7 @@ After cut, if the length of the final lixel is shorter than the minimum distance
 
 #### 8.3.2 Generating line centre points
 
-Next, *lines_center()* of **spNetwork** will be used to generate a SpatialPointsDataFrame (i.e. samples) with line centre points. The points are located at center of the line based on the length of the line.
+Next, *lines_center()* of **spNetwork** will be used to generate a SpatialPointsDataFrame (i.e. samples) with line centre points. The points are located at center of the line based on the length of the line.
 
 ```{r}
 pg_samples <- lines_center(pg_lixels)
@@ -1185,10 +1192,10 @@ pg_samples <- lines_center(pg_lixels)
 
 #### 8.4.1 Computing NetKDE densities
 
-We are ready to compute the NetKDE
+We are ready to compute the NetKDE.
 
 ```{r}
-pg_densities <- densities <- nkde(pg_network, 
+pg_nkde_simple <- nkde(pg_network, 
                   events = pg_destination,
                   w = rep(1,nrow(pg_destination)),
                   samples = pg_samples,
@@ -1200,38 +1207,97 @@ pg_densities <- densities <- nkde(pg_network,
                   tol = 1,
                   grid_shape = c(1,1), 
                   max_depth = 8,
-                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  agg = 5,
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+The parameters method, `kernel_name` and `bw`, indicate respectively which NKDE (simple, discontinuous, or continuous), and which kernel function (gaussian, quartic, triweight, etc.) to use, and the bandwidth of the kernel.
+
+`agg` the events can be aggregated, and their weights added within a threshold distance. In many applications, a small distance between events is not significant. Aggregating events can simplify networks and limit the number of iterations when calculating the NKDE, hence effectively reducing time complexity of computation. 
+
+```{r}
+pg_nkde_discontinuous <- nkde(pg_network, 
+                  events = pg_destination,
+                  w = rep(1,nrow(pg_destination)),
+                  samples = pg_samples,
+                  kernel_name = "quartic",
+                  bw = 200, 
+                  div= "bw", 
+                  method = "discontinuous", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5,
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+pg_nkde_continuous <- nkde(pg_network, 
+                  events = pg_destination,
+                  w = rep(1,nrow(pg_destination)),
+                  samples = pg_samples,
+                  kernel_name = "quartic",
+                  bw = 200, 
+                  div= "bw", 
+                  method = "continuous", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5,
                   sparse = TRUE,
                   verbose = FALSE)
 ```
 
 #### 8.4.1 Visualising NetKDE densities
 
-Before we can visualise the NetKDE values, code chunk below will be used to insert the computed density values (i.e. densities) into *samples* and *lixels* objects as *density* field.
+Before we can visualise the NetKDE values, code chunk below will be used to insert the computed density values (i.e. densities) into *samples* and *lixels* objects as *density* field. Similar to what we did in KDE, we will also rescale the density values.
+
 
 ```{r}
-pg_samples$nkde_density <- pg_densities
-pg_lixels$nkde_density <- pg_densities
-```
+pg_samples$nkde_simple <- pg_nkde_simple*1000
+pg_lixels$nkde_simple <- pg_nkde_simple*1000
 
-Similar to what we did in KDE, we will rescle the density values.
+pg_samples$nkde_discontinuous <- pg_nkde_discontinuous*1000
+pg_lixels$nkde_discontinuous <- pg_nkde_discontinuous*1000
 
-```{r}
-pg_samples$nkde_density <- pg_samples$nkde_density*1000
-pg_lixels$nkde_density <- pg_lixels$nkde_density*1000
+pg_samples$nkde_continuous <- pg_nkde_continuous*1000
+pg_lixels$nkde_continuous <- pg_nkde_continuous*1000
 ```
 
 Now we can plot the NetKDE map using `tmap`.
 
 ```{r}
 tmap_mode('view')
-tm_basemap(server = "Esri.WorldTopoMap") +
+pg_nkde_simple_map <- tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(pg_lixels)+
-  tm_lines(col="nkde_density", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_simple", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
 tm_shape(pg_destination)+
   tm_dots(size=0.01)
+
+pg_nkde_discontinuous_map <- tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(pg_lixels)+
+  tm_lines(col="nkde_discontinuous", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(pg_destination)+
+  tm_dots(size=0.01)
+
+pg_nkde_continuous_map <- tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(pg_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(pg_destination)+
+  tm_dots(size=0.01)
+
+
+tmap_arrange(pg_nkde_simple_map, pg_nkde_discontinuous_map, pg_nkde_continuous_map ,ncol=3,nrow=1,sync = TRUE)
 ```
 
 We can also compare with traditonal KDE as below.
