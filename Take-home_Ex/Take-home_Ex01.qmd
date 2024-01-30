@@ -817,11 +817,21 @@ In **spatstat** packages, there are three main approaches (Pebesma & Bivand, 202
 
 -   [**Nearest-Neighbour Adaptive Density Estimate**](https://search.r-project.org/CRAN/refmans/spatstat.explore/html/nndensity.html): It computes an estimate of the intensity function of a point pattern dataset using the distance from each spatial location to the kth nearest points (Cressie, 1991: Silverman, 1986;Burman & Nolan, 1989). The default value of k is the square root of the number of points in the dataset. This estimator of intensity is relatively fast to compute and is spatially adaptive. Some studies suggest the use of the nearest neighbor distance as a suitable parameter for determining the bandwidth (Krisp et al., 2009).
 
+```{r}
+#| echo: false
+
+kde_destination_kernel_adaptive <- read_rds("../data/rds/kde_destination_kernel_adaptive.rds")
+kde_destination_dirichlet_adaptive <- read_rds("../data/rds/kde_destination_dirichlet_adaptive.rds")
+kde_adaptive_nn <- read_rds("../data/rds/kde_adaptive_nn.rds")
+```
+
 #### 7.4.1 Voronoi-Dirichlet Adaptive Density Estimate
 
 The Dirichlet-Voronoï estimator is computed in **spatstat** by the function `adaptive.density()` with argument `method="voronoi"`.
 
 ```{r}
+#| eval: false
+
 kde_destination_dirichlet_adaptive <- adaptive.density(destination_ppp_sg.km, f=1, method = "voronoi")
 ```
 
@@ -835,6 +845,8 @@ plot(kde_destination_dirichlet_adaptive,main = "Voronoi-Dirichlet Adaptive Densi
 The Adaptive Kernel estimator is computed in **spatstat** by the function `adaptive.density()` with argument `method="kernel"`.
 
 ```{r}
+#| eval: false
+
 kde_destination_kernel_adaptive <- adaptive.density(destination_ppp_sg.km, method = "kernel")
 ```
 
@@ -848,21 +860,13 @@ plot(kde_destination_kernel_adaptive,main = "Adaptive Kernel Density Estimate")
 The Nearest-Neighbour estimator is computed in **spatstat** by the function `nndensity()`.
 
 ```{r}
+#| eval: false
 kde_adaptive_nn <- nndensity(destination_ppp_sg.km, k=10)
 ```
 
 ```{r}
 par(mar = c(0,1,1,1))
 plot(kde_adaptive_nn,main = "Nearest-Neighbour Adaptive Density Estimate")
-```
-
-```{r}
-#| echo: false
-
-write_rds(kde_destination_kernel_adaptive, "../data/rds/kde_destination_kernel_adaptive.rds")
-write_rds(kde_destination_dirichlet_adaptive, "../data/rds/kde_destination_dirichlet_adaptive.rds")
-write_rds(kde_adaptive_nn, "../data/rds/kde_adaptive_nn.rds")
-
 ```
 
 #### 7.4.3 Choosing Adaptive KDE Method
