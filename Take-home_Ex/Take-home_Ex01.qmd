@@ -765,7 +765,9 @@ Looking at the plot created, it appears that by reducing the bandwidth (thus mak
 
 #### 7.3.4 Kernel Function Selection for Fixed Bandwidth
 
-Kernel functions are important because they control how we weight points within the radius. The default kernel in `density.ppp()` is the `gaussian`. But there are other options. We can use the `epanechnikov`, `quartic` or `disc.`
+![](images/kernel_functions.png){fig-align="center" width="457"}
+
+Kernel functions are another consideration in KDE computation because they control how we weight points within the bandwidth radius. The default kernel in `density.ppp()` is the `gaussian`. But there are other options such as `epanechnikov`, `quartic` or `disc.`
 
 -   gaussian
 
@@ -804,6 +806,8 @@ plot(kde_fixed_scott.epanechnikov, main="Epanechnikov")
 plot(kde_fixed_scott.quartic, main="Quartic")
 plot(kde_fixed_scott.disc, main="Disc")
 ```
+
+Xie & Yan (2008) suggested that the choice of kernel function has minimal impact on density estimation outcomes. Shen et al. (2020) further identified the search bandwidth as a more influential factor in kernel estimation than the selection of different kernel functions. Empirically looking at the KDE maps we have created above using different kernel functions, similar conclusion can be made. Despite the slight variations in smoothness and spread, all four plots show similar patterns of density estimation. This underscores the argument that the choice of kernel function does not significantly impact KDE results. Consequently, we will not focus this aspect in our analysis.
 
 ### 7.4 Creating KDE Layers with Spatially Adaptive Bandwidth
 
@@ -1080,6 +1084,8 @@ pg_destination = st_intersection(destination_sf,st_union(pg))
 ```
 
 ```{r}
+#| eval: false 
+#| echo: false
 
 tmap_mode("plot")
 tm_shape(st_union(wl)) +
@@ -1097,6 +1103,8 @@ tm_shape(wl_network) +
 ```
 
 ```{r}
+#| eval: false 
+#| echo: false
 
 tm_shape(st_union(je)) +
   tm_polygons(col="white") +
@@ -1152,7 +1160,8 @@ tm_shape(tp_network) +
 ```
 
 ```{r}
-#| eval: false
+#| eval: false 
+#| echo: false
 pg_network
 
 tm_shape(st_union(tp)) +
@@ -1469,43 +1478,43 @@ jw_lixels <- read_rds("../data/rds/jw_lixels.rds")
 ```
 
 ```{r}
-#| eval: false
+#| echo: false
 
 tmap_mode('plot')
-tn_nkde <- tm_shape(tn_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 2, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(tn_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
   tm_layout(main.title = "NKDE Map (Tampines)",
             main.title.position = "center",
             main.title.size = 1,
             legend.outside = TRUE,
             frame = TRUE)
 
-tp_nkde <- tm_shape(tp_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 2, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(tp_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
    tm_layout(main.title = "NKDE Map (Toa Payoh)",
             main.title.position = "center",
             main.title.size = 1,
             legend.outside = TRUE,
             frame = TRUE)
 
-wl_nkde <- tm_shape(wl_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 2, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(wl_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
   tm_layout(main.title = "NKDE Map (Woodlands)",
             main.title.position = "center",
             main.title.size = 1,
             legend.outside = TRUE,
             frame = TRUE)
 
-je_nkde <- tm_shape(je_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 2, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(je_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
    tm_layout(main.title = "NKDE Map (Jurong East)",
             main.title.position = "center",
             main.title.size = 1,
             legend.outside = TRUE,
             frame = TRUE)
 
-jw_nkde <- tm_shape(jw_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 2, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(jw_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
    tm_layout(main.title = "NKDE Map (Jurong West)",
             main.title.position = "center",
             main.title.size = 1,
