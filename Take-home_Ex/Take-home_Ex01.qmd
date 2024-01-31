@@ -48,20 +48,30 @@ When analysing and interpreting the properties of a point pattern, these propert
 
 Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
 
--   [`arrow`](https://arrow.apache.org/docs/r/) : for reading and writing Apache Parquet files
+-   [`sf`](https://rdrr.io/github/r-spatial/sf/man/sf-package.html) : provides a standardised way to encode spatial vector data in R environment, facilitating spatial data operations and analysis.
 
--   [`lubridate`](https://lubridate.tidyverse.org/) : for tackling with temporal data (dates and times)
+-   [`st`](https://rdrr.io/cran/sf/man/st.html) : creats simple features from numeric vectors, matrices, or lists, enabling the representation and manipulation of spatial structures in R.
+
+-   [`arrow`](https://arrow.apache.org/docs/r/) : for reading and writing Apache Parquet files, a columnar storage file format optimized for use with big data processing frameworks.
+
+-   [`lubridate`](https://lubridate.tidyverse.org/) : for tackling with temporal data (dates and times), providing tools to parse, manipulate, and do arithmetic with date-time objects.
 
 -   [**`spatstat`**](https://cran.r-project.org/web/packages/spatstat/index.html): A package for statistical analysis of spatial data, specifically Spatial Point Pattern Analysis. This package was provided by Baddeley, Turner and Ruback (2015) and gives a comprehensive list of functions to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation (KDE) layer.
 
--   **rgdal**: Used to import geospatial data and output as spatial class objects from **sp** package
+-   [**`tidyverse`**](https://www.tidyverse.org/) : a collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structure.
 
--   **raster** : reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format.
+-   [**`raster`**](https://cran.r-project.org/web/packages/raster/index.html) : reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format.
 
--   **maptools**, **ggplot2**, **ggthemes**, **plotly**: Packages used to plot interactive visualisations summary statistics and KDE layers
+-   [**`tmap`**](https://cran.r-project.org/web/packages/tmap/index.html): Packages used for creating static and interactive visualisations summary statistics and KDE layers.
+
+-   [`spatstat`](https://spatstat.org/) : for spatial statistics with a strong focus on analysing spatial point patterns.
+
+-   [`spNetwork`](https://cran.r-project.org/web/packages/spNetwork/index.html) : provides several functions to perform spatial analysis on network, including network kernel density estimation and point pattern analysis.
+
+-   [`gifski`](https://cran.r-project.org/web/packages/gifski/index.html) : for converting images to GIF animations, useful for creating dynamic visualizations and presentations.
 
 ```{r}
-pacman::p_load(arrow,lubridate,tidyverse,tmap,sf,st,spatstat,patchwork,raster,spNetwork,gifski)
+pacman::p_load(sf,st,arrow,lubridate,tidyverse,raster,tmap,ggplot2, patchwork,spatstat,spNetwork,gifski)
 ```
 
 ## 4.0 Importing Datasets into R Environment
@@ -1364,11 +1374,12 @@ Upon close examination to the intersection as shown above, we can clearly see th
 We can also compare with traditonal KDE as below.
 
 ```{r}
-#| eval: false
 raster_pg_kde_scott = raster(pg_kde_scott)
 projection(raster_pg_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
+```
 
-tmap_mode('view')
+```{r}
+tmap_mode('plot')
 tm_basemap(server = "Esri.WorldGrayCanvas") +
 tm_shape(raster_pg_kde_scott)+
   tm_raster("layer",
@@ -1520,9 +1531,8 @@ tm_shape(jw_lixels)+
             main.title.size = 1,
             legend.outside = TRUE,
             frame = TRUE)
-```
 
-![](images/NKDE_Maps.png){fig-align="center"}
+```
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
 
@@ -1601,6 +1611,40 @@ pg_destination = st_intersection(destination_sf,st_union(pg))
 ```
 
 ```{r}
+pg_dropoff_hr_num <- pg_destination$dropoff_hr_num
+
+ggplot(data=pg_destination, 
+                    aes(x=pg_dropoff_hr_num), bins = 24) + 
+                    geom_bar() +
+    scale_x_continuous(breaks = pg_dropoff_hr_num)
+```
+
+```{r}
+pg_dropoff_1 <- filter(pg_destination, dropoff_hr_num == '1')
+pg_dropoff_6 <- filter(pg_destination, dropoff_hr_num == '6')
+pg_dropoff_8 <- filter(pg_destination, dropoff_hr_num == '8')
+pg_dropoff_13 <- filter(pg_destination, dropoff_hr_num == '13')
+pg_dropoff_20 <- filter(pg_destination, dropoff_hr_num == '20')
+```
+
+```{r}
+tmap_mode("view")
+tm_basemap(server = "Esri.WorldTopoMap") +
+tm_shape(pg_lixels)+
+  tm_lines()+
+tm_shape(pg_dropoff_1)+
+  tm_dots(size=0.01) +
+  tm_shape(pg_dropoff_6)+
+  tm_dots(size=0.01) +
+    tm_shape(pg_dropoff_8)+
+  tm_dots(size=0.01) +
+    tm_shape(pg_dropoff_13)+
+  tm_dots(size=0.01) +  
+  tm_shape(pg_dropoff_20)+
+  tm_dots(size=0.01)
+```
+
+```{r}
 
 w_pg <- rep(1,nrow(pg_destination))
 samples_pg <- seq(0, max(pg_destination$dropoff_hr_num), 0.5)
@@ -1658,11 +1702,11 @@ knitr::kable(cv_scores)
 According to the "leave one out cross validation" method, the optimal set of bandwidths is 800 metres and 6 hrs. As expected, larger bandwidths are required because the density of the events are spread both in space and time.
 
 ```{r}
-# choosing sample in times (every 1 hr)
-pg_sample_time <- seq(0, max(pg_destination$dropoff_hr_num), 1.0)
+# choosing sample in times (every 3 hr)
+pg_sample_time <- seq(0, max(pg_destination$dropoff_hr_num), 3)
 
 # calculating densities
-tnkde_densities <- tnkde(lines = pg_network,
+pg_tnkde_densities <- tnkde(lines = pg_network,
                    events = pg_destination,
                    time_field = "dropoff_hr_num",
                    w = rep(1, nrow(pg_destination)), 
@@ -1684,14 +1728,14 @@ tnkde_densities <- tnkde(lines = pg_network,
 # creating a color palette for all the densities
 library(classInt)
 library(viridis)
-all_densities <- c(tnkde_densities$k)
+all_densities <- c(pg_tnkde_densities$k)
 color_breaks <- classIntervals(all_densities, n = 10, style = "kmeans")
 
 # generating a map at each sample time
-all_maps <- lapply(1:ncol(tnkde_densities$k), function(i){
+all_maps <- lapply(1:ncol(pg_tnkde_densities$k), function(i){
   time <- pg_sample_time[[i]]
   
-  pg_samples$tnkde_density <- tnkde_densities$k[,i]
+  pg_samples$tnkde_density <- pg_tnkde_densities$k[,i]
   map1 <- tm_shape(pg_samples) + 
   tm_dots(col = "tnkde_density", size = 0.01,
           breaks = color_breaks$brks, palette = viridis(10)) + 
@@ -1701,14 +1745,76 @@ all_maps <- lapply(1:ncol(tnkde_densities$k), function(i){
 ```
 
 ```{r}
-#| eval: false
-
 # creating a gif with all the maps
-tmap_animation(all_maps, filename = "images/animated_ma.gif", 
+tmap_animation(all_maps, filename = "images/animated_pg.gif", 
                width = 1000, height = 1000, dpi = 300, delay = 50)
 ```
 
 \`\`\` ![](images/animated_map.gif)
+
+```{r}
+tn_destination$dropoff_hr_num <- as.numeric(tn_destination$dropoff_hr)
+
+tn_dropoff_hr_num <- tn_destination$dropoff_hr_num
+
+ggplot(data=tn_destination, 
+                    aes(x=tn_dropoff_hr_num), bins = 24) + 
+                    geom_bar() +
+    scale_x_continuous(breaks = tn_dropoff_hr_num)
+```
+
+```{r}
+# choosing sample in times (every 3 hr)
+tn_sample_time <- seq(0, max(tn_destination$dropoff_hr_num), 1)
+
+# calculating densities
+tn_tnkde_densities <- tnkde(lines = tn_network,
+                   events = tn_destination,
+                   time_field = "dropoff_hr_num",
+                   w = rep(1, nrow(tn_destination)), 
+                   samples_loc = tn_samples,
+                   samples_time = tn_sample_time, 
+                   kernel_name = "quartic",
+                   bw_net = 700, bw_time = 60,
+                   adaptive = TRUE,
+                   trim_bw_net = 900,
+                   trim_bw_time = 80,
+                   method = "discontinuous",
+                   div = "bw", max_depth = 10,
+                   digits = 2, tol = 0.01,
+                   agg = 15, grid_shape = c(1,1), 
+                   verbose  = FALSE)
+```
+
+```{r}
+# creating a color palette for all the densities
+library(classInt)
+library(viridis)
+all_densities <- c(tn_tnkde_densities$k)
+color_breaks <- classIntervals(all_densities, n = 10, style = "kmeans")
+
+# generating a map at each sample time
+all_maps <- lapply(1:ncol(tn_tnkde_densities$k), function(i){
+  time <- tn_sample_time[[i]]
+  
+  tn_samples$tnkde_density <- tn_tnkde_densities$k[,i]
+  map1 <- tm_shape(tn_samples) + 
+  tm_dots(col = "tnkde_density", size = 0.01,
+          breaks = color_breaks$brks, palette = viridis(10)) + 
+    tm_layout(legend.show=FALSE, main.title = as.character(time), main.title.size = 0.5)
+  return(map1)
+})
+```
+
+```{r}
+# creating a gif with all the maps
+tmap_animation(all_maps, filename = "images/animated_tn.gif", 
+               width = 1000, height = 1000, dpi = 300, delay = 50)
+```
+
+\`\`\` ![](images/animated_map.gif)
+
+## 
 
 ## References
 
