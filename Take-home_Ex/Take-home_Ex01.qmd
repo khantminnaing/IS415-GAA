@@ -586,6 +586,44 @@ lines(origin_circle, col='red', lwd=2)
 lines(destination_circle, col='purple', lwd=2)
 ```
 
+### 6.3 Spatial Randomness Test
+
+Clark and Evans (1954) give a very simple test of spatial randomness called Clark and Evans aggregation index (R). It is the ratio of the observed mean nearest neighbour distance in the pattern to that expected for a Poisson point process of the same intensity. A value *R\>1* suggests ordering, while *R\<1* suggests clustering.
+
+we will perform the Clark-Evans test of aggregation for a spatial point pattern by using [*clarkevans.test()*](https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test) of **statspat**.
+
+The test hypotheses are:
+
+-   H~0~ = The distribution of trajectory original points are randomly distributed.
+
+-   H~1~= The distribution of trajectory original points are not randomly distributed.
+
+The 95% confidence interval will be used.
+
+```{r}
+clarkevans.test(origin_ppp_sg,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"),
+                nsim=99)
+```
+
+The test hypotheses are:
+
+-   H~0~ = The distribution of trajectory destination points are randomly distributed.
+
+-   H~1~= The distribution of trajectory destination points are not randomly distributed.
+
+The 95% confidence interval will be used.
+
+```{r}
+clarkevans.test(destination_ppp_sg,
+                correction="none",
+                clipregion="sg_owin",
+                alternative=c("clustered"),
+                nsim=99)
+```
+
 ## 7.0 First-Order Spatial Point Patterns Analysis
 
 After data wrangling is complete, we will start to perform first-order spatial point pattern analysis using functions from `spatstat` package. As we have discussed in Section 2.0., First-order properties concern the characteristics of individual point locations and their variations of their density across space and are mostly addressed by density-based techniques, such as quadrant analysis and kernel density estimation.
@@ -958,12 +996,28 @@ tmap_arrange(kde_fixed_scott, kde_adaptive_nn, kde_adaptive_kernel ,ncol=1,nrow=
 
 ```
 
-### 7.6 Analysis of Kernel Density Maps
+### 7.6 Analysis of Singapore-Level Kernel Density Estimation Maps
+
+FromThe highest cluster of Grab taxi drop-off points are seen near Changi Airport, where the concentrations reach up to 450.
+
+The central and southern parts of Singapore, particularly the Central Business District (CBD) and Marina Bay areas, also exhibit substantial concentrations of Grab taxi drop-off points, peaking at 350. These areas have a high demand for taxi services, possibly due to a high concentration of businesses, tourist attractions.
+
+Interestingly enough, we found a few residential subzones outside of the CBD region, which is comparatively higher density values compared to the rest of the island. However, because of the smoothing effect, identifying these hotspots using a fixed-bandwidth KDE map is difficult. Hence, we proceeded to perform a cross inspection with adaptive KDE maps for better precision in hotspots identification.
+
+Through adaptive nearest neighbour KDE map, we identified distinct hotspots in **Jurong West** (7000-8000), **Woodlands** (6000-7000), **Tampines** (4000-5000), and **Toa Payoh** (4000-5000). The Adaptive Kernel KDE map complements this finding by accentuating two additional hotspots, **Jurong East** (500-1000) and **Punggol** (500-1000).
+
+![Source: URA Master Plan 2019](images/Masterplan.png){fig-align="center"}
+
+It is intriguing to see that the six residential subzones we have identified have higher concentrations of drop-off points, despite being predominantly classified as residential areas , according to the Master Plan 2019 (MP19) by Urban Redevelopment Authority Singapore. It will be interesting to discern underlying spatial process and pull factors that lead to this spatial cluster. Therefore, we will attempt to create comparable KDE maps at the planning subzone level.
 
 ### 7.7 Planning Area-Level Kernel Density Estimation
 
+In this section, we will create planning-area level KDE maps for six planning areas we have identified. In order to create such maps, we will carry out additional data wrangling as required.
+
+Firstly, we will filter out different planning areas as separate sf objects from `mpsz_sf`.
+
 ```{r}
-wl= mpsz_sf %>% filter(PLN_AREA_N == "WOODLANDS")
+wl = mpsz_sf %>% filter(PLN_AREA_N == "WOODLANDS")
 je = mpsz_sf %>% filter(PLN_AREA_N == "JURONG EAST")
 jw = mpsz_sf %>% filter(PLN_AREA_N == "JURONG WEST")
 tn = mpsz_sf %>% filter(PLN_AREA_N == "TAMPINES")
@@ -972,13 +1026,15 @@ pg = mpsz_sf %>% filter(PLN_AREA_N == "PUNGGOL")
 
 
 par(mar = c(1,1,1,0),mfrow=c(2,3))
-plot(st_geometry(wl), main = "Punggol")
+plot(st_geometry(wl), main = "Woodlands")
 plot(st_geometry(je), main = "Jurong East")
 plot(st_geometry(jw), main = "Jurong West")
 plot(st_geometry(tn), main = "Tampines")
 plot(st_geometry(tp), main = "Toa Payoh")
 plot(st_geometry(pg), main = "Punggol")
 ```
+
+Next, we will create `owin` objects to represent the observation windows for respective planning area. Once `owin` objects are created, we will also filter Grab taxi drop-off points in each observation window from the original `destination_ppp_sg` ppp object.
 
 ```{r}
 wl_owin = as.owin(wl)
@@ -996,6 +1052,10 @@ destination_tp_ppp = destination_ppp_sg[tp_owin]
 destination_pg_ppp = destination_ppp_sg[pg_owin]
 ```
 
+Now that we have prepared both `owin` and `ppp` objects for each planning area, we are ready to plot KDE maps. Similar to what we have done in previous section, we will try both fixed-bandwitdh and adaptive bandwidth KDE maps.
+
+#### 7.7.1 Planning Area-Level Fixed-Bandwidth KDE Maps
+
 ```{r}
 #| fig-width: 10
 #| fig-height: 15
@@ -1006,79 +1066,58 @@ jw_kde_scott <- density(destination_jw_ppp, sigma=bw.scott, main="Jurong West")
 tn_kde_scott <- density(destination_tn_ppp, sigma=bw.scott, main="Tampines")
 tp_kde_scott <- density(destination_tp_ppp, sigma=bw.scott, main="Toa Payoh")
 pg_kde_scott <- density(destination_pg_ppp, sigma=bw.scott, main="Punggol")
+par(mar = c(1,1,1,1.5),mfrow = c(3,2))
+
+plot(wl_kde_scott,main = "Fixed KDE Woodlands")
+contour(wl_kde_scott, add=TRUE)
+plot(je_kde_scott,main = "Fixed KDE Jurong East")
+contour(je_kde_scott, add=TRUE)
+plot(jw_kde_scott,main = "Fixed KDE Jurong West")
+contour(jw_kde_scott, add=TRUE)
+plot(tn_kde_scott,main = "Fixed KDE Tampines")
+contour(tn_kde_scott, add=TRUE)
+plot(tp_kde_scott,main = "Fixed KDE Toa Payoh")
+contour(tp_kde_scott, add=TRUE)
+plot(pg_kde_scott,main = "Fixed KDE Punggol")
+contour(pg_kde_scott, add=TRUE)
+
+```
+
+#### 7.7.2 Planning Area-Level Adaptive-Bandwidth KDE Maps
+
+```{r}
+wl_kde_adaptive_kernel <- adaptive.density(destination_wl_ppp, method = "kernel")
+je_kde_adaptive_kernel <- adaptive.density(destination_je_ppp, method = "kernel")
+jw_kde_adaptive_kernel <- adaptive.density(destination_jw_ppp, method = "kernel")
+tn_kde_adaptive_kernel <- adaptive.density(destination_tn_ppp, method = "kernel")
+tp_kde_adaptive_kernel <- adaptive.density(destination_tp_ppp, method = "kernel")
+pg_kde_adaptive_kernel <- adaptive.density(destination_pg_ppp, method = "kernel")
 
 par(mar = c(1,1,1,1.5),mfrow = c(3,2))
 
-plot(wl_kde_scott,main = "KDE Woodlands")
-contour(wl_kde_scott, add=TRUE)
-plot(je_kde_scott,main = "KDE Jurong East")
-contour(je_kde_scott, add=TRUE)
-plot(jw_kde_scott,main = "KDE Jurong West")
-contour(jw_kde_scott, add=TRUE)
-plot(tn_kde_scott,main = "KDE Tampines")
-contour(tn_kde_scott, add=TRUE)
-plot(tp_kde_scott,main = "KDE Toa Payoh")
-contour(tp_kde_scott, add=TRUE)
-plot(pg_kde_scott,main = "KDE Punggol")
-contour(pg_kde_scott, add=TRUE)
+plot(je_kde_adaptive_kernel,main = "Adaptive KDE Woodlands")
+contour(je_kde_adaptive_kernel, add=TRUE)
+plot(je_kde_adaptive_kernel,main = "Adaptive KDE Jurong East")
+contour(je_kde_adaptive_kernel, add=TRUE)
+plot(jw_kde_adaptive_kernel,main = "Adaptive KDE Jurong West")
+contour(jw_kde_adaptive_kernel, add=TRUE)
+plot(tn_kde_adaptive_kernel,main = "Adaptive KDE Tampines")
+contour(tn_kde_adaptive_kernel, add=TRUE)
+plot(tp_kde_adaptive_kernel,main = "Adaptive KDE Toa Payoh")
+contour(tp_kde_adaptive_kernel, add=TRUE)
+plot(pg_kde_adaptive_kernel,main = "Adaptive KDE Punggol")
+contour(pg_kde_adaptive_kernel, add=TRUE)
 ```
 
-```{r}
-raster_tn_kde_scott <- raster(tn_kde_scott)
-projection(raster_tn_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
-```
+### 7.8 Analysis of Planning Area-Level Kernel Density Estimation Maps
 
-```{r}
-tmap_mode('plot')
-tm_basemap(server = "OpenStreetMap.HOT") +
-  tm_basemap(server = "Esri.WorldImagery") +
-  tm_shape(raster_tn_kde_scott) +
-  tm_raster("layer",
-            n = 7,
-            title = "KDE_Tampines",
-            style = "pretty",
-            alpha = 0.6,
-            palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
-  tmap_options(check.and.fix = TRUE)
-```
+Observations from the planning area-level KDE maps reveal that while KDE maps excel in visualizing and analyzing spatial data, their application to micro-level analysis, like planning subzones, has limitations. Firstly, there are issues with over-smoothing (in fixed KDE maps) and undersmoothing (in adaptative KDE maps) which deters us from discerning meaningful insights. Furthermore, KDE values, generated on grid-pixels using Euclidean distance, result in grid blocks that limit our ability to discern fine details and variations within each subzone.
 
-### 7.8 Spatial Randomness Test
+For example, let's look at the picture below, which is a snapshot from KDE adaptive nearest-neighbor map. A hotspot is identified and represented by a concentrated red zone near Braddell Road in Toa Payoh. However, just by looking at this map, it\'s really hard to understand more about this hotspot. We know there is a cluster of drop-off points, but why are they there? What are pull factors attracting people to this area? It\'s almost impossible to answer these questions just by looking at this KDE map.
 
-Clark and Evans (1954) give a very simple test of spatial randomness called Clark and Evans aggregation index (R). It is the ratio of the observed mean nearest neighbour distance in the pattern to that expected for a Poisson point process of the same intensity. A value *R\>1* suggests ordering, while *R\<1* suggests clustering.
+![](images/Screenshot 2024-02-01 at 6.17.32 PM.png){fig-align="center" width="251"}
 
-we will perform the Clark-Evans test of aggregation for a spatial point pattern by using [*clarkevans.test()*](https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test) of **statspat**.
-
-The test hypotheses are:
-
--   H~0~ = The distribution of trajectory original points are randomly distributed.
-
--   H~1~= The distribution of trajectory original points are not randomly distributed.
-
-The 95% confidence interval will be used.
-
-```{r}
-clarkevans.test(origin_ppp_sg,
-                correction="none",
-                clipregion="sg_owin",
-                alternative=c("clustered"),
-                nsim=99)
-```
-
-The test hypotheses are:
-
--   H~0~ = The distribution of trajectory destination points are randomly distributed.
-
--   H~1~= The distribution of trajectory destination points are not randomly distributed.
-
-The 95% confidence interval will be used.
-
-```{r}
-clarkevans.test(destination_ppp_sg,
-                correction="none",
-                clipregion="sg_owin",
-                alternative=c("clustered"),
-                nsim=99)
-```
+This limitation underscores the need for more advanced visualization techniques or analytical methods that can provide alternative approaches to understanding spatial point clusters. With this limitation in mind, we will apply a new analytical method called network constrained kernel density estimation (NKDE) to offer more detailed insights into the spatial distribution of Grab taxi drop-off points through the integration of road networks.
 
 ## 8.0 Network Constrained Kernel Density Estimation (NKDE)
 
@@ -1217,11 +1256,17 @@ For illustrative purpose, I'll use "Punggol" as a example to demonstrate step-by
 
 The `spNetwork` package contains `nkde` function that is specifically designed to implement Network Constrained Kernel Density Estimation (NetKDE).
 
-The three main inputs are: - lines, a "SpatialLinesDataFrame" (object defined in the sp package), representing the lines of the network. - events, a "SpatialPointsDataframe" (object defined in the sp package), representing the realizations of the spatial process. - samples, a "SpatialPointsDataframe" providing the locations where the density must be estimated.
+The three main inputs are:
+
+-   lixels, a "SpatialLinesDataFrame", representing the lines of the network.
+
+-   events, a "SpatialPointsDataframe", representing the realizations of the spatial process.
+
+-   samples, a "SpatialPointsDataframe" providing the locations where the density must be estimated.
 
 #### 8.3.1 Preparing the lixels objects
 
-Before computing NetKDE, the SpatialLines object need to be cut into lixels with a specified minimal distance. This task can be performed by using with `lixelize_lines()` of spNetwork
+Before computing NetKDE, the SpatialLines object need to be cut into lixels with a specified minimal distance. This task can be performed by using with `lixelize_lines()` of **spNetwork**.
 
 ```{r}
 pg_lixels <- lixelize_lines(pg_network, 
@@ -1229,11 +1274,7 @@ pg_lixels <- lixelize_lines(pg_network,
                          mindist = 350)
 ```
 
--   The length of a lixel, *lx_length* is set to 700m, and
-
--   The minimum length of a lixel, *mindist* is set to 350m.
-
-After cut, if the length of the final lixel is shorter than the minimum distance, then it is added to the previous lixel. If NULL, then mindist = maxdist/10. Also note that the segments that are already shorter than the minimum distance are not modified.
+In this code snippet, the length of a lixel is set to 700m, and the minimum length of a lixel, denoted as **`mindist`**, is set to 350m. This implies that during segmentation, if the length of the final lixel is shorter than the minimum distance, then it is added to the previous lixel. The segments that are already shorter than the minimum distance are not modified.
 
 #### 8.3.2 Generating line centre points
 
@@ -1251,9 +1292,9 @@ The **`spNetwork`** package offers three methods for calculating NKDE values `si
 
 -   `Simple NKDE`: Simple NKDE method was proposed by Xie and Yan (2008), extending the planar KDE to a network-based model. However, there are issues with this method due to statistical incorrectness. Specifically, at network intersections, the event's mass is multiplied in each direction, leading to overestimation and inflated density estimates, which can result in misleading interpretations (Gelb, 2021). To address these issues, Okabe et al. (2009) proposed two unbiased estimators: `Discontinuous NKDE` and `Continuous NKDE`.
 
--   `Discontinuous NKDE`: Discontinuous NKDE aims to resolve density inflation by dividing the mass at in-tersections according to the number of directions minus one, resulting in an unbiased estimator. However, the discontinuous nature of this method can be counter-intuitive in practical applications.
+-   `Discontinuous NKDE`: Discontinuous NKDE aims to resolve density inflation by dividing the mass at intersections according to the number of directions minus one, resulting in an unbiased estimator (Gelb, 2021). However, the discontinuous nature of this method can be counter-intuitive in practical applications.
 
--   `Continuous NKDE`: Continuous NKDE proposes to address the limitations of both simple and discontinuous NKDE. It adjusts the values of the NKDE at intersections and applies a backward correction to force the density values to be continuous.
+-   `Continuous NKDE`: Continuous NKDE proposes to address the limitations of both simple and discontinuous NKDE. It adjusts the values of the NKDE at intersections and applies a backward correction to force the density values to be continuous (Gelb, 2021).
 
 In this analysis, we will compute NKDE values using all three methods and compare the results.
 
@@ -1322,7 +1363,7 @@ pg_nkde_continuous <- nkde(pg_network,
 `agg` argument allows the events to be aggregated, and their weights to be added within a threshold distance. Aggregating events can simplify networks and limit the number of iterations when calculating the NKDE, hence effectively reducing time complexity of computation.
 :::
 
-#### 8.4.1 Visualising NetKDE Maps Using Different Methods
+#### 8.4.1 Visualising NKDE Maps Using Different Methods
 
 Before we can visualise the NetKDE values, we will insert the computed density values into *samples* and *lixels* objects. To enhance the readability of the results, you will first multiply the obtained densities by the total number of drop-off points. This adjustment ensures that the spatial integral equals the number of events. Subsequently, you will multiply this value by 1000 to derive the estimated number of drop-off points per kilometer. This process will provide a more intuitive understanding of the density distribution along the network.
 
@@ -1357,7 +1398,7 @@ pg_lixels <- read_rds("../data/rds/pg_lixels.rds")
 singapore_POIs = st_read(dsn = "~/IS415-GAA/data/geospatial", 
                 layer = "singapore_pois") %>% st_transform(crs = 3414)
 
-POIs_classes <- c("cafe", "food_court", "mall", "resturant", "supermarket", "hotel", "museum", "park", "school", "college","community_centre", "hospital","sports_centre", "library") 
+POIs_classes <- c("cafe", "food_court", "mall", "resturant", "supermarket", "hotel", "museum", "park", "school", "college","community_centre", "hospital","sports_centre", "library", "golf_course") 
 
 singapore_POIs <- singapore_POIs %>%
   filter(fclass %in% POIs_classes)
@@ -1378,7 +1419,7 @@ pg_nkde_simple_map <- tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(pg_lixels)+
-  tm_lines(col="nkde_simple", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_simple", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(pg_destination)+
   tm_dots(size=0.01)
 
@@ -1386,7 +1427,7 @@ pg_nkde_discontinuous_map <- tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(pg_lixels)+
-  tm_lines(col="nkde_discontinuous", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_discontinuous", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(pg_destination)+
   tm_dots(size=0.01)
 
@@ -1394,7 +1435,7 @@ pg_nkde_continuous_map <- tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(pg_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_continuous", lwd = 2, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(pg_destination)+
   tm_dots(size=0.01)
 
@@ -1409,25 +1450,6 @@ tmap_arrange(pg_nkde_simple_map, pg_nkde_discontinuous_map, pg_nkde_continuous_m
 
 Upon close examination to the intersection as shown above, we can clearly see the density inflation caused by simple NKDE method, as opposed to discontinuous and continuous methods. A comparison between the Discontinuous and Continuous NKDE maps reveals the disjointed nature of lixels resulting from the Discontinuous method, as indicated by the varying color bands representing each lixel segment. Out of all three maps, continuous NKDE map offers the most intuitive representation.
 :::
-
-We can also compare with traditonal KDE as below.
-
-```{r}
-raster_pg_kde_scott = raster(pg_kde_scott)
-projection(raster_pg_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
-```
-
-```{r}
-tmap_mode('plot')
-tm_basemap(server = "Esri.WorldGrayCanvas") +
-tm_shape(raster_pg_kde_scott)+
-  tm_raster("layer",
-            n = 7,
-            title = "KDE_Adaptive_Kernel",
-            style = "pretty",
-            alpha = 0.6,
-            palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))
-```
 
 ### 8.5 Plotting NKDE for Different Planning Areas
 
@@ -1540,11 +1562,11 @@ tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(pg_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(pg_destination)+
   tm_dots(size=0.01) +
   tm_shape(pg_POIs)+
-  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="name", title="POIs")+
   tm_borders(
   lwd = 0)
 ```
@@ -1559,11 +1581,11 @@ tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(tn_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(tn_destination)+
   tm_dots(size=0.01) +
   tm_shape(tn_POIs)+
-  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="name", title="POIs")+
   tm_borders(
   lwd = 0)
 ```
@@ -1578,11 +1600,11 @@ tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(je_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(je_destination)+
   tm_dots(size=0.01) +
   tm_shape(je_POIs)+
-  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="name", title="POIs")+
   tm_borders(
   lwd = 0)
 ```
@@ -1597,11 +1619,11 @@ tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(jw_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(jw_destination)+
   tm_dots(size=0.01) +
 tm_shape(jw_POIs)+
-  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="name", title="POIs")+
   tm_borders(
   lwd = 0)
 ```
@@ -1616,11 +1638,11 @@ tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(wl_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(wl_destination)+
   tm_dots(size=0.01) +
   tm_shape(wl_POIs)+
-  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="name", title="POIs")+
   tm_borders(
   lwd = 0)
 ```
@@ -1635,17 +1657,33 @@ tm_basemap(server = "Esri.WorldTopoMap") +
   tm_basemap(server = "Esri.WorldGrayCanvas")+
   tm_basemap(server = "OpenStreetMap") +
 tm_shape(tp_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e"), id="nkde_continuous")+
 tm_shape(tp_destination)+
   tm_dots(size=0.01) +
   tm_shape(tp_POIs)+
-  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="name", title="POIs")+
   tm_borders(
   lwd = 0)
 ```
 :::
 
-Analysis result here \>
+### 8.6 Analysis of Network Constrained Kernal Density Estimation (NKDE) Maps
+
+Overall, It is intriguing to observe the interplay of similar, yet distinct, pull factors across different planning subzones.
+
+-   **Punggol**: In Punggol, all observed clusters are located near schools and parks. The most significant clusters are found in the vicinity of Edgefield Secondary School, Edgefield Primary School, and Punggol Green Primary School. Multiple smaller clusters are observed around neighbourhood parks.
+
+-   **Tampines**: In Tampines, a significant cluster is observed at Tanah Merah Country Club and Laguna Country Club, suggesting a high demand for taxi services in these recreational areas. A smaller cluster is also noticeable near Simei Neighbourhood Park.
+
+-   **Jurong East**: In Jurong East, a significant cluster is observed leading to IMM, a major outlet shopping center, which seems to attract multiple taxi trajectories. Additional clusters are observed near Yuhua Primary School and Crest Secondary School, as well as various neighbourhood parks.
+
+-   **Jurong West**: In Jurong West, two significant clusters are observed, one near Westwood Secondary School and the other leading to Nanyang Technological University, highlighting the importance of educational institutions in this area. Another equally significant cluster is located near Masjid Maarof, one of Singapore\'s oldest and most prominent mosques.
+
+-   **Woodlands**: In Woodlands, a significant cluster is observed at Innova Junior College and Singapore Sports School. Additional clusters are found at Woodland Civic Centre, a community centre with library and dining areas, and STELLAR\@TE2, a lifestyle shopping mall. We also observed another cluster leads to Singapore Turf Club.
+
+-   **Toa Payoh**: In Toa Payoh, a cluster is observed near Toa Payoh Townpark, indicating its popularity as a communal destination. Another cluster is found at St Andrew\'s Junior College.
+
+In conclusion, the results of NKDE analysis of Grab taxi drop-off points in six selected planning areas reveals a nuanced pattern of clusters associated with various types of amenities and institutions. These findings suggest that different planning areas have distinct characteristics that attract people to specific locations within them. Additionally, understanding these pull factors can help inform urban planning and development strategies to create anew or further enhance the attractiveness of these areas.
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
 
