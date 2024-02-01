@@ -958,7 +958,9 @@ tmap_arrange(kde_fixed_scott, kde_adaptive_nn, kde_adaptive_kernel ,ncol=1,nrow=
 
 ```
 
-### 7.6 Planning Area-Level Kernel Density Estimation
+### 7.6 Analysis of Kernel Density Maps
+
+### 7.7 Planning Area-Level Kernel Density Estimation
 
 ```{r}
 wl= mpsz_sf %>% filter(PLN_AREA_N == "WOODLANDS")
@@ -1021,7 +1023,26 @@ plot(pg_kde_scott,main = "KDE Punggol")
 contour(pg_kde_scott, add=TRUE)
 ```
 
-### 7.0 Spatial Randomness Test
+```{r}
+raster_tn_kde_scott <- raster(tn_kde_scott)
+projection(raster_tn_kde_scott) <- CRS("+init=EPSG:3414 +units=km")
+```
+
+```{r}
+tmap_mode('plot')
+tm_basemap(server = "OpenStreetMap.HOT") +
+  tm_basemap(server = "Esri.WorldImagery") +
+  tm_shape(raster_tn_kde_scott) +
+  tm_raster("layer",
+            n = 7,
+            title = "KDE_Tampines",
+            style = "pretty",
+            alpha = 0.6,
+            palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+  tmap_options(check.and.fix = TRUE)
+```
+
+### 7.8 Spatial Randomness Test
 
 Clark and Evans (1954) give a very simple test of spatial randomness called Clark and Evans aggregation index (R). It is the ratio of the observed mean nearest neighbour distance in the pattern to that expected for a Poisson point process of the same intensity. A value *R\>1* suggests ordering, while *R\<1* suggests clustering.
 
@@ -1331,6 +1352,24 @@ pg_samples <- read_rds("../data/rds/pg_sampless.rds")
 pg_lixels <- read_rds("../data/rds/pg_lixels.rds")
 ```
 
+```{r}
+#| echo: false
+singapore_POIs = st_read(dsn = "~/IS415-GAA/data/geospatial", 
+                layer = "singapore_pois") %>% st_transform(crs = 3414)
+
+POIs_classes <- c("cafe", "food_court", "mall", "resturant", "supermarket", "hotel", "museum", "park", "school", "college","community_centre", "hospital","sports_centre", "library") 
+
+singapore_POIs <- singapore_POIs %>%
+  filter(fclass %in% POIs_classes)
+
+pg_POIs = st_intersection(singapore_POIs,st_union(pg))
+tn_POIs = st_intersection(singapore_POIs,st_union(tn))
+je_POIs = st_intersection(singapore_POIs,st_union(je))
+jw_POIs = st_intersection(singapore_POIs,st_union(jw))
+wl_POIs = st_intersection(singapore_POIs,st_union(wl))
+tp_POIs = st_intersection(singapore_POIs,st_union(tp))
+```
+
 Now we can plot NKDE maps using `tmap`.
 
 ```{r}
@@ -1390,7 +1429,9 @@ tm_shape(raster_pg_kde_scott)+
             palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))
 ```
 
-### 8.5 Plotting NetKDE for Other Planning Areas
+### 8.5 Plotting NKDE for Different Planning Areas
+
+In this section, we will create interactive maps of different planning areas that we have previousely identified as potential hotspots. These maps will incorporate several key elements: network kernel density estimation values (depicted through lixels), Grab drop-off points, and points of interest (POIs). The purpose of including these elements is to identify the pull factors within these areas. Understanding these factors can help in planning and decision-making processes, such as where to locate new facilities or how to improve transportation routes.
 
 ```{r}
 #| echo: false
@@ -1488,51 +1529,123 @@ jw_samples <- read_rds("../data/rds/jw_samples.rds")
 jw_lixels <- read_rds("../data/rds/jw_lixels.rds")
 ```
 
+::: panel-tabset
+## Punggol
+
 ```{r}
 #| echo: false
+tmap_mode('view')
 
-tmap_mode('plot')
-tm_shape(tn_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
-  tm_layout(main.title = "NKDE Map (Tampines)",
-            main.title.position = "center",
-            main.title.size = 1,
-            legend.outside = TRUE,
-            frame = TRUE)
-
-tm_shape(tp_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
-   tm_layout(main.title = "NKDE Map (Toa Payoh)",
-            main.title.position = "center",
-            main.title.size = 1,
-            legend.outside = TRUE,
-            frame = TRUE)
-
-tm_shape(wl_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
-  tm_layout(main.title = "NKDE Map (Woodlands)",
-            main.title.position = "center",
-            main.title.size = 1,
-            legend.outside = TRUE,
-            frame = TRUE)
-
-tm_shape(je_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
-   tm_layout(main.title = "NKDE Map (Jurong East)",
-            main.title.position = "center",
-            main.title.size = 1,
-            legend.outside = TRUE,
-            frame = TRUE)
-
-tm_shape(jw_lixels)+
-  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fbd448","#fd953b","#f02a75","#b62385","#021c9e"))+
-   tm_layout(main.title = "NKDE Map (Jurong West)",
-            main.title.position = "center",
-            main.title.size = 1,
-            legend.outside = TRUE,
-            frame = TRUE)
-
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(pg_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#ffd51c","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(pg_destination)+
+  tm_dots(size=0.01) +
+  tm_shape(pg_POIs)+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_borders(
+  lwd = 0)
 ```
+
+## Tampines
+
+```{r warning=FALSE}
+#| echo: false
+tmap_mode('view')
+
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(tn_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(tn_destination)+
+  tm_dots(size=0.01) +
+  tm_shape(tn_POIs)+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_borders(
+  lwd = 0)
+```
+
+## Jurong East
+
+```{r warning=FALSE}
+#| echo: false
+tmap_mode('view')
+
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(je_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(je_destination)+
+  tm_dots(size=0.01) +
+  tm_shape(je_POIs)+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_borders(
+  lwd = 0)
+```
+
+## Jurong West
+
+```{r warning=FALSE}
+#| echo: false
+tmap_mode('view')
+
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(jw_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(jw_destination)+
+  tm_dots(size=0.01) +
+tm_shape(jw_POIs)+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_borders(
+  lwd = 0)
+```
+
+## Woodlands
+
+```{r warning=FALSE}
+#| echo: false
+tmap_mode('view')
+
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(wl_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(wl_destination)+
+  tm_dots(size=0.01) +
+  tm_shape(wl_POIs)+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_borders(
+  lwd = 0)
+```
+
+## Toa Payoh
+
+```{r warning=FALSE}
+#| echo: false
+tmap_mode('view')
+
+tm_basemap(server = "Esri.WorldTopoMap") +
+  tm_basemap(server = "Esri.WorldGrayCanvas")+
+  tm_basemap(server = "OpenStreetMap") +
+tm_shape(tp_lixels)+
+  tm_lines(col="nkde_continuous", lwd = 1.5, palette =c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e"))+
+tm_shape(tp_destination)+
+  tm_dots(size=0.01) +
+  tm_shape(tp_POIs)+
+  tm_polygons(col="fclass", palette= c("#eff635","#e4c838","#ccb033","#99bf3e","#6ebf7c","#61adab","#5895d0","#5071ea","#4b49f5","#4225df","#3310a2"), id="fclass", title="POIs")+
+  tm_borders(
+  lwd = 0)
+```
+:::
+
+Analysis result here \>
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
 
@@ -1748,9 +1861,11 @@ all_maps <- lapply(1:ncol(pg_tnkde_densities$k), function(i){
 # creating a gif with all the maps
 tmap_animation(all_maps, filename = "images/animated_pg.gif", 
                width = 1000, height = 1000, dpi = 300, delay = 50)
+knitr::include_graphics("images/animated_pg.gif")
+
 ```
 
-\`\`\` ![](images/animated_map.gif)
+\`\`\`
 
 ```{r}
 tn_destination$dropoff_hr_num <- as.numeric(tn_destination$dropoff_hr)
@@ -1810,28 +1925,57 @@ all_maps <- lapply(1:ncol(tn_tnkde_densities$k), function(i){
 # creating a gif with all the maps
 tmap_animation(all_maps, filename = "images/animated_tn.gif", 
                width = 1000, height = 1000, dpi = 300, delay = 50)
+
+knitr::include_graphics("images/animated_tn.gif")
+
 ```
 
-\`\`\` ![](images/animated_map.gif)
+\`\`\`
 
-## 
+## Conclusion
+
+This analysis has explored the point patterns analysis using Grab's trajectory datasets. We have carried out three different approaches - Traditional Kernel Density Estimation (KDE), Network Constrained Kernel Density Estimation (NKDE) and Temporal Kernel Density Estimation (TKDE).
 
 ## References
 
-Baddeley, A., Rubak, E., & Turner, R. (2015). Spatial Point Patterns: Methodology and Applications with R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/b19708.
+1.  Baddeley, A., Rubak, E., & Turner, R. (2015). Spatial Point Patterns: Methodology and Applications with R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/b19708.
 
-Boots, B.N., & Getis, A. (1988). Point Pattern Analysis. Reprint. Edited by G.I. Thrall. WVU Research Repository.
+2.  Barr, C., & Schoenberg, F.P. (2010). On the Voronoi estimator for the intensity of an inhomogeneous planar Poisson process. Biometrika, 97(4), 977--984.
 
-Floch, J.-M., Marcon, E., Puech, F. (n.d.). Spatial distribution of points. In M.-P. de Bellefon (Ed.), Handbook of Spatial Analysis : Theory and Application with R (pp. 72--111). Insee-Eurostat.
+3.  Boots, B.N., & Getis, A. (1988). Point Pattern Analysis. Reprint. Edited by G.I. Thrall. WVU Research Repository.
 
-Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from https://mgimond.github.io/Spatial/index.html.
+4.  Cronie, O., & van Lieshout, M.N. (2018). A non-model-based approach to bandwidth selection for kernel estimators of spatial intensity functions. Biometrika, 105, 455--462.
 
-Pebesma, E.; Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016.
+5.  Davies, T.M., & Baddeley, A. (2018). Fast computation of spatially adaptive kernel estimates. Statistics and Computing, 28(4), 937-956.
 
-Rey, S.J., Arribas-Bel, D., Wolf, L.J. (2023). Point Pattern Analysis. In: Geographic Data Science with python. CRC Press.
+6.  Diggle, P.J. (1985). A kernel method for smoothing point process data. Applied Statistics (Journal of the Royal Statistical Society, Series C), 34, 138--147.
 
-Wilkin, J. (2020). Geocomputation 2020-2021 Work Book. University College London. Retrieved from https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html.
+7.  Floch, J.-M., Marcon, E., & Puech, F. (n.d.). Spatial distribution of points. In M.-P. de Bellefon (Ed.), Handbook of Spatial Analysis : Theory and Application with R (pp. 72--111). Insee-Eurostat.
 
-Yuan, Y., Qiang, Y., Bin Asad, K., and Chow, T. E. (2020). Point Pattern Analysis. In J.P. Wilson (Ed.), The Geographic Information Science & Technology Body of Knowledge (1st Quarter 2020 Edition). DOI: 10.22224/gistbok/2020.1.13.
+8.  Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from https://mgimond.github.io/Spatial/index.html.
 
-Kam, T. S. (2022). R for Geospatial Data Science and Analytics. Retrieved from <https://r4gdsa.netlify.app/>
+9.  González, J. A., & Moraga, P. (2022). An adaptive kernel estimator for the intensity function of spatio-temporal point processes.
+
+10. Kam, T. S. (2022). R for Geospatial Data Science and Analytics. Retrieved from https://r4gdsa.netlify.app.
+
+11. Krisp, J.M., Peters, S., Murphy, C.E., & Fan, H. (2009). Visual bandwidth selection for kernel density maps. Photogrammetrie - Fernerkundung - Geoinformation, 2009, 445--454.
+
+12. Loader, C. (1999). Local Regression and Likelihood. Springer, New York.
+
+13. O\'Sullivan, D., & Wong, D.W. (2007). A surface‐based approach to measuring spatial segregation. Geographical Analysis, 39, 147--168.
+
+14. Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016.
+
+15. Rey, S.J., Arribas-Bel, D., & Wolf, L.J. (2023). Point Pattern Analysis. In: Geographic Data Science with python. CRC Press.
+
+16. Scott, D.W. (1992). Multivariate Density Estimation. Theory, Practice and Visualization. New York: Wiley.
+
+17. Shen, B., Xu, X., Li, J., Plaza, A., & Huang, Q. (2020). Unfolding spatial-temporal patterns of taxi trip based on an improved network kernel density estimation. ISPRS International Journal of Geo-Information, 9, 683.
+
+18. Wilkin, J. (2020). Geocomputation 2020-2021 Work Book. University College London. Retrieved from https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html.
+
+19. Wolff, M., & Asche, H. (2009). Towards geovisual analysis of crime scenes -- a 3D crime mapping approach. Advances in GIScience, 429--448.
+
+20. Xie, Z., & Yan, J. (2008). Kernel density estimation of traffic accidents in a network space. Computers, Environment and Urban Systems, 32, 396--406.
+
+21. Yuan, Y., Qiang, Y., Bin Asad, K., & Chow, T. E. (2020). Point Pattern Analysis. In J.P. Wilson (Ed.), The Geographic Information Science & Technology Body of Knowledge (1st Quarter 2020 Edition). DOI: 10.22224/gistbok/2020.1.13.
