@@ -1,5 +1,5 @@
 ---
-title: "Hands-On Exercise 04"
+title: "Hands-On Exercise 05"
 description: |
  Global and Local Measures of Spatial Autocorrelation
 author:
