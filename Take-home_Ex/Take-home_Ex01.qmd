@@ -68,10 +68,14 @@ Before we start the exercise, we will need to import necessary R packages first.
 
 -   [`spNetwork`](https://cran.r-project.org/web/packages/spNetwork/index.html) : provides several functions to perform spatial analysis on network, including network kernel density estimation and point pattern analysis.
 
+-   `classInt` :
+
+-   `viridis` :
+
 -   [`gifski`](https://cran.r-project.org/web/packages/gifski/index.html) : for converting images to GIF animations, useful for creating dynamic visualizations and presentations.
 
 ```{r}
-pacman::p_load(sf,st,arrow,lubridate,tidyverse,raster,tmap,ggplot2, patchwork,spatstat,spNetwork,gifski)
+pacman::p_load(sf,st,arrow,lubridate,tidyverse,raster,tmap,ggplot2, patchwork,spatstat,spNetwork,classInt,viridis,gifski)
 ```
 
 ## 4.0 Importing Datasets into R Environment
@@ -1113,9 +1117,9 @@ contour(pg_kde_adaptive_kernel, add=TRUE)
 
 Observations from the planning area-level KDE maps reveal that while KDE maps excel in visualizing and analyzing spatial data, their application to micro-level analysis, like planning subzones, has limitations. Firstly, there are issues with over-smoothing (in fixed KDE maps) and undersmoothing (in adaptative KDE maps) which deters us from discerning meaningful insights. Furthermore, KDE values, generated on grid-pixels using Euclidean distance, result in grid blocks that limit our ability to discern fine details and variations within each subzone.
 
-For example, let's look at the picture below, which is a snapshot from KDE adaptive nearest-neighbor map. A hotspot is identified and represented by a concentrated red zone near Braddell Road in Toa Payoh. However, just by looking at this map, it\'s really hard to understand more about this hotspot. We know there is a cluster of drop-off points, but why are they there? What are pull factors attracting people to this area? It\'s almost impossible to answer these questions just by looking at this KDE map.
+For example, let's look at the picture below, which is a snapshot from KDE adaptive nearest-neighbor map. A hotspot is identified and represented by a concentrated red zone near Braddell Road in Toa Payoh. However, just by looking at this map, it's really hard to understand more about this hotspot. We know there is a cluster of drop-off points, but why are they there? What are pull factors attracting people to this area? It's almost impossible to answer these questions just by looking at this KDE map.
 
-![](images/Screenshot 2024-02-01 at 6.17.32 PM.png){fig-align="center" width="251"}
+![](images/Screenshot%202024-02-01%20at%206.17.32%20PM.png){fig-align="center" width="251"}
 
 This limitation underscores the need for more advanced visualization techniques or analytical methods that can provide alternative approaches to understanding spatial point clusters. With this limitation in mind, we will apply a new analytical method called network constrained kernel density estimation (NKDE) to offer more detailed insights into the spatial distribution of Grab taxi drop-off points through the integration of road networks.
 
@@ -1135,7 +1139,7 @@ Before we carry out the anlysis, we will extract relevant datasets required for 
 
 -   destination points
 
-```{r}
+```{r warning=FALSE}
 wl_network = st_intersection(sg_driving_sf,st_union(wl))
 je_network = st_intersection(sg_driving_sf,st_union(je))
 jw_network = st_intersection(sg_driving_sf,st_union(jw))
@@ -1144,7 +1148,7 @@ tp_network = st_intersection(sg_driving_sf,st_union(tp))
 pg_network = st_intersection(sg_driving_sf,st_union(pg))
 ```
 
-```{r}
+```{r warning=FALSE}
 wl_destination = st_intersection(destination_sf,st_union(wl))
 je_destination = st_intersection(destination_sf,st_union(je))
 jw_destination = st_intersection(destination_sf,st_union(jw))
@@ -1457,6 +1461,49 @@ In this section, we will create interactive maps of different planning areas tha
 
 ```{r}
 #| echo: false
+#| eval: false
+
+write_rds(tn_densities, "../data/rds/tn_densities.rds")
+write_rds(tn_samples, "../data/rds/tn_samples.rds")
+write_rds(tn_lixels, "../data/rds/tn_lixels.rds")
+
+write_rds(tp_densities, "../data/rds/tp_densities.rds")
+write_rds(tp_samples, "../data/rds/tp_samples.rds")
+write_rds(tp_lixels, "../data/rds/tp_lixels.rds")
+
+write_rds(wl_densities, "../data/rds/wl_densities.rds")
+write_rds(wl_samples, "../data/rds/wl_samples.rds")
+write_rds(wl_lixels, "../data/rds/wl_lixels.rds")
+
+write_rds(je_densities, "../data/rds/je_densities.rds")
+write_rds(je_samples, "../data/rds/je_samples.rds")
+write_rds(je_lixels, "../data/rds/je_lixels.rds")
+
+write_rds(jw_densities, "../data/rds/jw_densities.rds")
+write_rds(jw_samples, "../data/rds/jw_samples.rds")
+write_rds(jw_lixels, "../data/rds/jw_lixels.rds")
+```
+
+```{r}
+#| echo: false
+tn_samples <- read_rds("../data/rds/tn_samples.rds")
+tn_lixels <- read_rds("../data/rds/tn_lixels.rds")
+
+tp_samples <- read_rds("../data/rds/tp_samples.rds")
+tp_lixels <- read_rds("../data/rds/tp_lixels.rds")
+
+wl_samples <- read_rds("../data/rds/wl_samples.rds")
+wl_lixels <- read_rds("../data/rds/wl_lixels.rds")
+
+je_samples <- read_rds("../data/rds/je_samples.rds")
+je_lixels <- read_rds("../data/rds/je_lixels.rds")
+
+jw_samples <- read_rds("../data/rds/jw_samples.rds")
+jw_lixels <- read_rds("../data/rds/jw_lixels.rds")
+```
+
+```{r warning=FALSE}
+#| echo: false
 unique_types <- unique(st_geometry_type(tn_network))
 
 # debugging: filter roads_tampines to keep only linestrings
@@ -1506,49 +1553,6 @@ wl_network <- st_cast(wl_network, "LINESTRING")
   # handle the case when no linestrings are found
   stop("No linestrings found in roads_tampines.")
 }
-```
-
-```{r}
-#| echo: false
-#| eval: false
-
-write_rds(tn_densities, "../data/rds/tn_densities.rds")
-write_rds(tn_samples, "../data/rds/tn_samples.rds")
-write_rds(tn_lixels, "../data/rds/tn_lixels.rds")
-
-write_rds(tp_densities, "../data/rds/tp_densities.rds")
-write_rds(tp_samples, "../data/rds/tp_samples.rds")
-write_rds(tp_lixels, "../data/rds/tp_lixels.rds")
-
-write_rds(wl_densities, "../data/rds/wl_densities.rds")
-write_rds(wl_samples, "../data/rds/wl_samples.rds")
-write_rds(wl_lixels, "../data/rds/wl_lixels.rds")
-
-write_rds(je_densities, "../data/rds/je_densities.rds")
-write_rds(je_samples, "../data/rds/je_samples.rds")
-write_rds(je_lixels, "../data/rds/je_lixels.rds")
-
-write_rds(jw_densities, "../data/rds/jw_densities.rds")
-write_rds(jw_samples, "../data/rds/jw_samples.rds")
-write_rds(jw_lixels, "../data/rds/jw_lixels.rds")
-```
-
-```{r}
-#| echo: false
-tn_samples <- read_rds("../data/rds/tn_samples.rds")
-tn_lixels <- read_rds("../data/rds/tn_lixels.rds")
-
-tp_samples <- read_rds("../data/rds/tp_samples.rds")
-tp_lixels <- read_rds("../data/rds/tp_lixels.rds")
-
-wl_samples <- read_rds("../data/rds/wl_samples.rds")
-wl_lixels <- read_rds("../data/rds/wl_lixels.rds")
-
-je_samples <- read_rds("../data/rds/je_samples.rds")
-je_lixels <- read_rds("../data/rds/je_lixels.rds")
-
-jw_samples <- read_rds("../data/rds/jw_samples.rds")
-jw_lixels <- read_rds("../data/rds/jw_lixels.rds")
 ```
 
 ::: panel-tabset
@@ -1677,17 +1681,25 @@ Overall, It is intriguing to observe the interplay of similar, yet distinct, pul
 
 -   **Jurong East**: In Jurong East, a significant cluster is observed leading to IMM, a major outlet shopping center, which seems to attract multiple taxi trajectories. Additional clusters are observed near Yuhua Primary School and Crest Secondary School, as well as various neighbourhood parks.
 
--   **Jurong West**: In Jurong West, two significant clusters are observed, one near Westwood Secondary School and the other leading to Nanyang Technological University, highlighting the importance of educational institutions in this area. Another equally significant cluster is located near Masjid Maarof, one of Singapore\'s oldest and most prominent mosques.
+-   **Jurong West**: In Jurong West, two significant clusters are observed, one near Westwood Secondary School and the other leading to Nanyang Technological University, highlighting the importance of educational institutions in this area. Another equally significant cluster is located near Masjid Maarof, one of Singapore's oldest and most prominent mosques.
 
 -   **Woodlands**: In Woodlands, a significant cluster is observed at Innova Junior College and Singapore Sports School. Additional clusters are found at Woodland Civic Centre, a community centre with library and dining areas, and STELLAR\@TE2, a lifestyle shopping mall. We also observed another cluster leads to Singapore Turf Club.
 
--   **Toa Payoh**: In Toa Payoh, a cluster is observed near Toa Payoh Townpark, indicating its popularity as a communal destination. Another cluster is found at St Andrew\'s Junior College.
+-   **Toa Payoh**: In Toa Payoh, a cluster is observed near Toa Payoh Townpark, indicating its popularity as a communal destination. Another cluster is found at St Andrew's Junior College.
 
 In conclusion, the results of NKDE analysis of Grab taxi drop-off points in six selected planning areas reveals a nuanced pattern of clusters associated with various types of amenities and institutions. These findings suggest that different planning areas have distinct characteristics that attract people to specific locations within them. Additionally, understanding these pull factors can help inform urban planning and development strategies to create anew or further enhance the attractiveness of these areas.
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
 
+Temporal Network Kernel Density Estimation (TNKDE) is an extension of Network Constrained Kernel Density Estimation (NKDE) whereby the the temporal dimension is integrated to calculating density of events on a network (Gelb, 2023). This means that density estimation can be done along lines of the network and at different times. The spatio-temporal kernel is calculated as the product of the network kernel density and the time kernel density.
+
+TNKDE can be calculated in
+
 ### 9.1 Visualising Frequency Distribution
+
+Before we calculate TNKDE, we will conduct an exploratory analysis of our data from the Grab Posisi dataset. This will involve visualizing the frequency distribution of both our origin and destination point samples. This step will provide us with a preliminary understanding of our data distribution, which is crucial for effective TNKDE calculation.
+
+Firstly, we will analyze the frequency distribution of days from our trajectory data samples. To achieve this, we will plot bar graphs representing the count of trajectories originating and ending on each day of the week
 
 ```{r}
 origin_day <- ggplot(data=origin_sf, 
@@ -1701,7 +1713,11 @@ destination_day <-  ggplot(data=destination_sf,
 origin_day + destination_day
 ```
 
+As seen above, each bar graph displays a uniform distribution across all weekdays. The dataset is sampled; hence all days are equally represented in both origin and destination datasets.
+
 ### 9.2 Plotting Frequency of Trip Origination By Hour
+
+Next, we will analyze the frequency distribution of trip origination by hour from our trajectory data samples. To achieve this, we will plot bar graphs representing the count of trajectories originating points in each hour.
 
 ```{r}
 origin_sf$pickup_hr_num <- as.numeric(origin_sf$pickup_hr)
@@ -1713,7 +1729,11 @@ ggplot(data=origin_sf,
     scale_x_continuous(breaks = pickup_hr_num)
 ```
 
+We observed noticeable **peaks** at 3, 5, 14, and 15 hours (3 AM, 5 AM, 2 PM and 3 PM respectively). There's a significant **drop** in trip originations during 9 hour (9 AM), as well as from 19 to 22 hours (7 PM to 10 PM). These could be quieter periods in the day when fewer trips are originated. It is also interesting to see a sudden increase of trip origination at 23 hour (11 PM).
+
 ### 9.3 Plotting Frequency of Trip Destination By Hour
+
+Next, we will analyze the frequency distribution of trip destination by hour from our trajectory data samples. To achieve this, we will plot bar graphs representing the count of trajectories destination points in each hour.
 
 ```{r}
 destination_sf$dropoff_hr_num <- as.numeric(destination_sf$dropoff_hr)
@@ -1726,27 +1746,63 @@ ggplot(data=destination_sf,
 
 ```
 
-### 9.4 Bandwidth Selection
+Somewhat similar to origination points, we observed noticeable **peaks** at 3, 13, and 14 hours (3 AM, 1 PM, and 2 PM respectively). There's a significant **drop** in trip desintation during 9, 18, 21 and 23 hours (9 AM, 6 PM, 9 PM and 11 PM respectively).
+
+While the frequency plots of trip origination and destination points based on temporal segments reveal intriguing patterns, deriving meaningful insights from these can be challenging. This is primarily due to the nature of the dataset. As a sample dataset, the data points are randomly collected within a specific time window. Consequently, these data may not accurately represent the true temporal variations in traffic flows. Therefore, while the plots provide a snapshot of the data, they may not fully capture the complexity and variability of real-world traffic patterns.
+
+### 9.4 Time-Bandwidth Selection
+
+We can now calculate the kernel density values of `destination` points in time for several bandwidths. When calculating TNKDE, two bandwidths are necessary, one for space and one for time. In this section, we will try to explore three different bandwidth selection methods:
+
+-   `bw_bcv`: implements biased cross-validation for bandwidth selection in kernel density estimation. The goal of cross-validation in this context is to find the bandwidth that minimizes the estimation error.
+
+-   `bw_ucv`: implements cross-validation for bandwidth selection, but in an unbiased manner.
+
+-   `bw_SJ`: implements the methods of Sheather & Jones (1991) to select the bandwidth using pilot estimation of derivatives.
+
+To achieve this, we will follow the steps as below:
+
+We will first create a vector **`w`** of length equal to the number of rows in the **`destination_sf`** data frame. Each element of the vector is set to `1`. This vector will be used as weights in calculating TKDE.
 
 ```{r}
-
 w <- rep(1,nrow(destination_sf))
-samples <- seq(0, max(destination_sf$dropoff_hr_num), 0.5)
+```
 
+We will then create a sequence of numbers from 0 to the maximum value of the **`dropoff_hr_num`** column in the **`destination_sf`** data frame, with a step size of 0.5. These are the sample points where the density will be estimated.
+
+```{r}
+samples <- seq(0, max(destination_sf$dropoff_hr_num), 0.5)
+```
+
+Next, we will calculate bandwidth values for `dropoff_hr_num` column of `destination_sf` using 3 bandwidth selection methods discussed above.
+
+```{r}
 bw_bcv <- bw.bcv(destination_sf$dropoff_hr_num)
 bw_ucv <- bw.ucv(destination_sf$dropoff_hr_num)
 bw_SJ <- bw.SJ(destination_sf$dropoff_hr_num)
+```
 
+Once bandwidth values are calculated, we will proceed to implement TNKDE analysis using `tkde()` function from **spPackage**. Then, we will create a dataframe **`time_kernel_values`** to store these density values.
+
+```{r}
 time_kernel_values <- data.frame(
   bw_bcv = tkde(destination_sf$dropoff_hr_num, w = w, samples = samples, bw = bw_bcv, kernel_name = "quartic"),
   bw_ucv = tkde(destination_sf$dropoff_hr_num, w = w, samples = samples, bw = bw_ucv, kernel_name = "quartic"),
   bw_SJ = tkde(destination_sf$dropoff_hr_num, w = w, samples = samples, bw = bw_SJ, kernel_name = "quartic"),
   time = samples
 )
+```
 
+Next, we will use **`melt`** function from the **`reshape2`** package to transform `time_kernel_values` dataframe into a new dataframe called `df_time`, using `time` as the identifier variable. We will also convert the **`variable`** column of the **`df_time`** data frame to a factor, for plotting in `ggplot2`.
+
+```{r}
 df_time <- reshape2::melt(time_kernel_values,id.vars = "time")
 df_time$variable <- as.factor(df_time$variable)
+```
 
+Finally, we will use `ggplot2` to create a line plot of the TKDE for each bandwidth.
+
+```{r}
 ggplot(data = df_time) + 
   geom_line(aes(x = time, y = value)) +
   scale_x_continuous(breaks = dropoff_hr_num) +
@@ -1754,7 +1810,17 @@ ggplot(data = df_time) +
   theme(axis.text = element_text(size = 5))
 ```
 
+::: {.callout-tip title="Reflection"}
+**What does each line plot say about each bandwidth selection approach?**
+
+In all three plots, the line represents the estimated density of drop-offs at each time point. At a glance, **`bw_ucv`** and `bw_SJ` methods seem to give a more detailed and potentially noisier pattern than `bw_bcv`. Unlike the other two, `bw_bcv` approach shows a relatively smooth curve with minor fluctuations. The differences in these plots highlight how the choice of bandwidth can significantly affect the resulting density estimate.
+:::
+
 ### 9.5 TNKDE Implementing at Punggol Planning Area
+
+#### 9.5.1 Data Wrangling and Exploratory Analysis
+
+Now, we will try to construct a TNKDE map for Punggol Planning Area. Before running TNKDE, we will carry our some preliminary data wrangling and exploratory analysis to ensure our dataset is in the appropriate format.
 
 ```{r}
 #| echo: false
@@ -1769,6 +1835,8 @@ ggplot(data=pg_destination,
                     geom_bar() +
     scale_x_continuous(breaks = pg_dropoff_hr_num)
 ```
+
+From the graph above, we observed noticeable **peaks** at 1, 6, 8, 13, and 20 hours (1 AM, 6 AM, 8 AM, 1 PM, and 8 PM respectively). These peaks suggest that these time intervals might be particularly active or important. To investigate further, we will filter out the destination points that fall within these specific hour intervals and use `tmap` to visualize these filtered data points.
 
 ```{r}
 pg_dropoff_1 <- filter(pg_destination, dropoff_hr_num == '1')
@@ -1795,8 +1863,11 @@ tm_shape(pg_dropoff_1)+
   tm_dots(size=0.01)
 ```
 
-```{r}
+#### 9.5.2 Bandwidth Selection
 
+Once, we have applied visualization techniques to briefly analyse the datasets, we will proceed with implementing TKNDE for Punggol planning area. For the steps, we will repeat the procedures in Section 9.4 for this implementation.
+
+```{r}
 w_pg <- rep(1,nrow(pg_destination))
 samples_pg <- seq(0, max(pg_destination$dropoff_hr_num), 0.5)
 
@@ -1820,6 +1891,8 @@ ggplot(data = df_time) +
   facet_wrap(vars(variable), ncol=2, scales = "free")  + 
   theme(axis.text = element_text(size = 5))
 ```
+
+As we notice that the bandwidths plotted above only accounts for temporal aspect. However, both spatial and temporal dimensions are required for implementation of TNKDE. To achieve this, the network and temporal bandwidths can be selected with the leave-one-out-cross validation method (Gelb, 2023). To do so, `bws_tnkde_cv_likelihood_calc()` function is used to select the most appropriate bandwidths for the network and time dimensions. It computes the cross-validation likelihood for various bandwidths, enabling a data-driven selection of the most suitable bandwidths for both dimensions
 
 ```{r}
 cv_scores <- bws_tnkde_cv_likelihood_calc(
@@ -1846,17 +1919,37 @@ cv_scores <- bws_tnkde_cv_likelihood_calc(
   check = TRUE)
 ```
 
+::: {.callout-tip title="Reflection"}
+This code chunk was referenced from Gelb's implementation of TNKDE (2023) as provided in this [vignette](https://cran.r-project.org/web/packages/spNetwork/vignettes/TNKDE.html). Below is a breakdown of some arguments used in this code chunk.
+
+-   **`bw_net_range = c(100,1000), bw_net_step = 100`**: These parameters define the range and step size for the network bandwidths that will be evaluated. The function will calculate the cross-validation likelihood for network bandwidths from 100 to 1000, in steps of 100.
+
+-   **`bw_time_range = c(3,24), bw_time_step = 3`**: Similarly, these parameters define the range and step size for the time bandwidths that will be evaluated. The function will calculate the cross-validation likelihood for time bandwidths from 3 to 24, in steps of 3.
+
+-   **`kernel_name = "quartic"`**: This parameter specifies the kernel function to use for the calculation. In this case, the quartic kernel is used.
+
+-   **`method = "discontinuous"`**: This parameter specifies the method to use when calculating the TNKDE. The discontinuous method is used similar to what we did in NKDE.
+
+-   **`diggle_correction = FALSE`**: This parameter specifies whether to use the correction factor for edge effect. In this case, since we are only looking at the neighborhood level, edge correction is not necessary and the correction factor is not used.
+
+-   **`agg = 15`**: This parameter specifies a function to aggregate the events when they are too close.
+:::
+
+We can see the outputs of `bws_tnkde_cv_likelihood_calc()` function in a table format using `knitr` package.
+
 ```{r}
 knitr::kable(cv_scores)
 ```
 
-According to the "leave one out cross validation" method, the optimal set of bandwidths is 800 metres and 6 hrs. As expected, larger bandwidths are required because the density of the events are spread both in space and time.
+According to the "leave one out cross validation" method, the optimal set of bandwidths is **800 metres** and **6 hrs** (the combination that gives the least cv score). As expected, larger bandwidths are required because the density of the events are spread both in space and time.
+
+#### 9.5.3 TNKDE Calculation
+
+Now that we have selected an appropriate bandwidth for both spatial and temporal dimensions, we will proceed to implement NKDE calculation. Our first step involves selecting a sample time-step for the calculation. Given that our analysis is based on a 24-hour window, we adopted a 3-hour time-step as a simple rule-of-thumb. Then, we proceed to calculate TNKDE densities.
 
 ```{r}
-# choosing sample in times (every 3 hr)
 pg_sample_time <- seq(0, max(pg_destination$dropoff_hr_num), 3)
 
-# calculating densities
 pg_tnkde_densities <- tnkde(lines = pg_network,
                    events = pg_destination,
                    time_field = "dropoff_hr_num",
@@ -1864,10 +1957,10 @@ pg_tnkde_densities <- tnkde(lines = pg_network,
                    samples_loc = pg_samples,
                    samples_time = pg_sample_time, 
                    kernel_name = "quartic",
-                   bw_net = 700, bw_time = 60,
+                   bw_net = 800, bw_time = 6,
                    adaptive = TRUE,
                    trim_bw_net = 900,
-                   trim_bw_time = 80,
+                   trim_bw_time = 8,
                    method = "discontinuous",
                    div = "bw", max_depth = 10,
                    digits = 2, tol = 0.01,
@@ -1875,14 +1968,28 @@ pg_tnkde_densities <- tnkde(lines = pg_network,
                    verbose  = FALSE)
 ```
 
+::: {.callout-tip title="Reflection"}
+This code chunk was referenced from Gelb's implementation of TNKDE (2023) as provided in this [vignette](https://cran.r-project.org/web/packages/spNetwork/vignettes/TNKDE.html). Below is a breakdown of some arguments used in this code chunk.
+
+-   **`bw_net = 800, bw_time = 6`**: These parameters specify the bandwidths for the network and time dimensions respectively. We use `800` and `6` respectively based on the results of "leave one out cross validation" we carried out in previous section.
+
+-   **`trim_bw_net = 900, trim_bw_time = 8`**: These parameters specify the maximum value for the adaptive bandwidth in the network and time dimensions respectively. Here, we use simple rule-of-thumb values.
+:::
+
+#### 9.5.4 Creating Animated TNKDE Map
+
+Upon completion of TNKDE densities calculation, we will visulise the results in form of animated GIF.
+
+Firstly, we will use `classInt` package to create color breaks for densities values. To determine the class intervals, k-means algorithm will be used.
+
 ```{r}
-# creating a color palette for all the densities
-library(classInt)
-library(viridis)
 all_densities <- c(pg_tnkde_densities$k)
 color_breaks <- classIntervals(all_densities, n = 10, style = "kmeans")
+```
 
-# generating a map at each sample time
+Next, we will generate respective maps for each sample time and compile them all under `pg_tnkde_densities` using `lapply()` function. Each map visualizes TNKDE densities for a specific time point. The densities are represented by dots on the map, with the color of the dots indicating the density value. We will use the color breaks and palette specified earlier.
+
+```{r}
 all_maps <- lapply(1:ncol(pg_tnkde_densities$k), function(i){
   time <- pg_sample_time[[i]]
   
@@ -1895,84 +2002,25 @@ all_maps <- lapply(1:ncol(pg_tnkde_densities$k), function(i){
 })
 ```
 
+Gelb (2023) suggested the use of animated maps (GIF or video) to analyse the results of a TNKDE. hence, we will create an animated GIF from the series of maps stored in **`all_maps`** and then display the GIF. To achieve this, we will use **`tmap_animation()`** function from the **`tmap`** package. Once the GIF image is created, we will use **`include_graphics()`** function from the **`knitr`** package to display the created GIF.
+
 ```{r}
-# creating a gif with all the maps
 tmap_animation(all_maps, filename = "images/animated_pg.gif", 
                width = 1000, height = 1000, dpi = 300, delay = 50)
 knitr::include_graphics("images/animated_pg.gif")
-
 ```
-
-\`\`\`
-
-```{r}
-tn_destination$dropoff_hr_num <- as.numeric(tn_destination$dropoff_hr)
-
-tn_dropoff_hr_num <- tn_destination$dropoff_hr_num
-
-ggplot(data=tn_destination, 
-                    aes(x=tn_dropoff_hr_num), bins = 24) + 
-                    geom_bar() +
-    scale_x_continuous(breaks = tn_dropoff_hr_num)
-```
-
-```{r}
-# choosing sample in times (every 3 hr)
-tn_sample_time <- seq(0, max(tn_destination$dropoff_hr_num), 1)
-
-# calculating densities
-tn_tnkde_densities <- tnkde(lines = tn_network,
-                   events = tn_destination,
-                   time_field = "dropoff_hr_num",
-                   w = rep(1, nrow(tn_destination)), 
-                   samples_loc = tn_samples,
-                   samples_time = tn_sample_time, 
-                   kernel_name = "quartic",
-                   bw_net = 700, bw_time = 60,
-                   adaptive = TRUE,
-                   trim_bw_net = 900,
-                   trim_bw_time = 80,
-                   method = "discontinuous",
-                   div = "bw", max_depth = 10,
-                   digits = 2, tol = 0.01,
-                   agg = 15, grid_shape = c(1,1), 
-                   verbose  = FALSE)
-```
-
-```{r}
-# creating a color palette for all the densities
-library(classInt)
-library(viridis)
-all_densities <- c(tn_tnkde_densities$k)
-color_breaks <- classIntervals(all_densities, n = 10, style = "kmeans")
-
-# generating a map at each sample time
-all_maps <- lapply(1:ncol(tn_tnkde_densities$k), function(i){
-  time <- tn_sample_time[[i]]
-  
-  tn_samples$tnkde_density <- tn_tnkde_densities$k[,i]
-  map1 <- tm_shape(tn_samples) + 
-  tm_dots(col = "tnkde_density", size = 0.01,
-          breaks = color_breaks$brks, palette = viridis(10)) + 
-    tm_layout(legend.show=FALSE, main.title = as.character(time), main.title.size = 0.5)
-  return(map1)
-})
-```
-
-```{r}
-# creating a gif with all the maps
-tmap_animation(all_maps, filename = "images/animated_tn.gif", 
-               width = 1000, height = 1000, dpi = 300, delay = 50)
-
-knitr::include_graphics("images/animated_tn.gif")
-
-```
-
-\`\`\`
 
 ## Conclusion
 
-This analysis has explored the point patterns analysis using Grab's trajectory datasets. We have carried out three different approaches - Traditional Kernel Density Estimation (KDE), Network Constrained Kernel Density Estimation (NKDE) and Temporal Kernel Density Estimation (TKDE).
+This analysis has explored different technqiues of spatial point pattern analysis using Grab's trajectory datasets. We have carried out three different approaches - Traditional Kernel Density Estimation (KDE), Network Constrained Kernel Density Estimation (NKDE) and Temporal Network Kernel Density Estimation (TNKDE). The findings from these approaches provide valuable insights into the spatial and temporal distribution of Grab's trajectory datasets for Singapore (and particularly the distribution of destination points).
+
+In this study, we have experimented different bandwidth selection methods and kernel function approaches and compare the results of different combinations. We then developed 3 KDE maps using three distinct approaches: Scott\'s rule of thumb for fixed bandwidth, adaptive nearest neighbor, and adaptive kernel density. These KDE maps identified six planning subzones as potential hotspots for spatial clustering of Grab destination points.
+
+We have also carried out comparative study between KDE and NKDE, outlining the limitations of pixel-based traditional KDE against network-based NKDE. We then created NKDE maps for selected six planning areas: Woodlands, Jurong East, Jurong West, Punggol, Tampines, and Toa Payoh. By utilizing network-based NKDE, we were able to overcome these limitations and provide more accurate and insights into the spatial distribution of various factors within the selected planning areas. The results from NKDE showed significant improvements in precision and interpretability compared to traditional KDE maps.
+
+Finally, the implementation of TNKDE with a case study in Punggol further enhanced our understanding by incorporating temporal information, allowing us to identify how spatial clusters change over different time intervals.
+
+Further research could focus on expanding the application of TNKDE to other planning areas in Singapore to validate its effectiveness and generalizability. Additionally, exploring the potential of incorporating other data sources, such as demographic or socioeconomic data, could provide a more comprehensive understanding of the spatial distribution of Grab taxi origin and destination points and their temporal dynamics. This could help in identifying patterns and trends related to specific demographics or socioeconomic factors that may influence human mobility patterns.
 
 ## References
 
@@ -2000,7 +2048,7 @@ This analysis has explored the point patterns analysis using Grab's trajectory d
 
 12. Loader, C. (1999). Local Regression and Likelihood. Springer, New York.
 
-13. O\'Sullivan, D., & Wong, D.W. (2007). A surface‐based approach to measuring spatial segregation. Geographical Analysis, 39, 147--168.
+13. O'Sullivan, D., & Wong, D.W. (2007). A surface‐based approach to measuring spatial segregation. Geographical Analysis, 39, 147--168.
 
 14. Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016.
 
