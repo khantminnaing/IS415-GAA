@@ -316,7 +316,7 @@ sg_driving_sf <- sg_road_sf %>%
 unique(sg_driving_sf$fclass)
 ```
 
-::: callout-tip
+::: {.callout-tip title="Reflection"}
 **Why `motorway` and `motorway_link` classes are not included?**
 
 According to OpenStreetMap, fclass [`motorway`](https://wiki.openstreetmap.org/wiki/Tag:highway%3Dmotorway) refers to expressway. In Singapore, stopping or parking a vehicle on an expressway is illegal under the Road Traffic Act. Hence, `motorway` (and `motorway_link`) are not relevant for network constraint kernel density estimation (NKDE) analysis that we will carry out later.
@@ -353,7 +353,7 @@ par(mar = c(0,0,1,0))
 plot(origin_ppp)
 ```
 
-::: {.callout-tip title="\"Reflection"}
+::: {.callout-tip title="Reflection"}
 The code chunk above converts the **`origin_sf`** object to a point pattern object of class **`ppp`.** **`st_coordinates()`** function is used to extract the coordinates of the **`origin_sf`** object and **`st_bbox()`** function is used to extract the bounding box of the **`origin_sf`** object. The resulting object `origin_ppp` is a point pattern object of class `ppp`.
 :::
 
@@ -384,7 +384,7 @@ any(duplicated(origin_ppp))
 
 The code output is **`FALSE`**, which means there are no duplication of point coordaintes in the **`origin_ppp`** object.
 
-::: {.callout-tip title="\"Reflection"}
+::: {.callout-tip title="Reflection"}
 **Why do we need to check duplication?**
 
 When analyzing spatial point processes, it is important to avoid duplication of points. This is because statistical methodology for spatial point processes is based largely on the assumption that processes are simple, i.e., that points of the process can never be coincident. When the data have coincident points, some statistical procedures designed for simple point processes will be severely affected (Baddeley et al., 2015).
@@ -528,7 +528,7 @@ From the results, the origin and destination standard distances are **10187.88**
 However, it would be challenging to discern why the origin points are more dispersed without further analysis. Further analysis would be needed to determine the factors contributing to the increased dispersion of destination points. Since it is out of scope for this exercise, we will not explore any further.
 :::
 
-#### 6.2.1 Plotting Standard Distances
+#### 6.2.2 Plotting Standard Distances
 
 In this section, we will create bearing circles of origin and destination points using the standard distance values we have calculated earlier. This can provide visual representation of their dispersion and make intuitive comparison between them.
 
@@ -919,7 +919,7 @@ par(mar = c(0,1,1,1))
 plot(kde_adaptive_nn,main = "Nearest-Neighbour Adaptive Density Estimate")
 ```
 
-#### 7.4.3 Choosing Adaptive KDE Method
+#### 7.4.4 Choosing Adaptive KDE Method
 
 Similar to what we did for fixed bandwidth, we can try to plot histograms to compare the distribution of KDE values obtained from `density()` function using different adaptive bandwidth selection methods.
 
@@ -1353,13 +1353,13 @@ pg_nkde_continuous <- nkde(pg_network,
                   verbose = FALSE)
 ```
 
-::: {.callout-tip title="\"Reflection"}
+::: {.callout-tip title="Reflection"}
 `bw` argument refers to the bandwidth used for calculating KDE values. Xie and Yan (2008) suggested that narrow bandwidths (between 20 and 250 m) are more appropriate for identifying local effects at smaller scales. Hence, we use 200 here.
 
 `agg` argument allows the events to be aggregated, and their weights to be added within a threshold distance. Aggregating events can simplify networks and limit the number of iterations when calculating the NKDE, hence effectively reducing time complexity of computation.
 :::
 
-#### 8.4.1 Visualising NKDE Maps Using Different Methods
+#### 8.4.2 Visualising NKDE Maps Using Different Methods
 
 Before we can visualise the NetKDE values, we will insert the computed density values into *samples* and *lixels* objects. To enhance the readability of the results, you will first multiply the obtained densities by the total number of drop-off points. This adjustment ensures that the spatial integral equals the number of events. Subsequently, you will multiply this value by 1000 to derive the estimated number of drop-off points per kilometer. This process will provide a more intuitive understanding of the density distribution along the network.
 
