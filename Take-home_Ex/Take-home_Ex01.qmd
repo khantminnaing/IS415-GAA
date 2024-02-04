@@ -56,21 +56,21 @@ Before we start the exercise, we will need to import necessary R packages first.
 
 -   [`lubridate`](https://lubridate.tidyverse.org/) : for tackling with temporal data (dates and times), providing tools to parse, manipulate, and do arithmetic with date-time objects.
 
--   [**`spatstat`**](https://cran.r-project.org/web/packages/spatstat/index.html): A package for statistical analysis of spatial data, specifically Spatial Point Pattern Analysis. This package was provided by Baddeley, Turner and Ruback (2015) and gives a comprehensive list of functions to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation (KDE) layer.
+-   [`spatstat`](https://cran.r-project.org/web/packages/spatstat/index.html): A package for statistical analysis of spatial data, specifically Spatial Point Pattern Analysis. This package was provided by Baddeley, Turner and Ruback (2015) and gives a comprehensive list of functions to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation (KDE) layer.
 
--   [**`tidyverse`**](https://www.tidyverse.org/) : a collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structure.
+-   [`tidyverse`](https://www.tidyverse.org/) : a collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structure.
 
--   [**`raster`**](https://cran.r-project.org/web/packages/raster/index.html) : reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format.
+-   [`raster`](https://cran.r-project.org/web/packages/raster/index.html) : reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format.
 
--   [**`tmap`**](https://cran.r-project.org/web/packages/tmap/index.html): Packages used for creating static and interactive visualisations summary statistics and KDE layers.
+-   [`tmap`](https://cran.r-project.org/web/packages/tmap/index.html): Packages used for creating static and interactive visualisations summary statistics and KDE layers.
 
 -   [`spatstat`](https://spatstat.org/) : for spatial statistics with a strong focus on analysing spatial point patterns.
 
 -   [`spNetwork`](https://cran.r-project.org/web/packages/spNetwork/index.html) : provides several functions to perform spatial analysis on network, including network kernel density estimation and point pattern analysis.
 
--   `classInt` :
+-   [`classInt`](https://cran.r-project.org/web/packages/classInt/index.html) : for choosing univariate class intervals for mapping or other graphics purposes.
 
--   `viridis` :
+-   [`viridis`](https://cran.r-project.org/web/packages/viridis/index.html) : for providing viridis color palette designed to improve graph readability for readers with common forms of color blindness and/or color vision deficiency.
 
 -   [`gifski`](https://cran.r-project.org/web/packages/gifski/index.html) : for converting images to GIF animations, useful for creating dynamic visualizations and presentations.
 
@@ -129,17 +129,17 @@ head(df_trajectories)
 
 From the result above, we can see that the dataset includes a total of 30329685 trajectory instances, each with a total of 9 columns as follows:
 
-| Column Name   | Data Type | Remark                   |
-|---------------|-----------|--------------------------|
-| trj_id        | chr       | Trajectory ID            |
-| driving_mode  | chr       | Mode of Driving          |
-| osname        | chr       |                          |
-| pingtimestamp | int       | Data Recording Timestamp |
-| rawlat        | num       | Latitude Value (WGS-84)  |
-| rawlng        | num       | Longitude Value (WGS-84) |
-| speed         | num       | Speed                    |
-| bearing       | int       | Bearing                  |
-| accuracy      | num       | Accuracy                 |
+| Column Name   | Data Type | Remark                                   |
+|---------------|-----------|------------------------------------------|
+| trj_id        | chr       | Trajectory ID                            |
+| driving_mode  | chr       | Mode of Driving                          |
+| osname        | chr       | Operating System used for Data Recording |
+| pingtimestamp | int       | Data Recording Timestamp                 |
+| rawlat        | num       | Latitude Value (WGS-84)                  |
+| rawlng        | num       | Longitude Value (WGS-84)                 |
+| speed         | num       | Speed                                    |
+| bearing       | int       | Bearing                                  |
+| accuracy      | num       | Accuracy                                 |
 
 From the above table, it is seen that the `pingtimestamp` is recorded as `int`. We need to convert this data to proper datetime format to derive meaningful temporal insights of the data. To do so, we will use `as_datetime()` function from `lubridate` package.
 
@@ -173,12 +173,13 @@ In the code chunk above, we use `%>%` operator is used to pipe the output of `st
 After importing the dataset, we will plot it to see how it looks. The **`plot()`** function is used to plot the geometry of the **`sf`** object. The **`st_geometry()`** function is used to extract the geometry of the **`mpsz_sf`** object.
 
 ```{r}
+par(mar = c(0,0,0,0))
 plot(st_geometry(mpsz_sf))
 ```
 
 ## 5.0 Data Wrangling
 
-Data wrangling is the process of converting and transforming raw data into a usable form and is carried out prior to conducting any data analysis.
+Data wrangling is the process of converting and transforming raw data into a usable form and is carried out prior to conducting any data analysis. In this section, we will carry out different data wrangling steps to prepare our datasets ready for analysis.
 
 ### 5.1 Extracting Trip Starting Locations and Temporal Data Values from Grab-Posisi dataset
 
@@ -224,6 +225,8 @@ destination_df <- df_trajectories %>%
 
 ### 5.3 Converting to sf tibble data.frame
 
+`origin_df` & `destination_df` that we created earlier are of class "DataFrame". However, when carrying out point pattern analysis, we need to convert them to `sf` object to allow for spatial operations. The **`sf`** package introduces the **`sf`** data frame, which is a **`tibble`** (a modern reimagining of the data frame) that has some special characteristics for handling spatial data. Hence, we will convert `origin_df` & `destination_df` into sf tibble data.frame using `rowlng` and `rowlat` columns as inputs for coordinates. Subsequently, we will assign appropriate coordinate reference system for Singapore, SVY21 (EPSG:3414).
+
 ```{r}
 origin_sf <- st_as_sf(origin_df,
                       coords = c("rawlng", "rawlat"),
@@ -260,6 +263,7 @@ After that, we used `bind_rows()` function from the **dplyr** package to combine
 After importing the dataset, we will plot it to see how it looks.
 
 ```{r}
+par(mar = c(0,0,0,0))
 plot(st_geometry(outerislands))
 ```
 
@@ -272,6 +276,7 @@ sg_sf <- st_difference(st_union(mpsz_sf), st_union(outerislands))
 To assess whether the geometry of the newly created `sg_sf` matches our intended outcome, we will plot it out.
 
 ```{r}
+par(mar = c(0,0,0,0))
 plot(st_geometry(sg_sf))
 ```
 
@@ -348,7 +353,7 @@ par(mar = c(0,0,1,0))
 plot(origin_ppp)
 ```
 
-::: callout-tip
+::: {.callout-tip title="\"Reflection"}
 The code chunk above converts the **`origin_sf`** object to a point pattern object of class **`ppp`.** **`st_coordinates()`** function is used to extract the coordinates of the **`origin_sf`** object and **`st_bbox()`** function is used to extract the bounding box of the **`origin_sf`** object. The resulting object `origin_ppp` is a point pattern object of class `ppp`.
 :::
 
@@ -379,7 +384,7 @@ any(duplicated(origin_ppp))
 
 The code output is **`FALSE`**, which means there are no duplication of point coordaintes in the **`origin_ppp`** object.
 
-::: {.call-tip title="Reflection"}
+::: {.callout-tip title="\"Reflection"}
 **Why do we need to check duplication?**
 
 When analyzing spatial point processes, it is important to avoid duplication of points. This is because statistical methodology for spatial point processes is based largely on the assumption that processes are simple, i.e., that points of the process can never be coincident. When the data have coincident points, some statistical procedures designed for simple point processes will be severely affected (Baddeley et al., 2015).
@@ -442,24 +447,11 @@ summary(destination_ppp_sg)
 
 ## 6.0 Exploratory Spatial Data Analysis
 
-### 6.1 Creating Point Symbol Maps
-
-```{r eval=FALSE}
-tmap_mode("view")
-tm_shape(origin_sf) +
-    tm_dots(alpha=0.4, 
-          size=0.05)
-
-tm_shape(destination_sf) +
-    tm_dots(alpha=0.4, 
-          size=0.05)
-```
-
-### 6.2 Measuring Central Tendency
+### 6.1 Measuring Central Tendency
 
 Descriptive statistics are used in point pattern analysis to summarise a point pattern's basic properties, such as its central tendency and dispersion. The mean centre and the median centre are two often employed metrics for central tendency (Gimond, 2019).
 
-#### 6.2.1 Mean Center
+#### 6.1.1 Mean Center
 
 Mean center is the arithmetic average of the (x, y) coordinates of all point in the study area. Similar to mean in statistical analysis, mean center is influenced to a greater degree by the outliers. (Yuan et al.,2020)
 
@@ -476,7 +468,7 @@ destination_mc
 
 The results show that the origin and destination mean centres are, respectively, (**28490.57, 36939.04**) and (**28870.96, 36590.49**). The two mean centres appear to be situated in close proximity to one another.
 
-#### 6.2.2 Median Center
+#### 6.1.2 Median Center
 
 Median center is the location that minimizes the sum of distances required to travel to all points within an observation window. It can be calculated using an iterative procedure first presented by Kulin and Kuenne (1962). The procedure begins at a predetermined point, such as the median center, as the initial point. Then, the algorithm updates the median center's new coordinates (x', y') continually until the optimal value is reached. The median center, as opposed to the mean center, offers a more reliable indicator of central tendency as it is unaffected by outliers (Yuan et al., 2020).
 
@@ -493,7 +485,7 @@ Based on the results, the median centres of origin and destination are, respecti
 
 Moreover, mean centers and median centers for each origin and destination points are similar. This may imply that the distribution of the data is relatively balanced and there is not a significant difference in the spatial patterns between the origin and destination points. Additionally, this indicates that both the mean center and median center are effective measures for analyzing the central tendency of the data in this context.
 
-#### 6.2.3 Plotting Mean and Median Centers
+#### 6.1.3 Plotting Mean and Median Centers
 
 We can try to plot both results obtained from previous section on the same plane for better comparison of the mean center and median center.
 
@@ -536,7 +528,7 @@ From the results, the origin and destination standard distances are **10187.88**
 However, it would be challenging to discern why the origin points are more dispersed without further analysis. Further analysis would be needed to determine the factors contributing to the increased dispersion of destination points. Since it is out of scope for this exercise, we will not explore any further.
 :::
 
-#### 6.2.3 Plotting Standard Distances
+#### 6.2.1 Plotting Standard Distances
 
 In this section, we will create bearing circles of origin and destination points using the standard distance values we have calculated earlier. This can provide visual representation of their dispersion and make intuitive comparison between them.
 
@@ -592,9 +584,11 @@ lines(destination_circle, col='purple', lwd=2)
 
 ### 6.3 Spatial Randomness Test
 
-Clark and Evans (1954) give a very simple test of spatial randomness called Clark and Evans aggregation index (R). It is the ratio of the observed mean nearest neighbour distance in the pattern to that expected for a Poisson point process of the same intensity. A value *R\>1* suggests ordering, while *R\<1* suggests clustering.
+Clark and Evans (1954) give a very simple test of spatial randomness called Clark and Evans aggregation index (R). It is the ratio of the observed mean nearest neighbour distance in the pattern to that expected for a Poisson point process of the same intensity. R-value \>1 suggests ordering, while R-value \<1 suggests clustering.
 
-we will perform the Clark-Evans test of aggregation for a spatial point pattern by using [*clarkevans.test()*](https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test) of **statspat**.
+We will perform the Clark-Evans test of aggregation for a spatial point pattern by using [`clarkevans.test()`](https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test) of **statspat**.
+
+#### 6.3.1 Spatial Randomness Test for Origin Points
 
 The test hypotheses are:
 
@@ -612,6 +606,10 @@ clarkevans.test(origin_ppp_sg,
                 nsim=99)
 ```
 
+The Clark-Evans test for the origin points shows an R-value of 0.27408, which is less than 1. This indicates a clustered distribution. The p-value is less than 2.2e-16, which is extremely small and less than the significance level of 0.05. This means that we will reject the null hypothesis (H\~0) and accept the alternative hypothesis (H\~1). Therefore, the statistical inference from this test is that the original points are not randomly distributed but are clustered. This suggests that there may be underlying factors influencing the spatial distribution of these points.
+
+#### 6.3.2 Spatial Randomness Test for Destination Points
+
 The test hypotheses are:
 
 -   H~0~ = The distribution of trajectory destination points are randomly distributed.
@@ -627,6 +625,8 @@ clarkevans.test(destination_ppp_sg,
                 alternative=c("clustered"),
                 nsim=99)
 ```
+
+The Clark-Evans test for the destination points also shows an R-value of 0.29484, which is less than 1. This indicates a clustered distribution. The p-value is less than 2.2e-16, which is significantly smaller than the significance level of 0.05. Therefore, we reject the null hypothesis (H\~0) and accept the alternative hypothesis (H\~1). Therefore, the statistical inference from this test is that the destination points are not randomly distributed but are clustered. This suggests that there may be underlying factors influencing the spatial distribution of these points.
 
 ## 7.0 First-Order Spatial Point Patterns Analysis
 
@@ -694,7 +694,7 @@ bw_ppl <- bw.ppl(destination_ppp_sg.km)
 bw_ppl
 ```
 
-::: callouttip
+::: {.callout-tip title="Reflection"}
 We notice that `bw_diggle`, `bw_CvL` and `bw_ppl` all give a numeric sigma value, whereas [`bw_scott`](https://rdrr.io/cran/spatstat.core/man/bw.scott.html), by default, provides a separate bandwidth for each coordinate axis. In the code output above, **`sigma.x = 1.4763217`** and **`sigma.y = 0.9063352`** are the estimated bandwidths for the x and y coordinates, respectively. These values represent the amount of smoothing applied in each direction when estimating the kernel density.
 
 We can specify `isotropic=TRUE` argument when calculating `bw_scott()` method to produce a single value bandwidth.
@@ -713,7 +713,7 @@ plot(bw_diggle, xlim=c(-0.02,0.05), ylim=c(-60,200))
 plot(bw_CvL)
 
 par(mfrow = c(1,2))
-plot(bw_scott)
+plot(bw_scott, main="bw_scott")
 plot(bw_ppl,  xlim=c(-1,5), ylim=c(70000,130000))
 ```
 
@@ -747,7 +747,7 @@ hist(kde_ppl,main = "kde_ppl")
 
 ```
 
-::: callout-tip
+::: {.callout-tip title="Reflection"}
 We can interpret the outputs as below:
 
 1.  **kde_diggle**: The sharp peak at the beginning indicates that the Diggle method for bandwidth selection has indentified a high concentration of points in the first bin. The rest of the bins has little to no concentration. This may suggest that one specific area in our observation window has observed a relatively high spatial clustering than the rest of the window.
@@ -776,7 +776,7 @@ plot(dse_scott,main = "standard error_scott")
 plot(dse_ppl,main = "standard error_ppl")
 ```
 
-::: callout-tip
+::: {.callout-tip title="Reflection"}
 The standard error (SE) of the density estimate provides a measure of the uncertainty associated with the density estimate at each point. This can be useful for understanding the variability of density estimates, especially when comparing density estimates obtained using different bandwidths.
 
 However, in many applications of KDE, the focus is often on the shape of the density estimate rather than its absolute value. In such cases, the standard error might not be as relevant. Hence, in this analysis, we will not use standard error as a criteria for choosing the bandwidth.
@@ -819,15 +819,9 @@ Looking at the plot created, it appears that by reducing the bandwidth (thus mak
 
 ![](images/kernel_functions.png){fig-align="center" width="457"}
 
-Kernel functions are another consideration in KDE computation because they control how we weight points within the bandwidth radius. The default kernel in `density.ppp()` is the `gaussian`. But there are other options such as `epanechnikov`, `quartic` or `disc.`
+Kernel functions are another consideration in KDE computation because they control how we weight points within the bandwidth radius. The default kernel in `density.ppp()` is the `gaussian`. alternatives such as `epanechnikov`, `quartic`, and `disc` are also available.
 
--   gaussian
-
--   epanechnikov
-
--   quartic
-
--   disc
+In this section, we will explore and experiment with different kernel functions and plot them together to see how it influences our KDE map results.
 
 ```{r}
 kde_fixed_scott.gaussian <- density(destination_ppp_sg.km, 
@@ -1262,11 +1256,11 @@ The `spNetwork` package contains `nkde` function that is specifically designed t
 
 The three main inputs are:
 
--   lixels, a "SpatialLinesDataFrame", representing the lines of the network.
+-   **lixels**: a "SpatialLinesDataFrame", representing the lines of the network.
 
--   events, a "SpatialPointsDataframe", representing the realizations of the spatial process.
+-   **events**: a "SpatialPointsDataframe", representing the realizations of the spatial process.
 
--   samples, a "SpatialPointsDataframe" providing the locations where the density must be estimated.
+-   **samples**: a "SpatialPointsDataframe" providing the locations where the density must be estimated.
 
 #### 8.3.1 Preparing the lixels objects
 
@@ -1323,7 +1317,6 @@ pg_nkde_simple <- nkde(pg_network,
 
 ```{r}
 #| eval: false
-
 pg_nkde_discontinuous <- nkde(pg_network, 
                   events = pg_destination,
                   w = rep(1,nrow(pg_destination)),
@@ -1343,7 +1336,6 @@ pg_nkde_discontinuous <- nkde(pg_network,
 
 ```{r}
 #| eval: false
-
 pg_nkde_continuous <- nkde(pg_network, 
                   events = pg_destination,
                   w = rep(1,nrow(pg_destination)),
@@ -1397,8 +1389,9 @@ pg_samples <- read_rds("../data/rds/pg_sampless.rds")
 pg_lixels <- read_rds("../data/rds/pg_lixels.rds")
 ```
 
-```{r}
+```{r warning=FALSE, results='hide', message=FALSE}
 #| echo: false
+#| 
 singapore_POIs = st_read(dsn = "~/IS415-GAA/data/geospatial", 
                 layer = "singapore_pois") %>% st_transform(crs = 3414)
 
@@ -1691,9 +1684,9 @@ In conclusion, the results of NKDE analysis of Grab taxi drop-off points in six 
 
 ## 9.0 Temporal Network Kernel Density Estimation (TNKDE)
 
-Temporal Network Kernel Density Estimation (TNKDE) is an extension of Network Constrained Kernel Density Estimation (NKDE) whereby the the temporal dimension is integrated to calculating density of events on a network (Gelb, 2023). This means that density estimation can be done along lines of the network and at different times. The spatio-temporal kernel is calculated as the product of the network kernel density and the time kernel density.
+Temporal Network Kernel Density Estimation (TNKDE) is an extension of Network Constrained Kernel Density Estimation (NKDE) whereby the the temporal dimension is integrated to calculating density of events on a network (Gelb & Apparicio, 2023). This means that density estimation can be done along lines of the network and at different times. The spatio-temporal kernel is calculated as the product of the network kernel density and the time kernel density.
 
-TNKDE can be calculated in
+TNKDE can be calculated in calculated in R environment using `tnkde()` function from **spNetwork** package.
 
 ### 9.1 Visualising Frequency Distribution
 
@@ -1748,7 +1741,9 @@ ggplot(data=destination_sf,
 
 Somewhat similar to origination points, we observed noticeable **peaks** at 3, 13, and 14 hours (3 AM, 1 PM, and 2 PM respectively). There's a significant **drop** in trip desintation during 9, 18, 21 and 23 hours (9 AM, 6 PM, 9 PM and 11 PM respectively).
 
+::: {.callout-tip title="Reflection"}
 While the frequency plots of trip origination and destination points based on temporal segments reveal intriguing patterns, deriving meaningful insights from these can be challenging. This is primarily due to the nature of the dataset. As a sample dataset, the data points are randomly collected within a specific time window. Consequently, these data may not accurately represent the true temporal variations in traffic flows. Therefore, while the plots provide a snapshot of the data, they may not fully capture the complexity and variability of real-world traffic patterns.
+:::
 
 ### 9.4 Time-Bandwidth Selection
 
@@ -1892,7 +1887,7 @@ ggplot(data = df_time) +
   theme(axis.text = element_text(size = 5))
 ```
 
-As we notice that the bandwidths plotted above only accounts for temporal aspect. However, both spatial and temporal dimensions are required for implementation of TNKDE. To achieve this, the network and temporal bandwidths can be selected with the leave-one-out-cross validation method (Gelb, 2023). To do so, `bws_tnkde_cv_likelihood_calc()` function is used to select the most appropriate bandwidths for the network and time dimensions. It computes the cross-validation likelihood for various bandwidths, enabling a data-driven selection of the most suitable bandwidths for both dimensions
+As we notice that the bandwidths plotted above only accounts for temporal aspect. However, both spatial and temporal dimensions are required for implementation of TNKDE. To achieve this, the network and temporal bandwidths can be selected with the leave-one-out-cross validation method (Gelb & Apparicio, 2023). To do so, we can use `bws_tnkde_cv_likelihood_calc()` function to select the most appropriate bandwidths for the network and time dimensions. It computes the cross-validation likelihood for various bandwidths, enabling a data-driven selection of the most suitable bandwidths for both dimensions.
 
 ```{r}
 cv_scores <- bws_tnkde_cv_likelihood_calc(
@@ -2002,25 +1997,30 @@ all_maps <- lapply(1:ncol(pg_tnkde_densities$k), function(i){
 })
 ```
 
-Gelb (2023) suggested the use of animated maps (GIF or video) to analyse the results of a TNKDE. hence, we will create an animated GIF from the series of maps stored in **`all_maps`** and then display the GIF. To achieve this, we will use **`tmap_animation()`** function from the **`tmap`** package. Once the GIF image is created, we will use **`include_graphics()`** function from the **`knitr`** package to display the created GIF.
+Gelb (2023) suggested the use of animated maps (GIF or video) to analyse the results of a TNKDE. hence, we will create an animated GIF from the series of maps stored in `all_maps` and then display the GIF. To achieve this, we will use `tmap_animation()` function from the `tmap` package. Once the GIF image is created, we will use `include_graphics()` function from the **`knitr`** package to display the created GIF.
 
-```{r}
+```{r warning=FALSE, message=FALSE, results='hide'}
 tmap_animation(all_maps, filename = "images/animated_pg.gif", 
                width = 1000, height = 1000, dpi = 300, delay = 50)
+```
+
+```{r}
 knitr::include_graphics("images/animated_pg.gif")
 ```
 
-## Conclusion
+The TNKDE map for Punggol provides much more nuanced insights into the spatial clustering patterns across various time intervals. This enables a better understanding of how events are distributed and concentrated within the network over different periods. This can be useful for identification of hotspots and trends both spatially and temporally. Overall, the TNKDE approach offers a comprehensive analysis of spatial and temporal clustering within a network, providing a deeper understanding of the dynamics at play.
+
+## 10.0 Conclusion
 
 This analysis has explored different technqiues of spatial point pattern analysis using Grab's trajectory datasets. We have carried out three different approaches - Traditional Kernel Density Estimation (KDE), Network Constrained Kernel Density Estimation (NKDE) and Temporal Network Kernel Density Estimation (TNKDE). The findings from these approaches provide valuable insights into the spatial and temporal distribution of Grab's trajectory datasets for Singapore (and particularly the distribution of destination points).
 
-In this study, we have experimented different bandwidth selection methods and kernel function approaches and compare the results of different combinations. We then developed 3 KDE maps using three distinct approaches: Scott\'s rule of thumb for fixed bandwidth, adaptive nearest neighbor, and adaptive kernel density. These KDE maps identified six planning subzones as potential hotspots for spatial clustering of Grab destination points.
+In this study, we have experimented different bandwidth selection methods and kernel function approaches and compare the results of different combinations. We then developed 3 KDE maps using three distinct approaches: Scott's rule of thumb for fixed bandwidth, adaptive nearest neighbor, and adaptive kernel density. These KDE maps identified six planning subzones as potential hotspots for spatial clustering of Grab destination points.
 
 We have also carried out comparative study between KDE and NKDE, outlining the limitations of pixel-based traditional KDE against network-based NKDE. We then created NKDE maps for selected six planning areas: Woodlands, Jurong East, Jurong West, Punggol, Tampines, and Toa Payoh. By utilizing network-based NKDE, we were able to overcome these limitations and provide more accurate and insights into the spatial distribution of various factors within the selected planning areas. The results from NKDE showed significant improvements in precision and interpretability compared to traditional KDE maps.
 
 Finally, the implementation of TNKDE with a case study in Punggol further enhanced our understanding by incorporating temporal information, allowing us to identify how spatial clusters change over different time intervals.
 
-Further research could focus on expanding the application of TNKDE to other planning areas in Singapore to validate its effectiveness and generalizability. Additionally, exploring the potential of incorporating other data sources, such as demographic or socioeconomic data, could provide a more comprehensive understanding of the spatial distribution of Grab taxi origin and destination points and their temporal dynamics. This could help in identifying patterns and trends related to specific demographics or socioeconomic factors that may influence human mobility patterns.
+Further research could focus on expanding the application of TNKDE to other planning areas in Singapore. Additionally, exploring the potential of incorporating other data sources, such as demographic or socioeconomic data, could provide a more comprehensive understanding of the spatial distribution of Grab taxi origin and destination points and their temporal dynamics. This could help in identifying patterns and trends related to specific demographics or socioeconomic factors that may influence human mobility patterns.
 
 ## References
 
@@ -2038,30 +2038,32 @@ Further research could focus on expanding the application of TNKDE to other plan
 
 7.  Floch, J.-M., Marcon, E., & Puech, F. (n.d.). Spatial distribution of points. In M.-P. de Bellefon (Ed.), Handbook of Spatial Analysis : Theory and Application with R (pp. 72--111). Insee-Eurostat.
 
-8.  Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from https://mgimond.github.io/Spatial/index.html.
+8.  Gelb, J., Apparicio, P.: Temporal Network kernel density estimation. Geographical Analysis. 56, 62--78 (2023).
 
-9.  González, J. A., & Moraga, P. (2022). An adaptive kernel estimator for the intensity function of spatio-temporal point processes.
+9.  Gimond (2023). Chapter 11 Point Pattern Analysis. Retrieved from https://mgimond.github.io/Spatial/index.html.
 
-10. Kam, T. S. (2022). R for Geospatial Data Science and Analytics. Retrieved from https://r4gdsa.netlify.app.
+10. González, J. A., & Moraga, P. (2022). An adaptive kernel estimator for the intensity function of spatio-temporal point processes.
 
-11. Krisp, J.M., Peters, S., Murphy, C.E., & Fan, H. (2009). Visual bandwidth selection for kernel density maps. Photogrammetrie - Fernerkundung - Geoinformation, 2009, 445--454.
+11. Kam, T. S. (2022). R for Geospatial Data Science and Analytics. Retrieved from https://r4gdsa.netlify.app.
 
-12. Loader, C. (1999). Local Regression and Likelihood. Springer, New York.
+12. Krisp, J.M., Peters, S., Murphy, C.E., & Fan, H. (2009). Visual bandwidth selection for kernel density maps. Photogrammetrie - Fernerkundung - Geoinformation, 2009, 445--454.
 
-13. O'Sullivan, D., & Wong, D.W. (2007). A surface‐based approach to measuring spatial segregation. Geographical Analysis, 39, 147--168.
+13. Loader, C. (1999). Local Regression and Likelihood. Springer, New York.
 
-14. Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016.
+14. O'Sullivan, D., & Wong, D.W. (2007). A surface‐based approach to measuring spatial segregation. Geographical Analysis, 39, 147--168.
 
-15. Rey, S.J., Arribas-Bel, D., & Wolf, L.J. (2023). Point Pattern Analysis. In: Geographic Data Science with python. CRC Press.
+15. Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016.
 
-16. Scott, D.W. (1992). Multivariate Density Estimation. Theory, Practice and Visualization. New York: Wiley.
+16. Rey, S.J., Arribas-Bel, D., & Wolf, L.J. (2023). Point Pattern Analysis. In: Geographic Data Science with python. CRC Press.
 
-17. Shen, B., Xu, X., Li, J., Plaza, A., & Huang, Q. (2020). Unfolding spatial-temporal patterns of taxi trip based on an improved network kernel density estimation. ISPRS International Journal of Geo-Information, 9, 683.
+17. Scott, D.W. (1992). Multivariate Density Estimation. Theory, Practice and Visualization. New York: Wiley.
 
-18. Wilkin, J. (2020). Geocomputation 2020-2021 Work Book. University College London. Retrieved from https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html.
+18. Shen, B., Xu, X., Li, J., Plaza, A., & Huang, Q. (2020). Unfolding spatial-temporal patterns of taxi trip based on an improved network kernel density estimation. ISPRS International Journal of Geo-Information, 9, 683.
 
-19. Wolff, M., & Asche, H. (2009). Towards geovisual analysis of crime scenes -- a 3D crime mapping approach. Advances in GIScience, 429--448.
+19. Wilkin, J. (2020). Geocomputation 2020-2021 Work Book. University College London. Retrieved from https://jo-wilkin.github.io/GEOG0030/coursebook/analysing-spatial-patterns-iii-point-pattern-analysis.html.
 
-20. Xie, Z., & Yan, J. (2008). Kernel density estimation of traffic accidents in a network space. Computers, Environment and Urban Systems, 32, 396--406.
+20. Wolff, M., & Asche, H. (2009). Towards geovisual analysis of crime scenes -- a 3D crime mapping approach. Advances in GIScience, 429--448.
 
-21. Yuan, Y., Qiang, Y., Bin Asad, K., & Chow, T. E. (2020). Point Pattern Analysis. In J.P. Wilson (Ed.), The Geographic Information Science & Technology Body of Knowledge (1st Quarter 2020 Edition). DOI: 10.22224/gistbok/2020.1.13.
+21. Xie, Z., & Yan, J. (2008). Kernel density estimation of traffic accidents in a network space. Computers, Environment and Urban Systems, 32, 396--406.
+
+22. Yuan, Y., Qiang, Y., Bin Asad, K., & Chow, T. E. (2020). Point Pattern Analysis. In J.P. Wilson (Ed.), The Geographic Information Science & Technology Body of Knowledge (1st Quarter 2020 Edition). DOI: 10.22224/gistbok/2020.1.13.
