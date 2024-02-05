@@ -1,7 +1,7 @@
 ---
 title: "Take-Home Exercise 01: Spatial Point Patterns Analysis of Grab Trajectories in Singapore"
 description: |
- Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore, implemented using spatstat package (Baddeley, Turner, and Rubak 2022) in R environment.
+ Application of Spatial Point Patterns Analysis to discover the geographical distribution of Grab hailing services in Singapore, implemented using spatstat package (Baddeley, Turner, and Rubak 2022) and spNetwork package (Gelb & Apparicio, 2023) in R environment
 author:
   - name: Khant Min Naing
     email: mnkhant.2020@scis.smu.edu.sg
@@ -12,6 +12,7 @@ categories:
   - grab-posisi
   - spatial point patterns
   - spatstat
+  - spNetwork
   - r
 title-block-banner: true
 format:

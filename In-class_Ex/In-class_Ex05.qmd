@@ -1,0 +1,25 @@
+---
+title: "In-Class Exercise 05"
+description: |
+ 
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 02-05-2024
+date-modified: "last-modified"
+categories:
+  - In-Class Exercise
+  - R
+  - sf
+format:
+  html:  
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+output:
+  distill::distill_article:
+    toc: true
+    self_contained: false
+---
