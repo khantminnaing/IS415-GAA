@@ -1,7 +1,7 @@
 ---
 title: "In-Class Exercise 05"
 description: |
- 
+  Local Spatial Autocorrelation Statistics using sfdep
 author:
   - name: Khant Min Naing
     url: https://www.linkedin.com/in/khantminnaing/
@@ -23,3 +23,130 @@ output:
     toc: true
     self_contained: false
 ---
+
+# In-Class Exercise 05
+
+## Local Spatial Autocorrelation Statistics Using `sfdep` Package
+
+## 1.0 Overview
+
+A collection of geospatial statistical analysis methods for analysing the location related tendency (clusters or outliers) in the attributes of geographically referenced data (points or areas). Local spatial autocorrelation statics can be decomposed from their global measures such as local Moran's I, local Geary's c, and Getis-Ord Gi\*. In this exercise, we will explore `sfdep` package in R-environment, with a case study on gross domestic product per captial (GDPPC) of Hunan.
+
+## 2.0 Overview
+
+In this hands-on exercise, we will use the following R package:
+
+```{r}
+pacman::p_load(sf, tmap, sfdep, tmap, tidyverse)
+```
+
+## 3.0 Importing Datasets to R Environment
+
+In this exercise, we will use the following datasets:
+
+-   `Hunan` county boundary layer. This is a geospatial data set in ESRI shapefile format.
+
+-   `Hunan_2012.csv` This csv file contains selected Hunan's local development indicators in 2012.
+
+### 3.1 Importing Geospatial Data
+
+In this section, `st_read()` of **sf** package will be used to import the three geospatial data sets mentioned in previous section into R environment.
+
+```{r}
+hunan_GDPPC <- st_read(dsn = "../data/geospatial", 
+                 layer = "Hunan") 
+```
+
+### 3.1 Importing Aspatial Data
+
+In this section, `read_csv()` of **sf** package will be used to import the csv file into R environment. The output is R dataframe class.
+
+```{r}
+hunan2012 <- read_csv("../data/aspatial/Hunan_2012.csv")
+hunan2012
+```
+
+## 4.0 Geospatial Data Wrangling
+
+### 4.1. Performing Relational Joint
+
+In previous section, we have imported a shapefile `hunan` representing the geographical boundaries of Hunan and a dataframe `hunan2012` which contains the attribute fields corresponding to counties in `Hunan`.
+
+The next step in our analysis involves updating the attribute table of the `hunan` shapefile with the values from `hunan2012`.
+
+Hence, we will need to update the attribute table of `Hunan` by using `left_join()` of dplyr package. This function effectively merges the two datasets, ensuring that each county's geographical data is accurately linked with its corresponding attribute data from the **`hunan2012`** dataframe.
+
+```{r}
+hunan_GDPPC <- left_join(hunan_GDPPC,hunan2012, join_by(County))%>%
+  select(1:4, 7, 15)
+```
+
+### 4.2 Plotting Choropleth Map
+
+```{r}
+tmap_mode('plot')
+tm_shape(hunan_GDPPC) +
+  tm_fill(col = "GDPPC",
+          style ="quantile",
+          palette = "plasma",
+          title= "GDPPC") + 
+  tm_layout(main.title = "Distribution of GDP per capita by County, Hunan Province",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45,
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", size=2)+
+  tm_scale_bar()+
+  tm_grid(alpha = 0.2)
+```
+
+### 5.1 Deriving Contiguity Weights: Queen's Method
+
+Now, we will derive contiguity weight matrix using Queen's method. To achieve this, we will use **`st_contiguity`** and **`st_weights`** functions, respectively
+
+```{r}
+wm_q <- hunan_GDPPC %>% 
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb, 
+                         style = "W"),
+         .before = 1)
+wm_q
+```
+
+::: {.callout-tip title="Reflection"}
+-   The neighbor list is created by `st_contiguity()`
+
+-   The weight list is created by `st_weights()`
+
+-   The **`style = "W"`** argument indicates that the weights should be row-standardized, which is a common choice in spatial analysis
+
+-   The argument `.before = 1` indicates that the new variables should be added as the first columns of the data frame.
+:::
+
+### 5.2 Computing Global Moran's I
+
+We will now compute global moran's I values using `global_moran_test()` function.
+
+```{r}
+global_moran_test(wm_q$GDPPC,
+                  wm_q$nb,
+                  wm_q$wt)
+```
+
+### 5.3 Performing Global Moran's I Permutation Test
+
+We will test the Moran's I values using Monte Carlo simulations with `nsim=99`. In sfdep, we can do it by using [`global_moran_perm()`](https://rdrr.io/cran/sfdep/man/global_moran_perm.html) function.
+
+```{r}
+set.seed(1234)
+global_moran_perm(wm_q$GDPPC,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim=99)
+```
+
+::: {.callout-tip title="Reflection"}
+The p-value is **\< 2.2e-16**, which is less than **0.05**, indicating that the spatial pattern observed is very unlikely to be the result of random chance. Therefore, we reject the null hypothesis of no spatial autocorrelation.In conclusion, the test suggests that there is significant positive spatial autocorrelation in the `hunan$GDPPC` data. This means that areas with similar values of `GDPPC` are more likely to be located near each other than would be expected if the data were randomly distributed.
+:::
