@@ -23,6 +23,7 @@ execute:
   eval: true
   echo: true
   warning: false
+  freeze: true
 output:
   distill::distill_article:
     toc: true

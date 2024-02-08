@@ -12,6 +12,8 @@ categories:
   - R
   - sf
   - tmap
+execute: 
+  freeze: true
 output:
   distill::distill_article:
     code_folding: false

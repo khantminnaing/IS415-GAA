@@ -1,0 +1,79 @@
+---
+title: "Hands-On Exercise 05"
+description: |
+ Geographical Segmentation with Spatially Constrained Clustering Techniques
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 02-01-2024
+date-modified: "last-modified"
+categories:
+  - In-Class Exercise
+  - R
+  - spdep
+format:
+  html:  
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+output:
+  distill::distill_article:
+    toc: true
+    self_contained: false
+---
+
+# Global and Local Measures of Spatial Autocorrelation
+
+## 1.0 Overview
+
+Spatial clustering aims to group of a large number of geographic areas or points into a smaller number of regions based on similiarities in one or more variables. Spatially constrained clustering is needed when clusters are required to be spatially contiguous.
+
+The advantage of spatially constrained methods is that it has a hard requirement that spatial objects in the same cluster are also geographically linked. This provides a lot of upside in cases where there is a real-life application that requires separating geographies into discrete regions (*regionalization*) such as designing communities, planning areas, amenity zones, logistical units, or even for the purpose of setting up experiments with real world geographic constraints. There are many applications and many situations where the optimal clustering, if solely using traditional cluster evaluation measures, is sub-optimal in practice because of real-world constraints.
+
+## 1.1 Analytical Objective
+
+In spatial policy, one of the main development objective of the local government and planners is to ensure equal distribution of development in the province. Our task in this study, hence, is to apply appropriate spatial statistical methods to discover if development are even distributed geographically. If the answer is **No**. Then, our next question will be "is there sign of spatial clustering?". And, if the answer for this question is yes, then our next question will be "where are these clusters?"
+
+In this case study, we are interested to examine the spatial pattern of a selected development indicator (i.e. GDP per capita) of [Hunan Provice](https://en.wikipedia.org/wiki/Hunan), People Republic of China.
+
+## 2.0 Importing Packages
+
+The R packages needed for this exercise are as follows:
+
+-   Spatial data handling
+
+    -   **sf**, **rgdal** and **spdep**
+
+-   Attribute data handling
+
+    -   **tidyverse**, especially **readr**, **ggplot2** and **dplyr**
+
+-   Choropleth mapping
+
+    -   **tmap**
+
+-   Multivariate data visualisation and analysis
+
+    -   **coorplot**, **ggpubr**, and **heatmaply**
+
+-   Cluster analysis
+
+    -   **cluster**
+
+    -   **ClustGeo**
+
+```{r}
+pacman::p_load(rgdal, spdep, tmap, sf, ClustGeo, 
+               ggpubr, cluster, factoextra, NbClust,
+               heatmaply, corrplot, psych, tidyverse, GGally)
+```
+
+## 3.0 Importing Datasets to R Environment
+
+In this exercise, we will use the following datasets:
+
+-   Myanmar Township Boundary Data (i.e. *myanmar_township_boundaries*) : This is a GIS data in ESRI shapefile format. It consists of township boundary information of Myanmar. The spatial data are captured in polygon features.
+
+-   *Shan-ICT.csv*: This is an extract of [**The 2014 Myanmar Population and Housing Census Myanmar**](https://myanmar.unfpa.org/en/publications/2014-population-and-housing-census-myanmar-data-sheet) at the township level.
