@@ -1,0 +1,268 @@
+---
+title: "Take-Home Exercise 02: Spatio-Temporal Analysis of Dengue Fever Outbreak in Tainan City, Taiwan"
+description: |
+ This study aims to use spatio-temporal analysis techniques to analyze if the distri-bution of dengue fever outbreak in Tainan City are independent from space and time. The study also attempts to identify clusters and outliers, as well as emerging hot spots/cold spots within the study area. The initial phase of the study utilizes Global and Local Spatial Autocorrelation modelling to discern the spatio-temporal pattern of the disease outbreak. Subsequently, Emerging Hot Spots Analysis (EHSA) is applied to identify spatio-temporal clusters.
+author:
+  - name: Khant Min Naing
+    email: mnkhant.2020@scis.smu.edu.sg
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 02-10-2024
+date-modified: "last-modified"
+categories:
+  - taiwan
+  - emerging hotspots/coldspots analysis
+  - spatial autocorrelation
+  - dengue
+  - r
+title-block-banner: true
+format:
+  html:  
+    code-fold: false
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+output:
+  distill::distill_article:
+    toc: true
+    self_contained: false
+---
+
+## **1.0 Introduction**
+
+Dengue Hemorrhagic Fever, also referred to as *dengue fever* in short, is one of the most widespread mosquito-borne diseases in the most tropical and subtropical regions. It is an acute disease caused by dengue virus infection which is transmitted by female Aedes aegypti and Aedes albopictus mosquitoes. Historically, the majority of outbreaks during the first half of the 20th century were reported in East Asia and Western Pacific countries (Chen, 2018). In 2015, Taiwan experienced its most severe outbreak of dengue fever, recording over 43,000 cases and 228 fatalities. Subsequently, the annual reported cases of dengue fever remained below 200. However, in 2023, there was a significant increase with 26,703 recorded cases. Notably, the majority of these outbreaks were reported in **Tainan City**, situated in the southern part of the island.
+
+This study aims to use spatio-temporal analysis techniques to analyze if the distribution of dengue fever outbreak in Tainan City are independent from space and time. The study also attempts to identify clusters and outliers, as well as emerging hot spots/cold spots within the study area. The initial phase of the study utilizes **Global and Local Spatial Autocorrelation** modelling to discern the spatio-temporal pattern of the disease outbreak. Subsequently, **Emerging Hot Spots Analysis (EHSA)** is applied to identify spatio-temporal clusters. The results of this study will provide valuable insights into the spatial and temporal dynamics of dengue fever outbreak in Tainan City. By identifying clusters and outliers, as well as emerging hot spots and cold spots, it will help inform targeted interventions and prevention strategies to effectively control the spread of the disease.
+
+## **2.0 Literature Review**
+
+## **3.0 Importing Packages**
+
+Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
+
+-   [`sf`](https://rdrr.io/github/r-spatial/sf/man/sf-package.html) : provides a standardised way to encode spatial vector data in R environment, facilitating spatial data operations and analysis.
+
+-   [`st`](https://rdrr.io/cran/sf/man/st.html) : creats simple features from numeric vectors, matrices, or lists, enabling the representation and manipulation of spatial structures in R.
+
+-   [`tidyverse`](https://www.tidyverse.org/) : a collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structure.
+
+-   [`sfdep`](https://cran.r-project.org/web/packages/spdep/) : for computing spatial weights, global and local spatial autocorrelation statistics
+
+```{r}
+pacman::p_load(sf, st, tidyverse, lubridate, spdep, tmap, knitr)
+```
+
+## **4.0 Importing Datasets to R Environment**
+
+### **4.1 Datasets**
+
+In this exercise, we will use two datasets. The first dataset, **`TAIWAN_VILLAGE_2020`**, is a geospatial dataset that delineates the village boundaries of Taiwan. This data is presented in the ESRI shapefile format and is based on the Taiwan Geographic Coordinate System. This data is extracted from [Historical map data of the village boundary: TWD97 longitude and latitude](https://data.gov.tw/en/datasets/130549).
+
+The second dataset, **`Dengue_Daily.csv`**, is an aspatial dataset that contains records of reported dengue cases in Taiwan since 1998. This data is extracted from [Dengue Daily Confirmed Cases Since 1998](https://data.cdc.gov.tw/en/dataset/dengue-daily-determined-cases-1998).
+
+### **4.1 Importing Geospatial Data**
+
+In this section, `st_read()` of **sf** package will be used to import **`TAIWAN_VILLAGE_2020`** dataset into R environment.
+
+```{r}
+tainan <- st_read(dsn = "~/IS415-GAA/Take-home_Ex/Take-home_Ex02/data/geospatial", 
+                 layer = "TAINAN_VILLAGE") 
+```
+
+```{r}
+plot(tainan)
+```
+
+```{r}
+st_crs(tainan)
+```
+
+### **4.2 Importing Aspatial Data**
+
+In this section, `read_csv()` of **sf** package will be used to import the csv file into R environment. The output is R dataframe class.
+
+```{r}
+dengue_daily <- read_csv("~/IS415-GAA/Take-home_Ex/Take-home_Ex02/data/aspatial/Dengue_Daily.csv")
+dengue_daily
+```
+
+## 5.0 Data Wrangling
+
+### 5.1 Understanding Administrative Division in Taiwan
+
+Before we carry out data wrangling, it is of utmost importance to contexualise ourselves with the nature of datasets. This is particularly important when conducting spatial analysis, as understanding the nature of local spatial information, such as the administrative division, is key to accurate and meaningful results.
+
+In this section, we will explore administrative division of Taiwan.
+
+![](images/Taiwan_ROC_political_divisions_labeled.png){width="554"}
+
+### 5.2 Translating Datasets
+
+Notice that the data columns are currently represented in traditional Chinese. To enhance clarity in subsequent analysis, we will update the column names to English. It is an essential step in making data analysis more reproducible. In R, the **`colnames()`** function can be utilized to rename the columns. Before that, we will explicitly print out the column names.
+
+```{r}
+colnames(dengue_daily)
+```
+
+Next we will translate these column names into English using references from [administrative divisions of Taiwan](https://en.wikipedia.org/wiki/Administrative_divisions_of_Taiwan).
+
+| Column Name (Chinese) | Data Type | Column Name (English)              |
+|-----------------------|-----------|------------------------------------|
+| 發病日                | \<date\>  | Onset date                         |
+| 個案研判日            | \<chr\>   | Testing date                       |
+| 通報日                | \<date\>  | Notification date                  |
+| 性別                  | \<chr\>   | Gender                             |
+| 年齡層                | \<chr\>   | Age Group                          |
+| 居住縣市              | \<chr\>   | County/City of Residence           |
+| 居住鄉鎮              | \<chr\>   | Rural/Urban Township of Residence  |
+| 居住村里              | \<chr\>   | Village of Residence               |
+| 最小統計區            | \<chr\>   | Statistical Grid-Area              |
+| 最小統計區中心點X     | \<chr\>   | X-coordinate                       |
+| 最小統計區中心點Y     | \<chr\>   | Y-coorindate                       |
+| 一級統計區            | \<chr\>   | Primary Statistical Area           |
+| 二級統計區            | \<chr\>   | Secondary Statistical Area         |
+| 感染縣市              | \<chr\>   | Infected County/City               |
+| 感染鄉鎮              | \<chr\>   | Infected Rural/Urban Township      |
+| 感染村里              | \<chr\>   | Infected Village                   |
+| 是否境外移入          | \<chr\>   | Imported Case                      |
+| 感染國家              | \<chr\>   | Country of Infection Origin        |
+| 確定病例數            | \<num\>   | No of Cases                        |
+| 居住村里代碼          | \<chr\>   | Village Code                       |
+| 感染村里代碼          | \<chr\>   | Infected Village Code              |
+| 血清型                | \<chr\>   | Serotype                           |
+| 內政部居住縣市代碼    | \<chr\>   | MOHA County/City Code              |
+| 內政部居住鄉鎮代碼    | \<chr\>   | MOHA Township Code                 |
+| 內政部感染縣市代碼    | \<chr\>   | MOHA Infected County/City Code     |
+| 內政部感染鄉鎮代碼    | \<chr\>   | MOHA Infected Township Code        |
+
+```{r}
+#colnames(df) <- c(new_col1_name,new_col2_name,new_col3_name)
+```
+
+### Study Area
+
+| Col1 | Col2   | Col3         |
+|------|--------|--------------|
+| D01  | 東區   | Eastern      |
+| D02  | 南區   | Southern     |
+| D04  | 北區   | Northern     |
+| D06  | 安南區 | Annan        |
+| D07  | 安平區 | Anping       |
+| D08  | 中西區 | West Central |
+| D32  | 仁德區 | Rende        |
+| D39  | 永康區 | Yongkang     |
+
+```{r}
+county_list <- c("D01", "D02", "D04", "D06", "D07", "D08", "D32", "D39") 
+
+study_area_sf <- tainan %>%
+  filter(TOWNID %in% county_list)
+```
+
+### Update County Name
+
+```{r}
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "東區"] <- "Eastern"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "南區"] <- "Southern"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "北區"] <- "Northern"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "安南區"] <- "Annan"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "安平區"] <- "Anping"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "中西區"] <- "West Central"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "仁德區"] <- "Rende"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "永康區"] <- "Yongkang"
+```
+
+```{r}
+county_names <- c("東區","南區","北區","安南區","安平區","中西區","仁德區","永康區")
+
+dengue_tainan <- dengue_daily %>%
+  filter(居住縣市=="台南市",居住鄉鎮 %in% county_names)
+```
+
+```{r}
+dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "東區"] <- "Eastern"
+dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "南區"] <- "Southern"
+dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "北區"] <- "Northern"
+dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "安南區"] <- "Annan"
+dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "安平區"] <- "Anping"
+dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "中西區"] <- "West Central"
+dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "仁德區"] <- "Rende"
+dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "永康區"] <- "Yongkang"
+```
+
+```{r}
+par(mar = c(0,0,1,0))
+plot(st_geometry(study_area_sf), main = "Study Area")
+```
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tm_shape(study_area_sf)+
+  tm_fill("TOWNENG", 
+          palette = "plasma",
+          title = "Town Name") +
+  tm_borders(col = "white")+
+  tm_layout(main.title = "Study Area",
+            main.title.position = "center",
+            main.title.size = 2,
+            legend.title.size = 1.8,
+            legend.text.size = 1.5,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+```
+
+### Epidemiology Week 
+
+```{r}
+dengue_tainan <- dengue_tainan %>% mutate(year = year(dengue_tainan$發病日))
+dengue_tainan <- dengue_tainan %>% mutate(epidemiol_wk = strftime(dengue_tainan$發病日, format = "%V"))
+```
+
+```{r}
+dengue_tainan$epidemiol_wk <- as.numeric(dengue_tainan$epidemiol_wk)
+
+ggplot(dengue_tainan, aes(x=epidemiol_wk)) +
+  geom_histogram(bins = 50,color="white") +
+  labs(x="Epidemiology Week", y="Count", title="Histogram of Epidemiology Weeks")
+```
+
+```{r}
+dengue_tainan_fever <- dengue_tainan %>%
+  filter(year == "2023", epidemiol_wk>30, epidemiol_wk<51)
+```
+
+```{r}
+ggplot(dengue_tainan_fever, aes(x=epidemiol_wk)) +
+  geom_histogram(bins = 20,color="white") +
+  labs(x="Epidemiology Week", y="Count", title="Histogram of Epidemiology Weeks 31-50 in 2023")
+```
+
+### Converting to sf Object
+
+```{r}
+dengue_tainan_fever<-subset(dengue_tainan_fever, 最小統計區中心點X!="None" & 最小統計區中心點Y!="None")
+
+dengue_tainan_fever.sf <- st_as_sf(dengue_tainan_fever,
+                            coords = c("最小統計區中心點X", "最小統計區中心點Y"))
+dengue_tainan_fever.sf
+```
+
+```{r}
+dengue_tainan_fever.sf <- st_set_crs(dengue_tainan_fever.sf,3824)
+```
+
+```{r}
+tmap_mode('view')
+tm_shape(dengue_tainan_fever.sf)+
+  tm_dots()
+```
+
+### Creating Spacetime Cubes
+
+sfdep introduces a new s3 class to represent spatio-temporal data. The `spacetime` class links a flat data set containing spatio-temporal information with the related geometry. The spacetime class is informed by the [spacetime](https://github.com/edzer/spacetime) package by Edzer Pebesma (2012), and the interface is inspired by the design of [tidygraph](https://tidygraph.data-imaginist.com/).

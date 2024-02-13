@@ -38,22 +38,10 @@ output:
 
 Where adjacent observations have similar data values the map shows positive spatial autocorrelation. Where adjacent observations tend to have very contrasting values then the map shows negative spatial autocorrelation. Spatial autocorrelation in a variable can be exogenous or endogenous. Spatial autocorrelation may arise from any one of the following situations (Haining, 2001):  
 
-1.  the difference between the scale of variation of a phenomenon and the scale of the spatial framework used to capture or represent that variation; 
-
-<!-- -->
-
-2.  measurement error;  
-
-<!-- -->
-
-3.  spatial diffusion, spillover, interaction, and dispersal processes;  
-
-<!-- -->
-
-4.  inheritance by one variable through causal association with another; 
-
-<!-- -->
-
+1.  the difference between the scale of variation of a phenomenon and the scale of the spatial framework used to capture or represent that variation;
+2.  measurement error;
+3.  spatial diffusion, spillover, interaction, and dispersal processes;
+4.  inheritance by one variable through causal association with another;
 5.  model misspecification 
 
 In this hands-on exercise, we will explore how to compute Global and Local Measures of Spatial Autocorrelation by using **spdep** package.
@@ -211,20 +199,20 @@ moran.test(hunan$GDPPC,
 ::: {.callout-tip title="Reflection"}
 **What statistical conclusion can we draw from the output above?**
 
--   The Moran\'s I statistic is **0.300749970**, which is significantly different from the expectation under the null hypothesis of **-0.011494253**. This suggests that there is a significant spatial autocorrelation in the data.
+-   The Moran's I statistic is **0.300749970**, which is significantly different from the expectation under the null hypothesis of **-0.011494253**. This suggests that there is a significant spatial autocorrelation in the data.
 
--   The standard deviate of the Moran\'s I statistic is **4.7351**. This is the value of the Moran\'s I statistic standardized to have zero mean and unit variance under the null hypothesis.
+-   The standard deviate of the Moran's I statistic is **4.7351**. This is the value of the Moran's I statistic standardized to have zero mean and unit variance under the null hypothesis.
 
 -   The p-value is **1.095e-06**, which is less than 0.05, indicating that the spatial pattern observed is very unlikely to be the result of random chance. Therefore, we reject the null hypothesis of no spatial autocorrelation.
 
--   The alternative hypothesis is \'greater\', suggesting that the test is one-sided and the observed pattern is more clustered than would be expected under the null hypothesis of spatial randomness.
+-   The alternative hypothesis is 'greater', suggesting that the test is one-sided and the observed pattern is more clustered than would be expected under the null hypothesis of spatial randomness.
 
 In conclusion, the test suggests that there is significant positive spatial autocorrelation in the **`hunan$GDPPC`** data. This means that areas with similar values of **`GDPPC`** are more likely to be located near each other than would be expected if the data were randomly distributed
 :::
 
-#### 5.3.2 **Computing Monte Carlo Moran\'s I**
+#### 5.3.2 **Computing Monte Carlo Moran's I**
 
-The code chunk below performs permutation test for Moran\'s I statistic by using [`moran.mc()`](https://r-spatial.github.io/spdep/reference/moran.mc.html) of **spdep**. A total of 1000 simulation will be performed.
+The code chunk below performs permutation test for Moran's I statistic by using [`moran.mc()`](https://r-spatial.github.io/spdep/reference/moran.mc.html) of **spdep**. A total of 1000 simulation will be performed.
 
 ```{r}
 set.seed(1234)
@@ -239,16 +227,16 @@ bperm
 ::: {.callout-tip title="Reflection"}
 **What statistical conclusion can we draw from the output above?**
 
--   The Moran\'s I statistic is **0.30075**, which is the same as in our previous test (See Section 5.3.1).
+-   The Moran's I statistic is **0.30075**, which is the same as in our previous test (See Section 5.3.1).
 
 -   The p-value is **0.001**, which is less than 0.05, indicating that the spatial pattern observed is very unlikely to be the result of random chance. Therefore, we reject the null hypothesis of no spatial autocorrelation.In conclusion, the test suggests that there is significant positive spatial autocorrelation in the **`hunan$GDPPC`** data. This means that areas with similar values of **`GDPPC`** are more likely to be located near each other than would be expected if the data were randomly distributed
 
-In conclusion, the Monte Carlo simulation confirms the results of the previous Moran\'s I test. There is significant positive spatial autocorrelation in the **`hunan$GDPPC`** data. This means that areas with similar values of **`GDPPC`** are more likely to be located near each other than would be expected if the data were randomly distributed.
+In conclusion, the Monte Carlo simulation confirms the results of the previous Moran's I test. There is significant positive spatial autocorrelation in the **`hunan$GDPPC`** data. This means that areas with similar values of **`GDPPC`** are more likely to be located near each other than would be expected if the data were randomly distributed.
 :::
 
-#### 5.3.3 **Visualising Monte Carlo Moran\'s I**
+#### 5.3.3 **Visualising Monte Carlo Moran's I**
 
-It is always a good practice for us the examine the simulated Moran\'s I test statistics in greater detail. This can be achieved by plotting the distribution of the statistical values as a histogram by using [`hist()`](https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/hist) and [`abline()`](https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/abline) of R Graphics.
+It is always a good practice for us the examine the simulated Moran's I test statistics in greater detail. This can be achieved by plotting the distribution of the statistical values as a histogram by using [`hist()`](https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/hist) and [`abline()`](https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/abline) of R Graphics.
 
 ```{r}
 mean(bperm$res[1:999])
@@ -266,13 +254,13 @@ abline(v=0,
 ::: {.callout-tip title="Reflection"}
 **What statistical conclusion can we draw from the output above?**
 
--   The mean of the simulated Moran\'s I statistics is **-0.01504572**. This is close to zero, which is what we would expect under the null hypothesis of spatial randomness.
+-   The mean of the simulated Moran's I statistics is **-0.01504572**. This is close to zero, which is what we would expect under the null hypothesis of spatial randomness.
 
--   The variance of the simulated Moran\'s I statistics is **0.004371574**. This gives us an idea of the spread of the Moran\'s I statistics under the null hypothesis.
+-   The variance of the simulated Moran's I statistics is **0.004371574**. This gives us an idea of the spread of the Moran's I statistics under the null hypothesis.
 
--   The minimum and maximum of the simulated Moran\'s I statistics are **-0.18339** and **0.27593**, respectively. This gives us the range of Moran\'s I statistics that we might expect to see by chance alone.
+-   The minimum and maximum of the simulated Moran's I statistics are **-0.18339** and **0.27593**, respectively. This gives us the range of Moran's I statistics that we might expect to see by chance alone.
 
--   The 1st quartile, median, and 3rd quartile are **-0.06168**, **-0.02125**, and **0.02611**, respectively. These give us more detailed information about the distribution of the Moran\'s I statistics under the null hypothesis.
+-   The 1st quartile, median, and 3rd quartile are **-0.06168**, **-0.02125**, and **0.02611**, respectively. These give us more detailed information about the distribution of the Moran's I statistics under the null hypothesis.
 
 The histogram provide a visual representation of this distribution, with a vertical red line at 0 to represent the expected value under the null hypothesis.
 :::
@@ -292,13 +280,13 @@ ggplot(df, aes(x = MoranI)) +
   ggtitle("Histogram of Simulated Moran's I")
 ```
 
-### 5.4 **Global Measures of Spatial Autocorrelation: Geary\'s C**
+### 5.4 **Global Measures of Spatial Autocorrelation: Geary's C**
 
-In this section, we will learn how to perform Geary\'s C statistics testing by using appropriate functions of **spdep** package.
+In this section, we will learn how to perform Geary's C statistics testing by using appropriate functions of **spdep** package.
 
-#### 5.4.1 **Geary\'s C test**
+#### 5.4.1 **Geary's C test**
 
-The code chunk below performs Geary\'s C test for spatial autocorrelation by using [`geary.test()`](https://r-spatial.github.io/spdep/reference/geary.test.html) of **spdep**.
+The code chunk below performs Geary's C test for spatial autocorrelation by using [`geary.test()`](https://r-spatial.github.io/spdep/reference/geary.test.html) of **spdep**.
 
 ```{r}
 geary.test(hunan$GDPPC, listw=rswm_q)
@@ -307,20 +295,20 @@ geary.test(hunan$GDPPC, listw=rswm_q)
 ::: {.callout-tip title="Reflection"}
 **What statistical conclusion can we draw from the output above?**
 
--   he Geary\'s C statistic is **0.6907223**, which is significantly different from the expectation under the null hypothesis of **1.0000000**. This suggests that there is a significant local spatial structure in the data.
+-   he Geary's C statistic is **0.6907223**, which is significantly different from the expectation under the null hypothesis of **1.0000000**. This suggests that there is a significant local spatial structure in the data.
 
--   The standard deviate of the Geary\'s C statistic is **3.6108**. This is the value of the Geary\'s C statistic standardized to have zero mean and unit variance under the null hypothesis.
+-   The standard deviate of the Geary's C statistic is **3.6108**. This is the value of the Geary's C statistic standardized to have zero mean and unit variance under the null hypothesis.
 
 -   The p-value is **0.0001526**, which is less than 0.05, indicating that the spatial pattern observed is very unlikely to be the result of random chance. Therefore, we reject the null hypothesis of no spatial autocorrelation.
 
--   The alternative hypothesis is \'Expectation greater than statistic\', suggesting that the test is one-sided and the observed pattern is more clustered than would be expected under the null hypothesis of spatial randomness.
+-   The alternative hypothesis is 'Expectation greater than statistic', suggesting that the test is one-sided and the observed pattern is more clustered than would be expected under the null hypothesis of spatial randomness.
 
 In conclusion, the test suggests that there is significant positive global spatial autocorrelation in the **`hunan$GDPPC`** data. This means that areas with similar values of **`GDPPC`** are more likely to be located near each other than would be expected if the data were randomly distributed.
 :::
 
-#### 5.4.2 **Computing Monte Carlo Geary\'s C**
+#### 5.4.2 **Computing Monte Carlo Geary's C**
 
-The code chunk below performs permutation test for Geary\'s C statistic by using [`geary.mc()`](https://r-spatial.github.io/spdep/reference/geary.mc.html) of **spdep**.
+The code chunk below performs permutation test for Geary's C statistic by using [`geary.mc()`](https://r-spatial.github.io/spdep/reference/geary.mc.html) of **spdep**.
 
 ```{r}
 set.seed(1234)
@@ -333,16 +321,16 @@ bperm
 ::: {.callout-tip title="Reflection"}
 **What statistical conclusion can we draw from the output above?**
 
--   The Geary\'s C statistic is **0.69072**, which is the same as in your previous test.
+-   The Geary's C statistic is **0.69072**, which is the same as in your previous test.
 
 -   The p-value is **0.001**, which is less than 0.05, indicating that the spatial pattern observed is very unlikely to be the result of random chance. Therefore, we reject the null hypothesis of no spatial autocorrelation.
 
-In conclusion, the Monte Carlo simulation confirms the results of the previous Geary\'s C test. There is significant positive global spatial autocorrelation in the **`hunan$GDPPC`** data. This means that areas with similar values of **`GDPPC`** are more likely to be located near each other than would be expected if the data were randomly distributed.
+In conclusion, the Monte Carlo simulation confirms the results of the previous Geary's C test. There is significant positive global spatial autocorrelation in the **`hunan$GDPPC`** data. This means that areas with similar values of **`GDPPC`** are more likely to be located near each other than would be expected if the data were randomly distributed.
 :::
 
-#### 5.4.3 **Visualising the Monte Carlo Geary\'s C**
+#### 5.4.3 **Visualising the Monte Carlo Geary's C**
 
-Similart to what we did in Moran\'s I test, we will plot a histogram to reveal the distribution of the simulated values by using the code chunk below.
+Similart to what we did in Moran's I test, we will plot a histogram to reveal the distribution of the simulated values by using the code chunk below.
 
 ```{r}
 mean(bperm$res[1:999])
@@ -355,24 +343,24 @@ abline(v=1, col="red")
 ::: {.callout-tip title="Reflection"}
 **What statistical conclusion can we draw from the output above?**
 
--   The mean of the simulated Geary\'s C statistics is **1.004402**. This is close to 1, which is what we would expect under the null hypothesis of spatial randomness.
+-   The mean of the simulated Geary's C statistics is **1.004402**. This is close to 1, which is what we would expect under the null hypothesis of spatial randomness.
 
--   The variance of the simulated Geary\'s C statistics is **0.007436493**. This gives us an idea of the spread of the Geary\'s C statistics under the null hypothesis.
+-   The variance of the simulated Geary's C statistics is **0.007436493**. This gives us an idea of the spread of the Geary's C statistics under the null hypothesis.
 
--   The minimum and maximum of the simulated Geary\'s C statistics are **0.7142** and **1.2722**, respectively. This gives us the range of Geary\'s C statistics that we might expect to see by chance alone.
+-   The minimum and maximum of the simulated Geary's C statistics are **0.7142** and **1.2722**, respectively. This gives us the range of Geary's C statistics that we might expect to see by chance alone.
 
--   The 1st quartile, median, and 3rd quartile are **0.9502**, **1.0052**, and **1.0595**, respectively. These give us more detailed information about the distribution of the Geary\'s C statistics under the null hypothesis.
+-   The 1st quartile, median, and 3rd quartile are **0.9502**, **1.0052**, and **1.0595**, respectively. These give us more detailed information about the distribution of the Geary's C statistics under the null hypothesis.
 
-The histogram provide a visual representation of this distribution, with a vertical red line at Geary\'s C = 1 represents the expected value under the null hypothesis of no spatial autocorrelation.
+The histogram provide a visual representation of this distribution, with a vertical red line at Geary's C = 1 represents the expected value under the null hypothesis of no spatial autocorrelation.
 :::
 
 ## 6.0 **Spatial Correlogram for Global Spatial Autocorrelation Statistics**
 
-Spatial correlograms are great to examine patterns of spatial autocorrelation in your data or model residuals. They show how correlated are pairs of spatial observations when you increase the distance (lag) between them - they are plots of some index of autocorrelation (Moran\'s I or Geary\'s c) against distance.Although correlograms are not as fundamental as variograms (a keystone concept of geostatistics), they are very useful as an exploratory and descriptive tool. For this purpose they actually provide richer information than variograms.
+Spatial correlograms are great to examine patterns of spatial autocorrelation in your data or model residuals. They show how correlated are pairs of spatial observations when you increase the distance (lag) between them - they are plots of some index of autocorrelation (Moran's I or Geary's c) against distance.Although correlograms are not as fundamental as variograms (a keystone concept of geostatistics), they are very useful as an exploratory and descriptive tool. For this purpose they actually provide richer information than variograms.
 
-### 6.1 **Compute Moran\'s I correlogram**
+### 6.1 **Compute Moran's I correlogram**
 
-In the code chunk below, [`sp.correlogram()`](https://r-spatial.github.io/spdep/reference/sp.correlogram.html) of **spdep** package is used to compute a 6-lag spatial correlogram of GDPPC. The global spatial autocorrelation used in Moran\'s I. The **plot()** of base Graph is then used to plot the output.
+In the code chunk below, [`sp.correlogram()`](https://r-spatial.github.io/spdep/reference/sp.correlogram.html) of **spdep** package is used to compute a 6-lag spatial correlogram of GDPPC. The global spatial autocorrelation used in Moran's I. The **plot()** of base Graph is then used to plot the output.
 
 ```{r}
 MI_corr <- sp.correlogram(wm_q, 
@@ -392,16 +380,16 @@ print(MI_corr)
 ::: {.callout-tip title="Reflection"}
 **What statistical conclusion can we draw from the output above?**
 
-In the output above, the Moran\'s I statistic for each lag (1 to 6) is given along with its expectation under the null hypothesis of spatial randomness, variance, standard deviate, and p-value.
+In the output above, the Moran's I statistic for each lag (1 to 6) is given along with its expectation under the null hypothesis of spatial randomness, variance, standard deviate, and p-value.
 
 -   The p-values are all less than 0.05 for lags **1, 2, 3, 5**, and **6**, indicating that the spatial autocorrelation at these distances is statistically significant. For lag **4**, however, the p-value is greater than 0.05, indicating that the spatial autocorrelation at this distance is not statistically significant.
 
--   The Moran\'s I statistic is positive for lags **1** to **4**, indicating positive spatial autocorrelation at these distances (i.e., areas with similar values of **`GDPPC`** are more likely to be located near each other). For lags 5 and 6, the Moran\'s I statistic is negative, indicating negative spatial autocorrelation at these distances (i.e., areas with similar values of **`GDPPC`** are more likely to be located far from each other).
+-   The Moran's I statistic is positive for lags **1** to **4**, indicating positive spatial autocorrelation at these distances (i.e., areas with similar values of **`GDPPC`** are more likely to be located near each other). For lags 5 and 6, the Moran's I statistic is negative, indicating negative spatial autocorrelation at these distances (i.e., areas with similar values of **`GDPPC`** are more likely to be located far from each other).
 :::
 
-### 6.2 **Compute Geary\'s C correlogram**
+### 6.2 **Compute Geary's C correlogram**
 
-In the code chunk below, `sp.correlogram()` of **spdep** package is used to compute a 6-lag spatial correlogram of GDPPC. The global spatial autocorrelation used in Geary\'s C. The **plot()** of base Graph is then used to plot the output.
+In the code chunk below, `sp.correlogram()` of **spdep** package is used to compute a 6-lag spatial correlogram of GDPPC. The global spatial autocorrelation used in Geary's C. The **plot()** of base Graph is then used to plot the output.
 
 ```{r}
 GC_corr <- sp.correlogram(wm_q, 
@@ -421,24 +409,24 @@ print(GC_corr)
 ::: {.callout-tip title="Reflection"}
 **What statistical conclusion can we draw from the output above?**
 
-In the output above, the Geary\'s C statistic for each lag (1 to 6) is given along with its expectation under the null hypothesis of spatial randomness, variance, standard deviate, and p-value.
+In the output above, the Geary's C statistic for each lag (1 to 6) is given along with its expectation under the null hypothesis of spatial randomness, variance, standard deviate, and p-value.
 
 -   The p-values are all less than 0.05 for lags **1, 2,** and **5**, indicating that the spatial autocorrelation at these distances is statistically significant. For lags **3**, **4**, and **6**, however, the p-values are greater than 0.05, indicating that the spatial autocorrelation at these distances is not statistically significant.
 
--   The Geary\'s C statistic is less than 1 for lags **1, 2,** and **3**, indicating positive spatial autocorrelation at these distances (i.e., areas with similar values of **`GDPPC`** are more likely to be located near each other). For lags **4**, **5**, and **6**, the Geary\'s C statistic is greater than 1, indicating negative spatial autocorrelation at these distances (i.e., areas with similar values of **`GDPPC`** are more likely to be located far from each other).
+-   The Geary's C statistic is less than 1 for lags **1, 2,** and **3**, indicating positive spatial autocorrelation at these distances (i.e., areas with similar values of **`GDPPC`** are more likely to be located near each other). For lags **4**, **5**, and **6**, the Geary's C statistic is greater than 1, indicating negative spatial autocorrelation at these distances (i.e., areas with similar values of **`GDPPC`** are more likely to be located far from each other).
 :::
 
 ## 7.0 Local Measures of Spatial Autocorrelation
 
 Local Indicators of Spatial Association or LISA are statistics that evaluate the existence of clusters in the spatial arrangement of a given variable. For instance if we are studying cancer rates among census tracts in a given city local clusters in the rates mean that there are areas that have higher or lower rates than is to be expected by chance alone; that is, the values occurring are above or below those of a random distribution in space.
 
-In this section, we will explore how to apply appropriate Local Indicators for Spatial Association (LISA), especially local Moran\'I to detect cluster and/or outlier from GDP per capita 2012 of Hunan Province, PRC.
+In this section, we will explore how to apply appropriate Local Indicators for Spatial Association (LISA), especially local Moran'I to detect cluster and/or outlier from GDP per capita 2012 of Hunan Province, PRC.
 
-### 7.1  **Computing local Moran\'s I**
+### 7.1 **Computing local Moran's I**
 
-To compute local Moran\'s I, the [*localmoran()*](https://r-spatial.github.io/spdep/reference/localmoran.html) function of **spdep** will be used. It computes *Ii* values, given a set of *zi* values and a listw object providing neighbour weighting information for the polygon associated with the zi values.
+To compute local Moran's I, the [*localmoran()*](https://r-spatial.github.io/spdep/reference/localmoran.html) function of **spdep** will be used. It computes *Ii* values, given a set of *zi* values and a listw object providing neighbour weighting information for the polygon associated with the zi values.
 
-The code chunks below are used to compute local Moran\'s I of *GDPPC2012* at the county level.
+The code chunks below are used to compute local Moran's I of *GDPPC2012* at the county level.
 
 ```{r}
 fips <- order(hunan$County)
@@ -448,7 +436,7 @@ head(localMI)
 
 *localmoran()* function returns a matrix of values whose columns are:
 
--   `Ii`: the local Moran\'s I statistics
+-   `Ii`: the local Moran's I statistics
 
 -   `E.Ii`: the expectation of local moran statistic under the randomisation hypothesis
 
@@ -467,16 +455,16 @@ printCoefmat(data.frame(
   check.names=FALSE)
 ```
 
-### 7.2 Mapping the local Moran\'s I
+### 7.2 Mapping the local Moran's I
 
-Before mapping the local Moran\'s I map, it is wise to append the local Moran\'s I dataframe (i.e. localMI) onto hunan SpatialPolygonDataFrame. The code chunks below can be used to perform the task. The out SpatialPolygonDataFrame is called `hunan.localMI`.
+Before mapping the local Moran's I map, it is wise to append the local Moran's I dataframe (i.e. localMI) onto hunan SpatialPolygonDataFrame. The code chunks below can be used to perform the task. The out SpatialPolygonDataFrame is called `hunan.localMI`.
 
 ```{r}
 hunan.localMI <- cbind(hunan,localMI) %>%
   rename(Pr.Ii = Pr.z....E.Ii..)
 ```
 
-Using choropleth mapping functions of **tmap** package, we can plot the local Moran\'s I values by using the code chinks below.
+Using choropleth mapping functions of **tmap** package, we can plot the local Moran's I values by using the code chinks below.
 
 ```{r}
 #| fig-width: 10
@@ -488,7 +476,7 @@ tm_shape(hunan.localMI) +
   tm_borders(alpha = 0.5)
 ```
 
-The choropleth shown above is evidence for both positive and negative `Ii` values. However, it is useful to consider the p-values for each of these values. The code chunks below produce a choropleth map of Moran\'s I p-values by using functions of **tmap** package.
+The choropleth shown above is evidence for both positive and negative `Ii` values. However, it is useful to consider the p-values for each of these values. The code chunks below produce a choropleth map of Moran's I p-values by using functions of **tmap** package.
 
 ```{r}
 #| fig-width: 10
@@ -500,7 +488,7 @@ tm_shape(hunan.localMI) +
   tm_borders(alpha = 0.5)
 ```
 
-For effective interpretation, it is better to plot both the local Moran\'s I values map and its corresponding p-values map next to each other.
+For effective interpretation, it is better to plot both the local Moran's I values map and its corresponding p-values map next to each other.
 
 The code chunk below will be used to create such visualisation.
 
@@ -582,7 +570,7 @@ hunan$lag_GDPPC <- lag.listw(rswm_q, hunan$GDPPC)
 DV <- hunan$lag_GDPPC - mean(hunan$lag_GDPPC)     
 ```
 
-This is follow by centering the local Moran\'s around the mean.
+This is follow by centering the local Moran's around the mean.
 
 ```{r}
 LM_I <- localMI[,1] - mean(localMI[,1])    
@@ -629,7 +617,7 @@ tm_shape(hunan.localMI) +
   tm_borders(alpha=0.5)
 ```
 
-For effective interpretation, it is better to plot both the local Moran\'s I values map and its corresponding p-values map next to each other.
+For effective interpretation, it is better to plot both the local Moran's I values map and its corresponding p-values map next to each other.
 
 The code chunk below will be used to create such visualisation.
 
@@ -655,7 +643,7 @@ tmap_arrange(gdppc, LISAmap,
              asp=1, ncol=2)
 ```
 
-We can also include the local Moran\'s I map and p-value map as shown below for easy comparison.
+We can also include the local Moran's I map and p-value map as shown below for easy comparison.
 
 ```{r}
 #| fig-width: 10
@@ -664,11 +652,11 @@ tmap_arrange(gdppc, LISAmap,localMI.map, pvalue.map, asp=2, ncol=2)
 
 ## 9.0 **Hot Spot and Cold Spot Area Analysis**
 
-Beside detecting cluster and outliers, localised spatial statistics can be also used to detect hot spot and/or cold spot areas. The term \'hot spot\' has been used generically across disciplines to describe a region or value that is higher relative to its surroundings (Lepers et al 2005, Aben et al 2012, Isobe et al 2015).
+Beside detecting cluster and outliers, localised spatial statistics can be also used to detect hot spot and/or cold spot areas. The term 'hot spot' has been used generically across disciplines to describe a region or value that is higher relative to its surroundings (Lepers et al 2005, Aben et al 2012, Isobe et al 2015).
 
-### 9.1 **Getis and Ord\'s G-Statistics**
+### 9.1 **Getis and Ord's G-Statistics**
 
-An alternative spatial statistics to detect spatial anomalies is the Getis and Ord\'s G-statistics (Getis and Ord, 1972; Ord and Getis, 1995). Getis-Ord Global G statistic is concerned with the overall concentration or lack of concentration in all pairs that are neighbours given the definition of neighbouring areas. It measures the degree of association that results from the concentration of weighted points (or area represented by a weighted point) and all other weighted points included within a radius of distance d from the original weighted point. It identifies areas where high or low cluster in space. 
+An alternative spatial statistics to detect spatial anomalies is the Getis and Ord's G-statistics (Getis and Ord, 1972; Ord and Getis, 1995). Getis-Ord Global G statistic is concerned with the overall concentration or lack of concentration in all pairs that are neighbours given the definition of neighbouring areas. It measures the degree of association that results from the concentration of weighted points (or area represented by a weighted point) and all other weighted points included within a radius of distance d from the original weighted point. It identifies areas where high or low cluster in space. 
 
 The analysis consists of three steps:
 
@@ -775,7 +763,7 @@ gi.fixed
 ```
 
 ::: {.callout-tip title="Reflection"}
-The output of localG() is a vector of G or Gstar values, with attributes \"gstari\" set to TRUE or FALSE, \"call\" set to the function call, and class \"localG\".
+The output of localG() is a vector of G or Gstar values, with attributes "gstari" set to TRUE or FALSE, "call" set to the function call, and class "localG".
 
 The Gi statistics is represented as a Z-score. Greater values represent a greater intensity of clustering and the direction (positive or negative) indicates high or low clusters.
 :::
