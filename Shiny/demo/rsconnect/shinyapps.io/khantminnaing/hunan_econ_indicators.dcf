@@ -1,0 +1,12 @@
+name: hunan_econ_indicators
+title: hunan_econ_indicators
+username: khantminnaing
+account: khantminnaing
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11223785
+bundleId: 8254888
+url: https://khantminnaing.shinyapps.io/hunan_econ_indicators/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
