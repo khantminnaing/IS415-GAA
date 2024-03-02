@@ -30,15 +30,91 @@ output:
     self_contained: false
 ---
 
-## **1.0 Introduction**
+# 1.0 Introduction
 
 Dengue Hemorrhagic Fever, also referred to as *dengue fever* in short, is one of the most widespread mosquito-borne diseases in the most tropical and subtropical regions. It is an acute disease caused by dengue virus infection which is transmitted by female Aedes aegypti and Aedes albopictus mosquitoes. Historically, the majority of outbreaks during the first half of the 20th century were reported in East Asia and Western Pacific countries (Chen, 2018). In 2015, Taiwan experienced its most severe outbreak of dengue fever, recording over 43,000 cases and 228 fatalities. Subsequently, the annual reported cases of dengue fever remained below 200. However, in 2023, there was a significant increase with 26,703 recorded cases. Notably, the majority of these outbreaks were reported in **Tainan City**, situated in the southern part of the island.
 
 This study aims to use spatio-temporal analysis techniques to analyze if the distribution of dengue fever outbreak in Tainan City are independent from space and time. The study also attempts to identify clusters and outliers, as well as emerging hot spots/cold spots within the study area. The initial phase of the study utilizes **Global and Local Spatial Autocorrelation** modelling to discern the spatio-temporal pattern of the disease outbreak. Subsequently, **Emerging Hot Spots Analysis (EHSA)** is applied to identify spatio-temporal clusters. The results of this study will provide valuable insights into the spatial and temporal dynamics of dengue fever outbreak in Tainan City. By identifying clusters and outliers, as well as emerging hot spots and cold spots, it will help inform targeted interventions and prevention strategies to effectively control the spread of the disease.
 
-## **2.0 Literature Review**
+# 2.0 Literature Review
 
-## **3.0 Importing Packages**
+## 2.1 Spatial Autocorrelation
+
+The first law of geography states that everything is related to everything else but near things are more related than distant things (Tobler, 1970). Spatial autocorrelation is the term used to describe the presence of systematic spatial variation in a variable, as explained by Tobler's first law. The concept of spatial autocorrelation, although it may be viewed as a special case of correlation, has a meaning all its own. Whereas correlation statistics were designed to show relationships between or among variables, spatial autocorrelation shows the correlation within variables across georeferenced space (Getis, 2008).
+
+The variable can assume values either at **any point on a continuous surface** (such as land use type or annual precipitation levels in a region); at **a set of fixed sites located** **within a region** (such as prices at a set of retail outlets); or **across a set of areas that subdivide a region** (such as the count or proportion of households with two or more cars in a set of Census tracts that divide an urban region).
+
+![Examples of configurations of areas showing different types of spatial autocorrelation (Ref: Moraga, 2023)](images/Screenshot%202024-02-26%20at%205.20.08%20PM.png){fig-align="center"}
+
+Where adjacent observations have similar data values the map shows positive spatial autocorrelation. Where adjacent observations tend to have very contrasting values then the map shows negative spatial autocorrelation. Spatial autocorrelation in a variable can be exogenous or endogenous. Spatial autocorrelation may arise from any one of the following situations (Haining, 2001): a) the difference between the scale of variation of a phenomenon and the scale of the spatial framework used to capture or represent that variation; b) measurement error; c) spatial diffusion, spillover, interaction, and dispersal processes; d) inheritance by one variable through causal association with another; e) model misspecification.
+
+A collection of geospatial statistical analysis methods for analysing the location related tendency (clusters or outliers) in the attributes of geographically referenced data (points or areas). Cliff and Ord (1973) demonstrated statistically how one can test residuals of regression analysis for spatial randomness by using spatial autocorrelation statistics. These spatial statistics are well suited for a number of geospatial analysis such as:
+
+-   **detecting clusters or outliers**: spatial clustering algorithms are dependent on the conjecture that there is spatial autocorrelation among some nearby values of one or more variables of interest.
+
+-   **measuring the strength of spatial effect on variable**: spatial autocorrelation cofficients in regression models help us to understand the strength of spatial effects (Haining, 1990; Anselin and Rey, 1991). 
+
+-   **assessing the assumptions of stationarity**: spatial autocorrelation measures allow for tests on hypotheses of no spatial differences in distribution parameters such as the mean and variance. (Haining, 1977; Leung, 2000).
+
+-   **designing an appropriate spatial sample**: if the goal is to avoid, as much as possible, spatial autocorrelation in the sample, then a reasonable sample design would benefit from a study of spatial autocorrelation in the region where the sample is selected (Fortin et al., 1989; Legendre et al., 2002; Griffith, 2005).
+
+Moran's I (Moran, 1950) and Geary's C (Geary, 1954) are well known tests for spatial autocorrelation. They represent two special cases of the general cross-product statistic that measures spatial autocorrelation. Moran's I is produced by standardizing the spatial autocovariance by the variance of the data. Geary's c uses the sum of the squared differences between pairs of data values as its measure of covariation. Both statistics depend on a spatial structural specification such as a spatial weights matrix or a distance related decline function.
+
+## 2.2 Emerging Hotspot Analysis
+
+A **hotspot** refers to an area with a higher concentration of events than expected under random distribution. Initially rooted in the study of point distributions and spatial arrangements, hotspot detection has evolved significantly (Chakravorty, 1995).
+
+Emerging hot spot Analysis (EHSA) is a special spatio-temporal technique that combines two established techniques: the traditional **Getis-Ord Gi**\* statistic for hotspot analysis and the time-series **Mann-Kendall test** for monotonic trends. The primary objective of EHSA is to assess how hot and cold spots change over time. Specifically, it addresses questions such as whether these spots are becoming hotter, cooling down, or remaining stable (Parry & Locke).
+
+EHSA works by calculating the Gi\* for each time period. The series of Gi\* at each location is treated as a time-series and evaluated for a trend using the Mann-Kendall statistic. The Gi\* and the Mann-Kendall are compared together to create 17 unique classifications base on [ESRI's emerging hot spot classification criteria](https://pro.arcgis.com/en/pro-app/2.8/tool-reference/space-time-pattern-mining/learnmoreemerging.htm) to help better understand how the locations have changed over time.
+
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Pattern Name               | Definition                                                                                                                                                                                                                                                                                                                 |
++============================+============================================================================================================================================================================================================================================================================================================================+
+| **No Pattern Detected**    | Does not fall into any of the hot or cold spot patterns defined below.                                                                                                                                                                                                                                                     |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **New Hot Spot**           | A location that is statistically significant hot spot for the final time step and has never been a statistically significant hot spot before.                                                                                                                                                                              |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Consecutive Hot Spot**   | A location with a single uninterrupted run of at least two statistically significant hot spot bins in the final time-step intervals. The location has never been a statistically significant hot spot prior to the final hot spot run and less than 90 percent of all bins are statistically significant hot spots.        |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Intensifying Hot Spot**  | A location that has been a statistically significant hot spot for 90 percent of the time-step intervals, including the final time step. In addition, the intensity of clustering of high counts in each time step is increasing overall and that increase is statistically significant.                                    |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Persistent Hot Spot**    | A location that has been statistically hot spot for 90 percent of the time-step intervals with no discernible trend in the intensity of clustering over time.                                                                                                                                                              |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Diminishing Hot Spot**   | A location that has been a statistically significant hot spot for 90 percent of the time-step intervals, including the final time step. In addition, the intensity of clustering in each time step is decreasing overall and that decrease is statistically significant.                                                   |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Sporadic Hot Spo**t      | A statistically significant hot spot for the final time-step interval with a history of also being an on-again and off-again hot spot. Less than 90 percent of the time-step intervals have been statistically significant hot spots and none of the time-step intervals have been statistically cold spots.               |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Oscillating Hot Spot**   | A statistically significant hot spot for the final time-step interval that has a history of also being a statistically significant cold spot during a prior time step. Less than 90 percent of the time-step intervals have been statistically significant hot spots.                                                      |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Historical Hot Spot**    | The most recent time period is not hot, but at least 90 percent of the time-step intervals have been statistically significant hot spots.                                                                                                                                                                                  |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **New Cold Spot**          | A location that is a statistically significant cold spot for the final time step and has never been a statistically significant cold spot before.                                                                                                                                                                          |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Consecutive Cold Spot**  | A location with a single uninterrupted run of at least two statistically significant cold spot bins in the final time-step intervals. The location has never been a statistically significant cold spot prior to the final cold spot run and less than 90 percent of all bins are statistically significant cold spots.    |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Intensifying Cold Spot** | A location that has been a statistically significant cold spot for 90 percent of the time-step intervals, including the final time step. In addition, the intensity of clustering of low counts in each time step is increasing overall and that increase is statistically significant.                                    |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Persistent Cold Spot**   | A location that has been a statistically significant cold spot for 90 percent of the time-step intervals with no discernible trend in the intensity of clustering of counts over time.                                                                                                                                     |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Diminishing Cold Spot**  | A location that has been a statistically significant cold spot for 90 percent of the time-step intervals, including the final time step. In addition, the intensity of clustering of low counts in each time step is decreasing overall and that decrease is statistically significant.                                    |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Sporadic Cold Spot**     | A statistically significant cold spot for the final time-step interval with a history of also being an on-again and off-again cold spot. Less than 90 percent of the time-step intervals have been statistically significant cold spots and none of the time-step intervals have been statistically significant hot spots. |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Oscillating Cold Spot**  | A statistically significant cold spot for the final time-step interval that has a history of also being a statistically significant hot spot during a prior time step. Less than 90 percent of the time-step intervals have been statistically significant cold spots.                                                     |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Historical Cold Spot**   | The most recent time period is not cold, but at least 90 percent of the time-step intervals have been statistically significant cold spots.                                                                                                                                                                                |
++----------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+## 2.3 Spatio-Temporal Analytics in Epidemiological Studies
+
+Spatial autocorrelation and hotspot analysis play a crucial role in epidemiological studies by enabling to discover and analyse the distribution and clustering of transmissible diseases.These diseases, due to their transmission dynamics, often exhibit distinct spatial patterns and commonly occur in spatial clusters (Mergenthaler et al., 2022). Understanding and quantifying spatial autocorrelation is a pivotal aspect of epidemiological research. It provides insights into the dynamics and spread of diseases. Moreover, it is essential for the statistical testing of epidemiological risk factors (Mergenthaler et al., 2022).
+
+Spatial autocorrelation can also be leveraged to detect spatiotemporal clustering and outliers, thereby aiding in the identification of disease hotspots and the targeting of control measures. Numerous works in this area integrate the temporal component of emerging hotspot analysis with the spatial component of autocorrelation analysis. Emerging hotspot analysis helps in identifying areas that are experiencing a significant increase in disease incidence over time. Singh et al. (2023) highlighted in particular how understanding the spatiotemporal patterns of infectious illnesses fever provides important insights on the spread of the disease and how it relates to local risk factors.
+
+Overall, spatial autocorrelation and emerging hotspot analysis provide valuable insights into the spatial patterns and dynamics of epidemiological studies of communicable diseases. Consequently, this understanding holds promise for developing forecasting models to optimise resource allocation and plan effective vector control measures (Singh et al., 2023) in low- and middle-income countries.
+
+# 3.0 Importing Packages
 
 Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
 
@@ -51,35 +127,49 @@ Before we start the exercise, we will need to import necessary R packages first.
 -   [`sfdep`](https://cran.r-project.org/web/packages/spdep/) : for computing spatial weights, global and local spatial autocorrelation statistics
 
 ```{r}
-pacman::p_load(sf, st, tidyverse, lubridate, spdep, tmap, knitr)
+pacman::p_load(sf, st, tidyverse, lubridate, sfdep, tmap, knitr, Kendall)
 ```
 
-## **4.0 Importing Datasets to R Environment**
+# 4.0 Importing Datasets to R Environment
 
-### **4.1 Datasets**
+## 4.1 Datasets
 
 In this exercise, we will use two datasets. The first dataset, **`TAIWAN_VILLAGE_2020`**, is a geospatial dataset that delineates the village boundaries of Taiwan. This data is presented in the ESRI shapefile format and is based on the Taiwan Geographic Coordinate System. This data is extracted from [Historical map data of the village boundary: TWD97 longitude and latitude](https://data.gov.tw/en/datasets/130549).
 
 The second dataset, **`Dengue_Daily.csv`**, is an aspatial dataset that contains records of reported dengue cases in Taiwan since 1998. This data is extracted from [Dengue Daily Confirmed Cases Since 1998](https://data.cdc.gov.tw/en/dataset/dengue-daily-determined-cases-1998).
 
-### **4.1 Importing Geospatial Data**
+## 4.2 Importing Geospatial Data
 
 In this section, `st_read()` of **sf** package will be used to import **`TAIWAN_VILLAGE_2020`** dataset into R environment.
 
 ```{r}
-tainan <- st_read(dsn = "~/IS415-GAA/Take-home_Ex/Take-home_Ex02/data/geospatial", 
-                 layer = "TAINAN_VILLAGE") 
+tainan <- st_read("~/IS415-GAA/Take-home_Ex/Take-home_Ex02/data/geospatial/TAINAN_VILLAGE.shp") 
 ```
 
 ```{r}
-plot(tainan)
+class(tainan$geometry)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+
+tm_shape(tainan)+
+  tm_fill("TOWNID")+
+  tm_borders(col = "black", lwd=0.3, alpha=0.6)+
+  tm_layout(
+    main.title = "Villages (Tainan City)",
+    main.title.size = 1,
+    main.title.position = "center",
+    legend.show = FALSE,
+     frame = FALSE)
 ```
 
 ```{r}
 st_crs(tainan)
 ```
 
-### **4.2 Importing Aspatial Data**
+## 4.3 Importing Aspatial Data
 
 In this section, `read_csv()` of **sf** package will be used to import the csv file into R environment. The output is R dataframe class.
 
@@ -88,17 +178,59 @@ dengue_daily <- read_csv("~/IS415-GAA/Take-home_Ex/Take-home_Ex02/data/aspatial/
 dengue_daily
 ```
 
-## 5.0 Data Wrangling
+# 5.0 Data Wrangling
 
-### 5.1 Understanding Administrative Division in Taiwan
+## 5.1 Understanding Administrative Division in Taiwan
 
 Before we carry out data wrangling, it is of utmost importance to contexualise ourselves with the nature of datasets. This is particularly important when conducting spatial analysis, as understanding the nature of local spatial information, such as the administrative division, is key to accurate and meaningful results.
 
 In this section, we will explore administrative division of Taiwan.
 
-![](images/Taiwan_ROC_political_divisions_labeled.png){width="554"}
+![](images/Taiwan_ROC_political_divisions_labeled.png){fig-align="center" width="346"}
 
-### 5.2 Translating Datasets
+According to the [Local Government Act,](https://english.president.gov.tw/Page/106#:~:text=Currently%2C%20the%20ROC%20comprises%20six,%2C%20Hsinchu%2C%20and%20Chiayi).) the local government in the ROC (Taiwan) is subdivided into provinces and special municipalities.
+
+![](images/Screenshot%202024-02-22%20at%208.05.19%20PM.png){fig-align="center" width="458"}
+
+### 5.1.1 First Level: Special municipalities, counties, and cities
+
+Currently there are three types and in total 22 administrative divisions are directly governed by the central government.
+
++--------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ![](images/Subdivision_types_of_the_Republic_of_China_(2014).png){width="400"} | -   **Special Municipality (直轄市)** : Currently, Taiwan comprises **6** special municipalities - Taipei, New Taipei, Taoyuan, Taichung, Tainan, and Kaohsiung. \[Colored in Red\]                           |
+|                                                                                |                                                                                                                                                                                                               |
+|                                                                                | Provinces are sub-divided into **County (縣)** & **City (市)** \|                                                                                                                                             |
+|                                                                                |                                                                                                                                                                                                               |
+|                                                                                | -   **County (縣)**: Currently, Taiwan comprises **13** counties - Hsinchu, Miaoli, Changhua, Nantou, Yunlin, Chiayi, Pingtung, Yilan, Hualien, Taitung, Penghu, Kinmen, and Lienchiang. \[Colored in Green\] |
+|                                                                                |                                                                                                                                                                                                               |
+|                                                                                | -   **City (市)** : Currently, Taiwan comprises **3** cities - Keelung, Hsinchu, and Chiayi. \[Colored in Purple\]                                                                                            |
++--------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+The 22 main divisions in the country are further divided into 368 subdivisions. These 368 divisions can be categorized as the following.
+
+### 5.1.2 Second Level: Townships, county-administered cities and districts
+
+The 22 main divisions in previous level are further divided into 368 subdivisions. These 368 divisions can be categorized as the following.
+
++----------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
+| ![](images/Township_Taiwan%20(1).png){width="400"} | -   **Rural Township (鄉)** : Currently, Taiwan comprises 122 rural townships.                                        |
+|                                                    | -   **Mountain Indigenous Township** **(山地鄉)** : Currently, Taiwan comprises **24** mountain indigenous townships. |
+|                                                    | -   **Urban Township (鎮)** : Currently, Taiwan comprises 38 urban townships.                                         |
+|                                                    | -   **County-administered City (縣轄市)** : Currently, Taiwan comprises **14** county-administered cities.            |
+|                                                    | -   **Mountain** **Indigenous District (原住民區)** : Currently, Taiwan comprises 6 mountain indigenous district.     |
+|                                                    | -   **District (區)**: Currently, Taiwan comprises 164 districts.                                                     |
++----------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
+
+### 5.1.3 Lower-Level Administrative Divisions
+
+The 368 divisions in previous level are further divided into villages and neighborhoods.
+
++--------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+
+| ![](images/Screenshot%202024-02-22%20at%208.43.24%20PM.png){width="342"} | -   **Rural/Urban Village (村里)** : Currently, Taiwan comprises 7,835 rural and urban villages. |
+|                                                                          | -   **Neighbourhood (鄰)** : Currently, Taiwan comprises 147,877 neighbourhoods.                 |
++--------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------+
+
+## 5.2 Translating Dataset Columns of `dengue_daily` object
 
 Notice that the data columns are currently represented in traditional Chinese. To enhance clarity in subsequent analysis, we will update the column names to English. It is an essential step in making data analysis more reproducible. In R, the **`colnames()`** function can be utilized to rename the columns. Before that, we will explicitly print out the column names.
 
@@ -106,110 +238,199 @@ Notice that the data columns are currently represented in traditional Chinese. T
 colnames(dengue_daily)
 ```
 
-Next we will translate these column names into English using references from [administrative divisions of Taiwan](https://en.wikipedia.org/wiki/Administrative_divisions_of_Taiwan).
+Next we will translate these column names into English using references from [administrative divisions of Taiwan](https://en.wikipedia.org/wiki/Administrative_divisions_of_Taiwan) as well as the language translation of Google Translate (Chinese Traditional to English). Each literal translation is cross-referenced and cross-checked to be accurate and intuitive.
 
-| Column Name (Chinese) | Data Type | Column Name (English)              |
-|-----------------------|-----------|------------------------------------|
-| 發病日                | \<date\>  | Onset date                         |
-| 個案研判日            | \<chr\>   | Testing date                       |
-| 通報日                | \<date\>  | Notification date                  |
-| 性別                  | \<chr\>   | Gender                             |
-| 年齡層                | \<chr\>   | Age Group                          |
-| 居住縣市              | \<chr\>   | County/City of Residence           |
-| 居住鄉鎮              | \<chr\>   | Rural/Urban Township of Residence  |
-| 居住村里              | \<chr\>   | Village of Residence               |
-| 最小統計區            | \<chr\>   | Statistical Grid-Area              |
-| 最小統計區中心點X     | \<chr\>   | X-coordinate                       |
-| 最小統計區中心點Y     | \<chr\>   | Y-coorindate                       |
-| 一級統計區            | \<chr\>   | Primary Statistical Area           |
-| 二級統計區            | \<chr\>   | Secondary Statistical Area         |
-| 感染縣市              | \<chr\>   | Infected County/City               |
-| 感染鄉鎮              | \<chr\>   | Infected Rural/Urban Township      |
-| 感染村里              | \<chr\>   | Infected Village                   |
-| 是否境外移入          | \<chr\>   | Imported Case                      |
-| 感染國家              | \<chr\>   | Country of Infection Origin        |
-| 確定病例數            | \<num\>   | No of Cases                        |
-| 居住村里代碼          | \<chr\>   | Village Code                       |
-| 感染村里代碼          | \<chr\>   | Infected Village Code              |
-| 血清型                | \<chr\>   | Serotype                           |
-| 內政部居住縣市代碼    | \<chr\>   | MOHA County/City Code              |
-| 內政部居住鄉鎮代碼    | \<chr\>   | MOHA Township Code                 |
-| 內政部感染縣市代碼    | \<chr\>   | MOHA Infected County/City Code     |
-| 內政部感染鄉鎮代碼    | \<chr\>   | MOHA Infected Township Code        |
++-----------------------+---------------+---------------------------------------+
+| Column Name (Chinese) | Data Type     | Column Name To-Be-Converted (English) |
++=======================+===============+=======================================+
+| 發病日                | \<date\>      | Onset_Date                            |
++-----------------------+---------------+---------------------------------------+
+| 個案研判日            | \<chr\>       | Testing_Date                          |
++-----------------------+---------------+---------------------------------------+
+| 通報日                | \<date\>      | Notification_Date                     |
++-----------------------+---------------+---------------------------------------+
+| 性別                  | \<chr\>       | Gender                                |
++-----------------------+---------------+---------------------------------------+
+| 年齡層                | \<chr\>       | Age_Group                             |
++-----------------------+---------------+---------------------------------------+
+| 居住縣市              | \<chr\>       | CountyCity_Residence                  |
++-----------------------+---------------+---------------------------------------+
+| 居住鄉鎮              | \<chr\>       | RuralUrbanTownship_Residence          |
++-----------------------+---------------+---------------------------------------+
+| 居住村里              | \<chr\>       | RuralUrbanVillage_Residence           |
++-----------------------+---------------+---------------------------------------+
+| 最小統計區            | \<chr\>       | Grid_Area                             |
++-----------------------+---------------+---------------------------------------+
+| 最小統計區中心點X     | \<chr\>       | X_Coordinate                          |
++-----------------------+---------------+---------------------------------------+
+| 最小統計區中心點Y     | \<chr\>       | Y_Coordinate                          |
++-----------------------+---------------+---------------------------------------+
+| 一級統計區            | \<chr\>       | Primary_Statistical_Area              |
++-----------------------+---------------+---------------------------------------+
+| 二級統計區            | \<chr\>       | Secondary_Statistical_Area            |
++-----------------------+---------------+---------------------------------------+
+| 感染縣市              | \<chr\>       | CountyCity_Exposure                   |
++-----------------------+---------------+---------------------------------------+
+| 感染鄉鎮              | \<chr\>       | RuralUrbanTownship_Exposure           |
++-----------------------+---------------+---------------------------------------+
+| 感染村里              | \<chr\>       | RuralUrbanVillage_Exposure            |
++-----------------------+---------------+---------------------------------------+
+| 是否境外移入          | \<chr\>       | Imported_Case                         |
++-----------------------+---------------+---------------------------------------+
+| 感染國家              | \<chr\>       | Country_Infection_Origin              |
++-----------------------+---------------+---------------------------------------+
+| 確定病例數            | \<num\>       | No_Infected_Cases                     |
++-----------------------+---------------+---------------------------------------+
+| 居住村里代碼          | \<chr\>       | Code_RuralUrbanVillage_Residence      |
++-----------------------+---------------+---------------------------------------+
+| 感染村里代碼          | \<chr\>       | Code_RuralUrbanTownship_Residence     |
++-----------------------+---------------+---------------------------------------+
+| 血清型                | \<chr\>       | Serotype                              |
++-----------------------+---------------+---------------------------------------+
+| 內政部居住縣市代碼    | \<chr\>       | MOI_Code_CountyCity_Residence         |
++-----------------------+---------------+---------------------------------------+
+| 內政部居住鄉鎮代碼    | \<chr\>       | MOI_Code_RuralUrbanTownship_Residence |
++-----------------------+---------------+---------------------------------------+
+| 內政部感染縣市代碼    | \<chr\>       | MOI_Code_CountyCity_Exposure          |
++-----------------------+---------------+---------------------------------------+
+| 內政部感染鄉鎮代碼    | \<chr\>       | MOI_Code_RuralUrbanTownship_Exposure  |
++-----------------------+---------------+---------------------------------------+
 
 ```{r}
-#colnames(df) <- c(new_col1_name,new_col2_name,new_col3_name)
+colnames(dengue_daily) <- c("Onset_Date","Testing_Date","Notification_Date","Gender","Age_Group","CountyCity_Residence","RuralUrbanTownship_Residence","RuralUrbanVillage_Residence","Grid_Area","X_Coordinate","Y_Coordinate","Primary_Statistical_Area","Secondary_Statistical_Area","CountyCity_Exposure","RuralUrbanTownship_Exposure","RuralUrbanVillage_Exposure","Imported_Case","Country_Infection_Origin","No_Infected_Cases","Code_RuralUrbanVillage_Residence","Code_RuralUrbanTownship_Residence","Serotype","MOI_Code_CountyCity_Residence","MOI_Code_RuralUrbanTownship_Residence","MOI_Code_CountyCity_Exposure
+","MOI_Code_RuralUrbanTownship_Exposure")
 ```
 
-### Study Area
+```{r}
+head(dengue_daily)
+```
 
-| Col1 | Col2   | Col3         |
-|------|--------|--------------|
-| D01  | 東區   | Eastern      |
-| D02  | 南區   | Southern     |
-| D04  | 北區   | Northern     |
-| D06  | 安南區 | Annan        |
-| D07  | 安平區 | Anping       |
-| D08  | 中西區 | West Central |
-| D32  | 仁德區 | Rende        |
-| D39  | 永康區 | Yongkang     |
+After translating the column names, we can better understand what each data column is. To reduce the memory load, we can drop columns which are not relevant for this study.
 
 ```{r}
-county_list <- c("D01", "D02", "D04", "D06", "D07", "D08", "D32", "D39") 
+
+```
+
+## 5.3 Data Subsetting to Study Area
+
+For this study, we have identified a total of 8 townships/district that we want to investigate as below.
+
+| TOWNID | TOWNCODE | Chinese |
+|--------|----------|---------|
+| D01    | 67000320 | 東區    |
+| D02    | 67000330 | 南區    |
+| D04    | 67000340 | 北區    |
+| D06    | 67000350 | 安南區  |
+| D07    | 67000360 | 安平區  |
+| D08    | 67000370 | 中西區  |
+| D32    | 67000270 | 仁德區  |
+| D39    | 67000310 | 永康區  |
+
+Now, we will filter the **`tainan`** data frame to only include selected townships we have identified above. Firstly, we will create a character vector named **`township_list`** that contains the codes of selected counties. Then, we will use **`filter`** function to filter the rows of the **`tainan`** data frame where the **`TOWNID`** is in the **`township_list`** and create a new sf object called `study_area_sf`.
+
+```{r}
+township_list <- c("D01", "D02", "D04", "D06", "D07", "D08", "D32", "D39") 
 
 study_area_sf <- tainan %>%
-  filter(TOWNID %in% county_list)
-```
+  filter(TOWNID %in% township_list)
 
-### Update County Name
-
-```{r}
-study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "東區"] <- "Eastern"
-study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "南區"] <- "Southern"
-study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "北區"] <- "Northern"
-study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "安南區"] <- "Annan"
-study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "安平區"] <- "Anping"
-study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "中西區"] <- "West Central"
-study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "仁德區"] <- "Rende"
-study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "永康區"] <- "Yongkang"
+study_area_sf
 ```
 
 ```{r}
-county_names <- c("東區","南區","北區","安南區","安平區","中西區","仁德區","永康區")
+class(study_area_sf)
+```
+
+Likewise, we will also need to subset the `dengue_daily` layer to only include dengue cases that are within the selected townships we have identified above. In `dengue_daily` layer, TOWNID information is not included. Hence we will use `RuralUrbanTownship_Residence` column, which represents the township name (in Chinese) to filter the data.
+
+```{r}
+township_name <- c("東區","南區","北區","安南區","安平區","中西區","仁德區","永康區")
 
 dengue_tainan <- dengue_daily %>%
-  filter(居住縣市=="台南市",居住鄉鎮 %in% county_names)
+  filter(CountyCity_Residence=="台南市", RuralUrbanTownship_Residence %in% township_name)
 ```
 
-```{r}
-dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "東區"] <- "Eastern"
-dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "南區"] <- "Southern"
-dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "北區"] <- "Northern"
-dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "安南區"] <- "Annan"
-dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "安平區"] <- "Anping"
-dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "中西區"] <- "West Central"
-dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "仁德區"] <- "Rende"
-dengue_tainan$居住鄉鎮[dengue_tainan$居住鄉鎮 == "永康區"] <- "Yongkang"
-```
+::: callout-tip
+In the code chunk above, I have to include `CountyCity_Residence=="台南市"` (`台南市` = Tainan) because there are many data entry errors observed in the `dengue_daily` dataset.
+
+![](images/Screenshot%202024-02-22%20at%209.41.58%20PM-01.png){fig-align="center" width="444"}
+
+For example, East District (東區) is located in Tainan City and is one of the selected townships for our study. In `dengue_daily` dataset, there are data instances like in the snapshot above, where data ponts in other counties and cities have been mis-classified as East District (東區).
+
+Hence, we need to make sure that the data instances we will filter our for the analysis has correct information for both `CountyCity_Residence` and `RuralUrbanTownship_Residence` columns .
+:::
+
+Now we will use check the number of rows (data instances) in newly created `dengue_tainan` object.
 
 ```{r}
-par(mar = c(0,0,1,0))
-plot(st_geometry(study_area_sf), main = "Study Area")
+nrow(dengue_tainan)
 ```
+
+## 5.4 Updating Township Names in Datasets
+
+`study_area_sf` object that we created in previous section only has `VILLENG` which represents the name of **village** in English. We did not have corresponding English translations for **township** names, which are crucial for a comprehensive understanding of our analysis results. To address this, we have prepared a list of English translations for each Chinese township name as follows.
+
+| Chinese (Origin) | English (Translation) |
+|------------------|-----------------------|
+| 東區             | East District         |
+| 南區             | South District        |
+| 北區             | North District        |
+| 安南區           | Annan District        |
+| 安平區           | Anping District       |
+| 中西區           | West Central District |
+| 仁德區           | Rende District        |
+| 永康區           | Yongkang District     |
+
+::: callout-tip
+We have obtained the English translations for each township and district name directly from Google Maps. Initially, we input the Chinese names into Google Maps. This leads us to the respective township information panel, as shown below. From this point, we directly adopt the English name for each township.
+
+![](images/Screenshot%202024-02-22%20at%2010.00.58%20PM.png)
+:::
+
+Based on the English translation we have tabulated above, we will proceed to create a new data column called `TOWNENG` which represents the name of **township** in English.
+
+```{r}
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "東區"] <- "East District"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "南區"] <- "South District"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "北區"] <- "North District"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "安南區"] <- "Annan District"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "安平區"] <- "Anping District"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "中西區"] <- "West Central District"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "仁德區"] <- "Rende District"
+study_area_sf$TOWNENG[study_area_sf$TOWNNAME == "永康區"] <- "Yongkang District"
+```
+
+Similarly, in `dengue_tainan` object that we created in previous section, the values for `RuralUrbanTownship_Residence` column are in Chinese. To enhance interpretability, we will replace these values with their corresponding English translations.
+
+```{r}
+dengue_tainan$RuralUrbanTownship_Residence[dengue_tainan$RuralUrbanTownship_Residence == "東區"] <- "East District"
+dengue_tainan$RuralUrbanTownship_Residence[dengue_tainan$RuralUrbanTownship_Residence == "南區"] <- "South District"
+dengue_tainan$RuralUrbanTownship_Residence[dengue_tainan$RuralUrbanTownship_Residence == "北區"] <- "North District"
+dengue_tainan$RuralUrbanTownship_Residence[dengue_tainan$RuralUrbanTownship_Residence == "安南區"] <- "Annan District"
+dengue_tainan$RuralUrbanTownship_Residence[dengue_tainan$RuralUrbanTownship_Residence == "安平區"] <- "Anping District"
+dengue_tainan$RuralUrbanTownship_Residence[dengue_tainan$RuralUrbanTownship_Residence == "中西區"] <- "West Central District"
+dengue_tainan$RuralUrbanTownship_Residence[dengue_tainan$RuralUrbanTownship_Residence == "仁德區"] <- "Rende District"
+dengue_tainan$RuralUrbanTownship_Residence[dengue_tainan$RuralUrbanTownship_Residence == "永康區"] <- "Yongkang District"
+```
+
+## 5.5 Plotting Study Area of Tainan City
+
+Once subsetting of the study area is completed, we will now plot a choropleth map of the newly created `study_area_sf` object.
 
 ```{r}
 #| fig-width: 12
 #| fig-height: 10
 tm_shape(study_area_sf)+
   tm_fill("TOWNENG", 
-          palette = "plasma",
-          title = "Town Name") +
+          palette = c("#57bfc0","#7977f3", "#ce77b4","#f67774","#f89974", "#f8d673","#f9f777"),
+          title = "Township Name") +
   tm_borders(col = "white")+
-  tm_layout(main.title = "Study Area",
+  tm_layout(main.title = "Study Area (Tinan City)",
             main.title.position = "center",
             main.title.size = 2,
+            main.title.fontface = "bold",
             legend.title.size = 1.8,
-            legend.text.size = 1.5,
+            legend.text.size = 1.3,
             frame = TRUE) +
   tm_borders(alpha = 0.5) +
   tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
@@ -217,52 +438,3017 @@ tm_shape(study_area_sf)+
   tm_grid(labels.size = 1,alpha =0.2)
 ```
 
-### Epidemiology Week 
+## 5.6 Deriving Epidemiology Week for Dengue Cases
+
+Epidemiology week is a standardized method of counting weeks to allow for the comparison of data year over year. Each epidemiological week begins on a Sunday and ends on a Saturday (i.e. The first epidemiological week of the year ends on the first Saturday of January).
+
+However, the current `dengue_tainan` object do not has epidemiology week information yet. It only has \<date\> type data under `Onset_Date` column. Hence, we will need to calculate and derive epidemiology week information from `Onset_Date`. To achieve this, we will take the following data wrangling steps:
+
+-   We will add a new column **`year`** to the **`dengue_tainan`** data frame. The **`year()`** function will be used to extract the year (numerical) from the **`Onset_Date`** value.
+
+-   Next, we will adds one more new column **`Epidemiol_Week`** to the **`dengue_tainan`** data frame. We will use **`strftime()`** function to format the time of the **`Onset_Date`** column. The **`"%V"`** format is used to extract the week of the year as decimal number (01--53) as defined in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601). This newly created **`Epidemiol_Week`** column contains the epidemiology week required for our analysis.
 
 ```{r}
-dengue_tainan <- dengue_tainan %>% mutate(year = year(dengue_tainan$發病日))
-dengue_tainan <- dengue_tainan %>% mutate(epidemiol_wk = strftime(dengue_tainan$發病日, format = "%V"))
+dengue_tainan <- dengue_tainan %>% mutate(year = year(dengue_tainan$Onset_Date))
+dengue_tainan <- dengue_tainan %>% mutate(Epidemiol_Week = strftime(dengue_tainan$Onset_Date, format = "%V"))
 ```
 
 ```{r}
-dengue_tainan$epidemiol_wk <- as.numeric(dengue_tainan$epidemiol_wk)
-
-ggplot(dengue_tainan, aes(x=epidemiol_wk)) +
-  geom_histogram(bins = 50,color="white") +
-  labs(x="Epidemiology Week", y="Count", title="Histogram of Epidemiology Weeks")
+class(dengue_tainan$Epidemiol_Week)
 ```
+
+The data values in **`Epidemiol_Week`** column are observed to be \<character\>. Hence, we will change these values into \<numeric\> data type using `as.numeric()` function.
+
+```{r}
+dengue_tainan$Epidemiol_Week <- as.numeric(dengue_tainan$Epidemiol_Week)
+```
+
+For this study, we are interested to investigate the dengue fever that occurred during epidemiological weeks 31 through 50 of 2023. Next, we will proceed with filtering the dataset, Hence, we will create a new dengue fever layer called `dengue_tainan_fever`. This layer will include dengue fevers cases within Tainan City which occurred between epidemiological weeks 31 and 50 of 2023.
 
 ```{r}
 dengue_tainan_fever <- dengue_tainan %>%
-  filter(year == "2023", epidemiol_wk>30, epidemiol_wk<51)
+  filter(year == "2023", Epidemiol_Week>30, Epidemiol_Week<51)
 ```
 
+Plotting histograms is a good practice in data wrangling to visualise and understand the underlying distribution as well as patterns, trends and outliers. Hence, we will plot a distribution histogram for `dengue_tainan_fever` using mapping techniques from ggplot package.
+
 ```{r}
-ggplot(dengue_tainan_fever, aes(x=epidemiol_wk)) +
+ggplot(dengue_tainan_fever, aes(x=Epidemiol_Week)) +
   geom_histogram(bins = 20,color="white") +
   labs(x="Epidemiology Week", y="Count", title="Histogram of Epidemiology Weeks 31-50 in 2023")
 ```
 
-### Converting to sf Object
+## 5.7 Converting `dengue_tainan_fever` object to sf Object
+
+`dengue_tainan_fever` object we created in previous section is of \<tibble dataframe\> type. Hence, we will need to convert it into a `sf` object to perform spatial analysis.
 
 ```{r}
-dengue_tainan_fever<-subset(dengue_tainan_fever, 最小統計區中心點X!="None" & 最小統計區中心點Y!="None")
+class(dengue_tainan_fever)
+```
 
+Before we convert to sf object, it is required to check if any `NULL` values exist in `X_Coordinate` and `Y_Coordinate` column values. A `NULL` value could mean that the location data for a particular record was not collected or is not available
+
+```{r}
+any(is.na(dengue_tainan_fever[,"X_Coordinate"]))
+any(is.na(dengue_tainan_fever[,"Y_Coordinate"]))
+```
+
+However, sometimes `Null` values may be represented in other forms, such as "None", "NA", "NaN", or even a blank space. Hence, we did a visual inspection of the dataset and found that `NULL` values are denoted as `None` as shown below.
+
+![](images/Screenshot%202024-02-22%20at%2011.01.13%20PM.png){fig-align="center" width="203"}
+
+Hence, we need to do manual filtering of all the data instances which has `None` values for `X_Coordinate` and `Y_Coordinate`. To achieve this, we will use the **`subset`** function to filter the **`dengue_tainan_fever`** data frame. We will use `X_Coordinate!="None"` & `Y_Coordinate!="None"` to specify that our data frame only includes the rows where both **`X_Coordinate`** and **`Y_Coordinate`** are not "None".
+
+```{r}
+dengue_tainan_fever<-subset(dengue_tainan_fever, X_Coordinate!="None" & Y_Coordinate!="None")
+```
+
+Now that we have cleaned the dataset and removed `NULL` values, we will proceed to convert this to a `sf` object called `dengue_tainan_fever.sf` using column values from `X_Coordinate` and `Y_Coordinate` .
+
+```{r}
 dengue_tainan_fever.sf <- st_as_sf(dengue_tainan_fever,
-                            coords = c("最小統計區中心點X", "最小統計區中心點Y"))
+                            coords = c("X_Coordinate", "Y_Coordinate"))
 dengue_tainan_fever.sf
 ```
+
+The resulting `dengue_tainan_fever.sf` object is a simple feature with POINT geometry. It is also noted that the `CRS` information is absent in this `sf` object. Hence, we will assign the relevant CRS value for Taiwan, which is [ESPG:3824](https://epsg.io/3824).
 
 ```{r}
 dengue_tainan_fever.sf <- st_set_crs(dengue_tainan_fever.sf,3824)
 ```
 
+Now that we have assigned the correct CRS value for `dengue_tainan_fever.sf`, we will try to plot the points from `dengue_tainan_fever.sf` to ensure all the points are contained within the boundaries of `study_area_sf` object.
+
 ```{r}
-tmap_mode('view')
+tmap_mode('plot')
+tm_shape(study_area_sf)+
+  tm_fill("TOWNENG", 
+          palette = c("#57bfc0","#7977f3", "#ce77b4","#f67774","#f89974", "#f8d673","#f9f777"),
+          title = "Township Name") +
+  tm_borders(col = "white")+
 tm_shape(dengue_tainan_fever.sf)+
   tm_dots()
 ```
 
-### Creating Spacetime Cubes
+## 5.8 Calculating Overall Number of Cases for Each Village
 
-sfdep introduces a new s3 class to represent spatio-temporal data. The `spacetime` class links a flat data set containing spatio-temporal information with the related geometry. The spacetime class is informed by the [spacetime](https://github.com/edzer/spacetime) package by Edzer Pebesma (2012), and the interface is inspired by the design of [tidygraph](https://tidygraph.data-imaginist.com/).
+In previous sections, we have created and processed two data layers `study_area_sf` (which contains polygons representing each village in our study area) and `dengue_tainan_fever.sf` (which contains points representing recorded cases of dengue fever within our study area). Now, we will calculate the number for cases for each village. To achieve this, we will use `st_intersects()` and `lengths()` functions from the **`sf`** package.
+
+-   **Identify Intersecting Points**: We will use the **`st_intersects()`** function to identify which points from **`dengue_tainan_fever.sf`** intersect with each village polygon in **`study_area_sf`**.
+
+-   **Calculate Case Counts**: Next, we will use the **`lengths()`** function to count the number of intersecting points (i.e., dengue fever cases) within each village polygon.
+
+-   **Record Results**: Finally, we will record these counts in a new column, **`CASE_COUNT`**, in the **`study_area_sf`** data frame.
+
+```{r}
+(study_area_sf$CASE_COUNT <- lengths(st_intersects(study_area_sf, dengue_tainan_fever.sf)))
+```
+
+## 5.9 Creating Spacetime Cubes
+
+sfdep introduces a new s3 class called [`spacetime`](https://github.com/edzer/spacetime) by Edzer Pebesma (2012) to represent spatio-temporal data. The `spacetime` class links a flat data set containing spatio-temporal information with the related geometry. As **`spacetime`** class can encapsulate both the spatial and temporal aspects of data, it is suitable for spatio-temporal analysis.
+
+There are four important data required to create the `spacetime` object:
+
+-   **data**: a `data.frame` object
+
+-   **geometry**: an `sf` object
+
+-   **location identifier**: a common column between data and geometry
+
+-   **time**: a column in data that includes temporal information.
+
+Before creating a `spacetime` object, we need to carry out data wrangling to prepare the requred data. The data object will ideally include the number of dengue fever cases by village and by epidemiology week. To prepare the data, we will carry out the following steps:
+
+-   **Initialize vectors** : We will initializes four empty vectors to store the epidemiology week **`epi_week_vector`**, village code **`village_code_vector`**, village name **`village_name_vector`**, and number of cases **`num_cases`**.
+
+-   **Loop over epidemiology weeks:** We will create a loop ver each epidemiology week from 31 to 50. We will create a new variable `epi_week` to represent the epidemiology week in each iteration.
+
+-   **Filter points for the current week**: For each epidemiology week `epi_week`, we will filter the **`dengue_tainan_fever.sf`** data frame to include only the points (i.e., cases) that occurred during the current week. The filtered points will be temporarily stored in a temporary data frame called `dengue_tainan_fever_epiwk`.
+
+-   **Loop over polygons (villages)**: Under each iteration of epideiology week, we will loop over each polygon (i.e., village) in the **`study_area_sf`** spatial data frame. For each polygon, we will extract the polygon itself, `VILLCODE` value and `VILLENG` values, and store them in temporary variables - **`village`**, **`village_code`**, and **`village_name`**.
+
+-   **Find intersecting points**: We will find the points from **`dengue_tainan_fever_epiwk`** that intersect with the current polygon using `st_intersects()` and `lengths()` functions. The number of intersecting points is the number of dengue fever cases in the current village for the current week. We will store the result in a temporary variable called `fever_count`.
+
+-   **Store the results**: We will then append the values of four temporary variables each representing epidemiology week `epi_week`, village code `village_code`, village name `village_name`, and number of cases to their respective vectors `fever_count` into four empty vectors that we initialised earlier.
+
+-   **Create a data frame**: After looping over all epidemiology weeks and polygons, the script creates a data frame **`st_data`** from the four vectors.
+
+-   **Set column names**: Finally, we will update the column names of the **`st_data`** data frame to match with the nomenclature of `study_area_sf` object.
+
+```{r}
+#| eval: false
+# Initialize an empty list to store the results
+# Initialize an empty list to store the results
+epi_week_vector <- c()
+village_code_vector <- c()
+village_name_vector <- c()
+town_name_vector <- c()
+village_vector <- c()
+num_cases <- c()
+
+# Loop over each epidemiology week
+for(epi_week in 31:50) {
+  # Filter the points for the current week
+  dengue_tainan_fever_epiwk <- dengue_tainan_fever.sf %>% 
+    filter(Epidemiol_Week == epi_week)
+  
+  # Calculate the number of points in each polygon
+  for(i in 1:nrow(study_area_sf)) {
+    # Get the current polygon
+    village <- study_area_sf[i, ]
+    village_code <- village$VILLCODE
+    village_name <- village$VILLENG
+    town_name <- village$TOWNENG
+    village_geometry <- village$geometry
+    # Find the points that intersect with the current polygon
+    fever_count <- lengths(st_intersects(village, dengue_tainan_fever_epiwk))
+    
+    # Store the results
+    epi_week_vector <- append(epi_week_vector, as.double(epi_week))
+    village_code_vector <- append(village_code_vector, village_code)
+    village_name_vector <- append(village_name_vector,village_name)
+    town_name_vector <- append(town_name_vector,town_name)
+    village_vector <- append(village_vector,village_geometry)
+    num_cases <- append(num_cases, as.double(fever_count))
+  }
+}
+
+#Create a data frame
+st_data <- data.frame(epi_week_vector,village_code_vector,village_name_vector,town_name_vector,num_cases, village_vector)
+
+colnames(st_data) <- c("Epidemiol_Week", "VILLCODE","VILLENG","TOWNENG","CASE_COUNT", "geometry")
+```
+
+```{r}
+#| echo: false
+st_data <- read_rds("~/IS415-GAA/data/rds/st_data.rds")
+```
+
+Before we create spacetime cube, we will first save the dataframe into an sf object called `st_data.sf` using `st_as_sf()`. This data will capture the both geometry and case count per epidemiology week for all villages in our study and will be used later for visualisation purpose.
+
+```{r}
+st_data.sf <- st_as_sf(st_data)
+```
+
+After creating `st_data.sf`, we will drop the geometry of `st_data` object as we do not need for creating spacetime cube. To do so, we will use `select()` function to select only first 4 columns - `Epidemiol_Week`, `VILLCODE`, `VILLENG` and `CASE_COUNT`. Then, we will sort the `st_data` by `VILLCODE`.
+
+```{r}
+st_data <- st_data %>% select(c(1:4))
+st_data <- st_data[order(st_data$VILLCODE),]
+```
+
+Lastly, we will convert `st_data` into a `tibble` data.frame object. To do so, we will use `as_tibble()` function.
+
+```{r}
+st_data <- as_tibble(st_data)
+```
+
+With all the necessary data prepared, we can now create a **`spacetime`** object called `dengue_tanan_spt` using the **`spacetime`** function, using the following data:
+
+-   **data**: `st_data`
+
+-   **geometry**: `study_area_sf`
+
+-   **location identifier**: `VILLCODE` (from `st_data` and `study_area_sf`)
+
+-   **time** **column**: `Epidemiol_Week` (from `st_data`)
+
+```{r}
+dengue_tainan_spt <- spacetime(st_data, study_area_sf,
+                                     .loc_col = "VILLCODE",
+                                     .time_col = "Epidemiol_Week",
+                               active = "data")
+```
+
+A spacetime object is known as a **spacetime cube** if every location has a value for every time index. In other words, each location is associated with a regular time-series. Spacetime cubes are particularly useful in the analysis of emerging hot spots because they allow for the comprehensive tracking of changes over both space and time.
+
+![](images/GUID-42A31756-6518-41E9-A900-2C892AF4023A-web.png){fig-align="center" width="468"}
+
+We will use [`is_spacetime_cube()`](https://sfdep.josiahparry.com/reference/is_spacetime_cube) function to check if our newly created `dengue_tainan_spt` object is a spacetime cube or not.
+
+```{r}
+is_spacetime_cube(dengue_tainan_spt)
+```
+
+## 5.10 Creating Village-Level Dengue Distribution Maps
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+
+study_area_count <- tm_shape(study_area_sf)+
+  tm_fill("CASE_COUNT", 
+          palette = c("#f3f3f3","#b7dce9", "#c9e3d2","#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Dengue Cases",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Villege-Level Distribution of Dengue Cases \n from Epidemiology Week 31-50 in Study Area (Tinan City)",
+            main.title.position = "center",
+            main.title.size = 1.8,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+study_area_count
+```
+
+## 5.11 Creating Time-Series Animated Map
+
+```{r}
+st_data.sf <- st_data.sf %>% mutate(
+  Epidemiol_Week_Label = paste("Epidemiology Week", as.character(Epidemiol_Week)))
+```
+
+[`tmap_animation`](https://search.r-project.org/CRAN/refmans/tmap/html/tmap_animation.html)
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+#| eval: false
+
+temporal_maps <- tm_shape(st_data.sf)+
+  tm_fill("CASE_COUNT", 
+          palette = c("#f3f3f3","#b7dce9","#e1ecbb", "#f8d887","#ec9a64","#d21b1c"),
+          title = "Dengue Cases")+
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(legend.title.size = 1.8,
+            legend.text.size = 1.5)+
+  tm_facets(along = "Epidemiol_Week_Label", free.coords = FALSE)+
+
+tmap_animation(temporal_maps, filename = "dengue_tainan_temporal.gif", delay = 150, width = 1000, height = 1200)
+```
+
+```{r}
+knitr::include_graphics("dengue_tainan_temporal.gif")
+```
+
+# 6.0 Global Measures of Spatial Autocorrelation
+
+The second law of geography states that there is widespread spatial heterogeneity in the relationship between given geospatial variables, namely spatial non-stationarity.
+
+## 6.1 Defining Contiguity Neighbours
+
+Spatial relationships are multidirectional and multilateral. To systematically transcribe the complexity of a geographic space into a final set of data analysable by a computer, first the study zone is divided into mutually exclusive areas. Each area contains a reference point (often its centroid). Then, the spatial relationships can be specified by **a neighbourhood graph** connecting the areas considered to be neighbouring, or by **a matrix** containing the geographical coordinates of the reference points. The third step consists in coding the graph in a neighbourhood matrix or transforming the geographic coordinates into a **distance matrix**.
+
+![](images/Screenshot%202024-02-26%20at%205.04.41%20PM.png){fig-align="center" width="300"}
+
+There are multiple approaches in defining spatial neighbors. Some of the most commonly used approaches include a) **adjacency measure** where neighbourhood graphs are constructed by materialising the links between different points which are immediately adjacent to each other; and b) **distance measure** where neighbours are selected based on $k$-closet points adjacent to a spatial unit.
+
+Anselin discussed a new approach in identifying spatial neighbours called **contiguity Measure** (Anselin, 2020). Neighbors based on contiguity are constructed by assuming that neighbours of a given area are other areas that share a common boundary. Operationally, we can further distinguish between a rook, a queen and a bishop criterion of contiguity as described below.
+
+![](images/download%20(6).png){fig-align="center" width="504"}
+
+-   **Rook criterion** (Common Edge) defines neighbours by the existence of a common edge between two spatial units.
+
+-   **Bishop criterion** (Common Vertex) defines neighbours by the existence of a common vertex between two spatial units.
+
+-   **Queen criterion** (Either Common Edge or Vertext)defines neighbours as spatial units sharing a common edge or a common vertex. Therefore, the number of neighbours according to the queen criterion will always be at least as large as for the rook or bishop criterion. 
+
+## 6.2 Computing Contiguity Neighbours
+
+We will use [`st_contiguity()`](https://rdrr.io/cran/sfdep/man/st_contiguity.html) function from `sfdep` package to compute contiguity weight matrices for the study area. This function builds a neighbours list based on regions with contiguous boundaries. However, this function only support rook and queen's criterion. For this study, we will use queen criteria to calculate our neighbour list.
+
+```{r}
+tainan_nb_q <- st_contiguity(study_area_sf, queen=TRUE)
+summary(tainan_nb_q)
+```
+
+## 6.3 Computing Row-Standardised Weight Matrix
+
+Next, we need to assign spatial weights to each neighboring polygon.
+
+[`st_weights()`](https://rdrr.io/cran/sfdep/man/st_weights.html) function from `sfdep` pacakge can be used to supplement a neighbour list with spatial weights based on the chosen coding scheme. There are as least 5 different coding scheme styles supported by this function:
+
+-   `B` is the basic binary coding
+
+-   `W` is row standardised (sums over all links to n)
+
+-   `C` is globally standardised (sums over all links to n)
+
+-   `U` is equal to C divided by the number of neighbours (sums over all links to unity)
+
+-   `S` is the variance-stabilizing coding scheme proposed by Tiefelsdorf et al. (1999) (sums over all links to n).
+
+In this study, we will use row-standardised weight matrix (style=`"W"`). Row standardisation of a matrix ensure that the sum of the values across each row add up to 1. This is accomplished by assigning the fraction 1/(# of neighbors) to each neighboring county then summing the weighted income values. Row standardisation ensures that all weights are between 0 and 1. This facilities the interpretation of operation with the weights matrix as an averaging of neighboring values, and allows for the spatial parameter used in our analyses to be comparable between models.
+
+```{r}
+tainan_wm_rs <- st_weights(tainan_nb_q, style="W")
+```
+
+We will mutate the newly created neighbour list object `tainan_nb_q` and weight matrix `tainan_wm_rs` into our existing `study_area_sf`. The result will be a new object, which we will call `dengue_wm_q`.
+
+```{r}
+wm_q <- study_area_sf %>%
+  mutate(nb = tainan_nb_q,
+         wt = tainan_wm_rs,
+         .before = 1) 
+```
+
+## 6.4 Global Moran's $I$
+
+### 6.4.1 Computing Global Moran's $I$
+
+Moran's $I$ is the correlation coefficient for the relationship between a variable and its neighbouring values. Moran's $I$ describes how features differ from the values in the study area as a whole and quantifies how similar each region is with its neighbors and averages all these assessments. Moran's $I$ values usually range from --1 to 1. We can test spatial autocorrelation by following these hypotheses:
+
+-   **Null Hypothesis** $H_0:I=E[I]$. This suggests there is no spatial autocorrelation.
+
+-   **Alternative Hypothesis** $H_1:I≠E[I]$. This indicates the presence of spatial autocorrelation.
+
+```{r}
+moranI <- global_moran(wm_q$CASE_COUNT,
+                        wm_q$nb,
+                        wm_q$wt)
+```
+
+### 6.4.2 Global Moran's $I$ test
+
+The Global Moran's I test, which can be implemented using the `moran.test()` function from the `spdep` package, is a method for testing spatial autocorrelation. The primary goal of this test is to determine whether the spatial autocorrelation is positive, negative, or non-existent. The hypotheses for this test are as follows:
+
+-   **Null Hypothesis** $H_0:I≤E[I]$. This suggests that there is either no spatial autocorrelation ( $I=E[I]$). or negative spatial autocorrelation ( $I<E[I]$).
+
+-   **Alternative Hypothesis** $H_1:I>E[I]$. This indicates the presence of positive spatial autocorrelation.
+
+We will set `alternative = "greater"` based on our alternative hypothesis.
+
+```{r}
+global_moran_test(wm_q$CASE_COUNT,
+                  wm_q$nb,
+                  wm_q$wt,
+                  alternative = "greater")
+```
+
+::: callout-tip
+From the output above, we can draw the following statistical inferences:
+
+-   The Moran's I statistic is **0.468214327**, which is significantly different from the expectation under the null hypothesis of **-0.003891051**. This suggests that there is a significant spatial autocorrelation in the data.
+
+-   The standard deviate of the Moran's I statistic is **-0.003891051**. This is the variance of the Moran's I statistic.
+
+-   The p-value is **\<2.2e-16**, which is less than 0.05, indicating that the spatial pattern observed is very unlikely to be the result of random chance. Therefore, we reject the null hypothesis of no spatial autocorrelation.
+
+In conclusion, the test suggests that there is significant positive spatial autocorrelation in our study area. This means that areas with similar values of **`CASE_COUNT`** are more likely to be located near each other than would be expected if the data were randomly distributed.
+:::
+
+### 6.4.3 Performing Global Moran's $I$ permutation test
+
+The assumptions underlying the test are sensitive to the form of the graph of neighbour relationships and other factors, and results may be checked against those of Monte Carlo permutations. Monte Carlo randomization creates random patterns by reassigning the observed values among the areas and calculates the Moran's $I$ for each of the patterns (Moraga, 2023).
+
+We will use [`global_moran_perm()`](https://rdrr.io/github/JosiahParry/sfdep/man/global_moran_perm.html) function from **sfdep** package with `nsim = 999` which represent 1000 Monte Carlo simulations to be carried out.
+
+```{r}
+set.seed(1234)
+gmoranMC <- global_moran_perm(wm_q$CASE_COUNT,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim = 999)
+```
+
+```{r}
+hist(gmoranMC$res, main="Histogram of Global Moran's I Monte-Carlo Simulation Results", xlab="Monte-Carlo Results", ylab="Frequency")
+
+abline(v = gmoranMC$statistic, col = "red")
+```
+
+## 6.5 Global Geary's $C$
+
+Moran's $I$ is the correlation coefficient for the relationship between a variable and its neighbouring values. Moran's $I$ describes how features differ from the values in the study area as a whole and quantifies how similar each region is with its neighbors and averages all these assessments. Moran's $I$ values usually range from --1 to 1. We can test spatial autocorrelation by following these hypotheses:
+
+### 6.4.2 Global Geary's $C$ test
+
+The Global Moran's I test, which can be implemented using the `moran.test()` function from the `sfdep` package, is a method for testing spatial autocorrelation. The primary goal of this test is to determine whether the spatial autocorrelation is positive, negative, or non-existent. The hypotheses for this test are as follows:
+
+-   **Null Hypothesis** $H_0:I≤E[I]$. This suggests that there is either no spatial autocorrelation ( $I=E[I]$). or negative spatial autocorrelation ( $I<E[I]$).
+
+-   **Alternative Hypothesis** $H_1:I>E[I]$. This indicates the presence of positive spatial autocorrelation.
+
+We will set `alternative = "greater"` based on our alternative hypothesis.
+
+```{r}
+global_c_test(wm_q$CASE_COUNT,
+                  wm_q$nb,
+                  wm_q$wt,
+                  alternative = "greater")
+```
+
+::: callout-tip
+From the output above, we can draw the following statistical inferences:
+
+-   The Moran's I statistic is **0.468214327**, which is significantly different from the expectation under the null hypothesis of **-0.003891051**. This suggests that there is a significant spatial autocorrelation in the data.
+
+-   The standard deviate of the Moran's I statistic is **-0.003891051**. This is the variance of the Moran's I statistic.
+
+-   The p-value is **\<2.2e-16**, which is less than 0.05, indicating that the spatial pattern observed is very unlikely to be the result of random chance. Therefore, we reject the null hypothesis of no spatial autocorrelation.
+
+In conclusion, the test suggests that there is significant positive spatial autocorrelation in our study area. This means that areas with similar values of **`CASE_COUNT`** are more likely to be located near each other than would be expected if the data were randomly distributed.
+:::
+
+### 6.4.3 Performing Global Geary's $C$ Permutation Test
+
+The assumptions underlying the test are sensitive to the form of the graph of neighbour relationships and other factors, and results may be checked against those of Monte Carlo permutations. Monte Carlo randomization creates random patterns by reassigning the observed values among the areas and calculates the Moran's $I$ for each of the patterns (Moraga, 2023).
+
+We will use [`global_moran_perm()`](https://rdrr.io/github/JosiahParry/sfdep/man/global_moran_perm.html) function from **sfdep** package with `nsim = 999` which represent 100 Monte Carlo simulations to be carried out.
+
+```{r}
+set.seed(1234)
+bperm <- global_c_perm(wm_q$CASE_COUNT,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim = 999)
+bperm
+```
+
+```{r}
+hist(bperm$res, main="Histogram of Global Geary's C Monte-Carlo Simulation Results", xlab="Monte-Carlo Results", ylab="Frequency")
+
+abline(v = bperm$statistic, col = "red")
+```
+
+# 7.0 Local Spatial Autocorrelation
+
+Global indices of spatial autocorrelation such as Global Moran's $I$ identify whether there is spatial clustering in a variable's values across the whole study region, but they do not indicate where clusters are located. To determine the location and magnitude of spatial autocorrelation, we have to use local indices instead. Local Indicators of Spatial Association (LISA) ([Anselin 1995](https://www.paulamoraga.com/book-spatial/references.html#ref-anselin95)) are designed to provide an indication of the extent of significant spatial clustering of similar values around each observation.
+
+In this section, we will analyse the local spatial autocorrelation using different LISA indicators, especially Local Moran's $I_i$ and LISA classifications to detect cluster and outlier of dengue fever cases within our study area.
+
+## 7.1 Local Moran's $I_i$
+
+We can decompose Global Moran's $I_i$ that we calculate in previous section into a *localized* measure of autocorrelation, called **Local Moran's** $I_i$. To compute Local Moran's $I_i$, the `local_moran()` function of **sfdep** will be used.
+
+```{r}
+lisa <- wm_q %>% 
+  mutate(local_moran = local_moran(
+    CASE_COUNT, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa
+```
+
+The output of `local_moran()` is a sf data.frame containing the columns `ii`, `eii`, `var_ii`, `z_ii`, `p_ii`, `p_ii_sim`, and `p_folded_sim`.
+
+-   `ii`: local moran statistic
+
+-   `eii`: expectation of local moran statistic; for localmoran_permthe permutation sample means
+
+-   `var_ii`: variance of local moran statistic; for localmoran_permthe permutation sample standard deviations
+
+-   `z_ii`: standard deviate of local moran statistic; for localmoran_perm based on permutation sample means and standard deviations
+
+-   `p_ii`: p-value of local moran statistic using pnorm(); for localmoran_perm using standard deviatse based on permutation sample means and standard deviations
+
+-   `p_ii_sim`: For `localmoran_perm()`, `rank()` and `punif()` of observed statistic rank for \[0, 1\] p-values using `alternative=`
+
+-   `p_folded_sim`: the simulation folded \[0, 0.5\] range ranked p-value (based on https://github.com/pysal/esda/blob/4a63e0b5df1e754b17b5f1205b cadcbecc5e061/esda/crand.py#L211-L213)
+
+### 7.1.1 Visualising Local Moran's $I_i$
+
+The best approach to describe and explain Local Moran's $I_i$ values is tthrough visualization on a map. In this section, we will employ relevant `tmap` functions to visualize the Local Moran's $I_i$ values across the study area.
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tm_shape(lisa)+
+  tm_fill("ii", 
+          palette = c("#b7dce9","#e1ecbb","#f5f3a6",
+                      "#f8d887","#ec9a64","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in Study Area (Tinan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+```
+
+::: {.callout-tip title="Analysis & Discussion"}
+The local spatial autocorrelation (Moran's I test) results in a total of 6 different zones with varying level of Moran's I values.
+
+-   **Blue Zone** : Villages in blue zone of the map has local Moran's I values ranging from -1 to 0. This may suggests that these villages tend to be outliers which has dissimilar values compared to neighbouring villages.
+
+-   **Green & Yellow, Light Orange, Dark Orange and Red Zones**: Villages in these zones of the map has local Moran's I values ranging from 1 to 5. This may suggest that these villages tend to be spatial clusters which has similar values compared to neighbouring villages.
+
+Looking at the distribution histogram, the majority of the villages fall within Green Zone, followed by Blue Zone and Yellow Zone. The number of villages within Light Orange, Dark Orange and Red Zones is significantly smaller.
+
+Overall, the spatial autocorrelation map reveals a concentration of dengue cases in the central region of the study area, as indicated by the relatively high Local Moran's I values. This pattern suggests that the central region of our study area is a high-risk zone for dengue. However, a comprehensive understanding of this pattern requires an analysis of the statistical significance associated with each Local Moran's I value. Without this, our interpretation of the spatial distribution and clustering of dengue cases remains incomplete.
+:::
+
+### 7.1.2 Visualising Local Moran's $I_i$ p-value
+
+As mentioned in the analysis section above, we will need to examine the Local Moran's $I_i$ value alongside their corresponding p-values. Following a similar approach, we will use relevant `tmap` functions to visualise p-values associated wtih Local Moran's $I_i$ values across the study area.
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tm_shape(lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#b7dce9","#c9e3d2","#f5f3a6","#ec9a64","#d21b1c"),
+          title = "p-value",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in Study Area (Tinan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+```
+
+### 7.1.3 Visualising Statistically Significant Local Spatial Autocorrelation Map
+
+From the p-value map above, it appears that not every village exhibits a statistically significant Local Moran's $I_i$ value (i.e., *p-value* \< 0.05). Consequently, our analysis will focus solely on villages with statistically significant local Moran's $I_i$ values. To achieve this, we will filter out all local Moran's $I_i$ values with a *p-value* greater than 0.05. Subsequently, we will use relevant `tmap` functions to create a statistically significant local spatial autocorrelation map for our study area.
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+lisa_sig <- lisa  %>%
+  filter(p_ii_sim < 0.05) %>% mutate(label = paste(VILLENG,TOWNENG))
+
+tm_shape(lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#b7dce9","#e1ecbb","#f5f3a6",
+                      "#f8d887","#ec9a64","#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Village-Level Spatial Autocorrelation Map \n of Dengue Cases in Study Area (Tinan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#b7dce9","#e1ecbb","#f5f3a6",
+                      "#f8d887","#ec9a64","#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+
+tmap_mode("plot")
+```
+
+::: {.callout-tip title="Analysis & Discussion"}
+The local spatial autocorrelation (Moran's I test) results after the exclusion of statistically significant Moran's I values in a total of 6 different zones with varying levels of Moran's I values.
+
+-   **Blue Zone** : Villages in blue zone of the map has local Moran's I values ranging from -1 to 0. This may suggests that these villages tend to be outliers which has dissimilar values compared to neighbouring villages.
+
+-   **Green & Yellow, Light Orange, Dark Orange and Red Zones**: Villages in these zones of the map has local Moran's I values ranging from 1 to 5. This may suggest that these villages tend to be spatial clusters which has similar values compared to neighbouring villages.
+
+Looking at the distribution histogram, the majority of the villages fall within **Green Zone**, followed by **Yellow Zone**. The number of villages within **Blue, Light Orange, Dark Orange** and **Red Zones** is comparatively smaller.
+
+In our previous analysis, we hypothesized that the central part of our study area is a high-risk zone for dengue, given the concentration of elevated Moran's I values. However, after the exclusion of statistically significant Moran's I values, it turns out that majority of Moran's I values in this central region lack statistical significance. Hence, we cannot conclude that the central part of our study area is a high-risk zone, based on statistical evidence.
+
+**Contrasting Moran's I Values Within Close Proximity?**
+
+Interestingly, it is observed that one village falls into **Red Zone (4\~5)** and shows highest Moran's I values (4.9070), signifying a single, significant spatial cluster. Adjacent to this, on the right, a total of four villages seems to fall under **Blue Zone (-1\~0)** and have negative Moran's I values, indicating spatial outliers. Such a contrast in spatial autocorrelation within close proximity suggests the presence of localized factors influencing the transmission of dengue case. Further investigation into these specific villages may provide insights into the underlying reasons for such a contrasting result.
+:::
+
+### 7.1.4 Visualising Statistically Significant Local Spatial Autocorrelation Map for Each Township
+
+In our previous section, we have prepared and conducted analysis of local spatial autocorrelation across the entire study area. In this section, we will further refine our analysis by segmenting the results according to each district/township. This will allow us to delve into a more detailed examination of the spatial patterns and correlations within each individual district.
+
+Firstly, we will filter `study_area_sf`, `lisa` and `lisa_sig` objects to each districts within our study area. Following this, we will generate Local Moran's I maps for each district. These maps will serve as the basis for our subsequent discussions and analyses of the findings.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+annan <- study_area_sf %>% filter(TOWNENG == "Annan District")
+rende <- study_area_sf %>% filter(TOWNENG == "Rende District")
+yongkang <- study_area_sf %>% filter(TOWNENG == "Yongkang District")
+anping<- study_area_sf %>% filter(TOWNENG == "Anping District")
+westcentral <- study_area_sf %>% filter(TOWNENG == "West Central District")
+south <- study_area_sf %>% filter(TOWNENG == "South District")
+east <- study_area_sf %>% filter(TOWNENG == "East District")
+north <- study_area_sf %>% filter(TOWNENG == "North District")
+
+
+annan_lisa <- lisa %>% filter(TOWNENG == "Annan District")
+rende_lisa <- lisa %>% filter(TOWNENG == "Rende District")
+yongkang_lisa <- lisa %>% filter(TOWNENG == "Yongkang District")
+anping_lisa <- lisa %>% filter(TOWNENG == "Anping District")
+westcentral_lisa <- lisa %>% filter(TOWNENG == "West Central District")
+south_lisa <- lisa %>% filter(TOWNENG == "South District")
+east_lisa <- lisa %>% filter(TOWNENG == "East District")
+north_lisa <- lisa %>% filter(TOWNENG == "North District")
+
+annan_lisa_sig <- lisa_sig %>% filter(TOWNENG == "Annan District")
+rende_lisa_sig <- lisa_sig %>% filter(TOWNENG == "Rende District")
+yongkang_lisa_sig <- lisa_sig %>% filter(TOWNENG == "Yongkang District")
+anping_lisa_sig <- lisa_sig %>% filter(TOWNENG == "Anping District")
+westcentral_lisa_sig <- lisa_sig %>% filter(TOWNENG == "West Central District")
+south_lisa_sig <- lisa_sig %>% filter(TOWNENG == "South District")
+east_lisa_sig <- lisa_sig %>% filter(TOWNENG == "East District")
+north_lisa_sig <- lisa_sig %>% filter(TOWNENG == "North District")
+
+```
+
+::: panel-tabset
+## Annan District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+annan_local <- tm_shape(annan_lisa)+
+  tm_fill("ii", 
+          palette = c("#e1ecbb","#f5f3a6",
+                      "#f8d887","#ec9a64","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in Annan District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+annan_sig <- tm_shape(annan_lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#d21b1c","#ec9a64","#f5f3a6","#c9e3d2","#b7dce9"),
+          title = "p-value",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in Annan District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(annan_local,annan_sig, asp=1, ncol=2)
+
+```
+
+### Local Moran's I Interactive Map for Annan District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(annan_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(annan_lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#e1ecbb","#f5f3a6",
+                      "#f8d887","#ec9a64","#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+The single, significant spatial cluster that we identified in previous analysis is revealed to be Xiqi Village of Annan District. Apart from this, the Annan District does not exhibit any spatial outliers, as all villages with statistically significant Local Moran's I values display positive values. This suggests a consistent pattern of dengue cases within these villages. There is a comparable number of villages that fall within the Green (0\~1), Yellow (1\~2), and Light Orange (2\~3) Zones, each representing varying degrees of positive spatial autocorrelation. Notably, no villages were observed in the Dark Orange Zone (3\~4).
+
+## Rende District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")
+rende_local <- tm_shape(rende_lisa)+
+  tm_fill("ii", 
+          palette = c("#b7dce9", "#c9e3d2","#f5f3a6","#ec9a64","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in Rende District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+rende_sig <- tm_shape(rende_lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#d21b1c","#ec9a64","#f5f3a6","#c9e3d2","#b7dce9"),
+          title = "p-value",
+          midpoint = 0.5) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in Rende District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(rende_local,rende_sig, asp=1, ncol=2)
+
+```
+
+### Local Moran's I Interactive Map for Rende District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(rende_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(rende_lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#e1ecbb","#f5f3a6",
+                      "#f8d887"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+The Rende District displays a total of three spatial clusters, all exhibiting Local Moran's I values that range from 0 to 1. This range suggests a moderate level of spatial autocorrelation, indicating that the distribution of dengue cases in this district is less clustered and not as strong as in other districts.
+
+## Yongkang District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")
+yongkang_local <- tm_shape(yongkang_lisa)+
+  tm_fill("ii", 
+          palette = c("#b7dce9","#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in Yongkang District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+yongkang_sig <- tm_shape(yongkang_lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#d21b1c","#ec9a64","#f5f3a6","#c9e3d2","#b7dce9"),
+          title = "p-value",
+          midpoint = 0.5) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in Yongkang District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(yongkang_local,yongkang_sig, asp=1, ncol=2)
+```
+
+### Local Moran's I Interactive Map for Yongkang District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(yongkang_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(yongkang_lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#b7dce9","#e1ecbb","#f5f3a6",
+                      "#f8d887"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+Yongkang District observes a total of 7 spatial clusters and 3 spatial outliers with varying levels of local Moran's I values, suggesting heterogeneous distribution of dengue cases across the district. This suggests a heterogeneous distribution of dengue cases across the district. **Erwang Village** appears to exhibit the highest spatial autocorrelation with local Moran's I value of 2.254. The rest of the spatial clusters have local Morna's I values ranging between 0.5 and 2, indicating moderate to strong positive spatial autocorrelation. Three spatial ouliers observed in this district are **Wangliao Village**, **Sanhe Village** and **Zhongxing Village**, all exhibiting a negative local Moran's I value between -0.5 to 1. This implies these villages have dissimilar dengue case counts compared to their neighboring villages.
+
+## Anping District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+tmap_mode("plot")
+anping_local <- tm_shape(anping_lisa)+
+  tm_fill("ii", 
+          palette = c("#b7dce9", "#c9e3d2","#e1ecbb","#f5f3a6", "#ec9a64","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in Anping District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+anping_sig <- tm_shape(anping_lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#d21b1c","#ec9a64","#f5f3a6","#c9e3d2","#b7dce9"),
+          n =5,
+          title = "p-value",
+          midpoint = 0.5) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in Anping District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(anping_local,anping_sig, asp=1, ncol=2)
+```
+
+### Analysis & Discussion
+
+In Anping District, no village exhibits a statistically significant Local Moran's I value. This suggests an absence of discernible spatial autocorrelation patterns in the distribution of dengue cases within this district.
+
+## West Central District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+westcentral_local <- tm_shape(westcentral_lisa)+
+  tm_fill("ii", 
+          palette = c("#c9e3d2","#f5f3a6","#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in West Central District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+westcentral_sig <- tm_shape(westcentral_lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#d21b1c","#ec9a64","#f5f3a6","#c9e3d2","#b7dce9"),
+          title = "p-value",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in West Central District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            legend.position = c("LEFT","TOP"),
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(westcentral_local,westcentral_sig, asp=1, ncol=2)
+```
+
+### Analysis & Discussion
+
+In the West Central District, no village exhibits a statistically significant Local Moran's I value. This suggests an absence of discernible spatial autocorrelation patterns in the distribution of dengue cases within this district.
+
+## South District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+tmap_mode("plot")
+south_local <- tm_shape(south_lisa)+
+  tm_fill("ii", 
+          palette = c("#c9e3d2","#f5f3a6","#f8d887","#ec9a64","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in South District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+south_sig <- tm_shape(south_lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#d21b1c","#ec9a64","#f5f3a6","#c9e3d2","#b7dce9"),
+          title = "p-value",
+          midpoint = 0.5) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in South District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(south_local,south_sig, asp=1, ncol=2)
+```
+
+### Local Moran's I Interactive Map for South District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(south_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(south_lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#e1ecbb","#f5f3a6",
+                      "#f8d887","#ec9a64"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+South District did not observe any spatial outliers, but a total of 7 spatial clusters, all exhibiting Local Moran's I values that range from 0 to 4. This range suggests varying degrees of spatial autocorrelation, indicating that the distribution of dengue cases in this district is not uniformly clustered.
+
+**Mingliang Village** appears to exhibit the highest spatial autocorrelation with local Moran's I value of 3.550. The rest of the spatial clusters have local Moran's I values ranging between 0 and 3, indicating small to moderate positive spatial autocorrelation.
+
+## East District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")
+east_local <- tm_shape(east_lisa)+
+  tm_fill("ii", 
+          palette = c("#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA,
+          bin = 4) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in East District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+east_sig <- tm_shape(east_lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#d21b1c","#ec9a64","#f5f3a6","#c9e3d2","#b7dce9"),
+          title = "p-value",
+          midpoint = 0.5) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in East District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(east_local,east_sig, asp=1, ncol=2)
+```
+
+### Local Moran's I Interactive Map for East District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(east_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(east_lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#e1ecbb","#f5f3a6",
+                      "#f8d887"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+Similar to South District, East District did not observe any spatial outliers, but a total of 4 spatial clusters, exhibiting Local Moran's I values that range from 0 to 2.5. **Ziqiang Village** exhibit the highest spatial autocorrelation with local Moran's I value of 2.456. Still, this results is comparatively smaller than the other districts, suggesting a moderate spatial autocorrelation pattern across the district.
+
+## North District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")
+north_local <- tm_shape(north_lisa)+
+  tm_fill("ii", 
+          palette = c("#e1ecbb","#f5f3a6", "#ec9a64","#de573e","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level Spatial Autocorrelation \nof Dengue Cases in North District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+north_sig <- tm_shape(north_lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#d21b1c","#ec9a64","#f5f3a6","#c9e3d2","#b7dce9"),
+          n =5,
+          title = "p-value",
+          midpoint = 0.5) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\n of Dengue Cases in North District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(north_local,north_sig, asp=1, ncol=2)
+```
+
+### Interactive Map for North District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(north_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(north_lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#b7dce9","#e1ecbb"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+North District observed one spatial outlier - **Huade Village** with local Moran's I value of -0.397 and one spatial cluster - **Wenyuan Village** with local Moran's I value of 0.318. While both villages shows statistically significant autocorrelation effect, the degree of autocorrelation is significantly small compared to paterns observed in other districts.
+:::
+
+## 7.2 LISA Classification
+
+The local indicator of spatial association (LISA) for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation. In general, the analysis will calculate a local statistic value, a z-score, a pseudo p-value, and a code representing the cluster type for each statistically significant feature. LISA map is a categorical map showing type of outliers and clusters. There are two types of outliers namely: **High-Low** and **Low-High** outliers. Likewise, there are two type of clusters namely: **High-High** and **Low-Low** cluaters.
+
+Specific to our study, we may infer LISA classifications as below.
+
+-   **High-Low Outliers:** Villages with a high value of dengue cases, surrounded by neighbouring villages with low values of dengue cases.
+
+-   **Low-High Outliers**: Villages with a low value of dengue cases, surrounded by neighbouring villages with high values of dengue cases.
+
+-   **High-High Clusters**: Villages with a high value of dengue cases, surrounded by neighbouring villages with high values of dengue cases.
+
+-   **Low-Low Clusters**: Villages with a low value of dengue cases, surrounded by neighbouring villages with low values of dengue cases.
+
+### 7.2.1 Visualising Statistically Significant LISA Map for Study Area
+
+In `lisa` sf data.frame we created when calculating local Moran's $I_i$ , we can find three fields contain the LISA categories. They are `mean`, `median` and `pysal`. We will use `mean` column to visualise LISA classification maps with relevant `tmap` functions.
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")
+study_area_lisa <- tm_shape(lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#e1ecbb", "#d21b1c"),
+          title = "LISA class",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Village-Level LISA Map of Dengue Cases in Study Area (Tinan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.outside = TRUE,
+            legend.outside.position = "right",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+study_area_lisa
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#e1ecbb", "#d21b1c"),
+          title = "LISA class",
+          midpoint = NA,
+          id="label") +
+  tm_borders(col = "black", alpha = 0.6)
+
+tmap_mode("plot")
+```
+
+::: {.callout-tip title="Analysis & Discussion"}
+LISA Classification map for the study area has revealed a total of three LISA classes, each representing different spatial autocorrelation patterns. Low-Low Class has the highest number of villages, followed by High-High Class. Low-High Class has relatively smaller number of villages.
+
+-   **Low-Low Class**: Villages classified into the Low-Low class are primarily situated in the upper and lower periphery of the study area, suggesting a clustering of low dengue cases. Interestingly, there is a single Low-Low class village observed in the central part of the study area, which could be an exception or an indication of a potential transition zone.
+
+-   **High-Low Class**: The absence of any High-Low classification suggests that there are no high-value villages surrounded by low-value villages.
+
+-   **High-High Class**: Villages classified into the High-High class are scattered across the central part of the study area. These villages exhibit similar high values of dengue cases, and are hence "dengue hotspots".
+
+-   **Low-High Class**: All villages classified into the Low-High class are located in the central part of the study area. Interestingly, these villages tend to be in close proximity to villages in the High-High class. These are the villages which has reportedly lower values depsite their neighbouring villages being dengue hotspots. Investigation into these villages may allow for more concrete insights on the underlying causes leading to such spatial outlier - either due to effective vector control measures, or increased immunity of the population living in these villages.
+:::
+
+### 7.2.2 Visualising Statistically Significant LISA Map for Each Township
+
+In our previous section, we have prepared and conducted analysis of LISA classfication across the entire study area. In this section, we will further refine our analysis by segmenting the results according to each district/township. This will allow us to delve into a more detailed examination of the spatial patterns and correlations within each individual district.
+
+Since we already have filtered `study_area_sf`, `lisa` and `lisa_sig` objects to each districts in previous section, we will proceed with visualisations and analysis dicsussion.
+
+::: panel-tabset
+## Annan District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+annan_dengue_map <- tm_shape(annan)+
+  tm_fill("CASE_COUNT", 
+          palette = c("#f3f3f3","#b7dce9", "#c9e3d2","#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Case Count",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Distribution of Dengue Cases in Annan District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+annan_sig_map <- 
+tm_shape(annan_lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(annan_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Village-Level LISA Map\n of Dengue Cases in Annan District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(annan_dengue_map,annan_sig_map, asp=1, ncol=2)
+```
+
+### LISA Interactive Map for Annan District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(annan_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(annan_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+
+tmap_mode("plot")
+```
+
+### Analysis & Discussion
+
+The Annan District presents an intriguing spatial autocorrelation pattern characterized by the co-existence of Low-Low and High-High clusters. This suggests a diverse distribution of dengue cases across the district.
+
+The Northern part of the Annan District predominantly exhibits Low-Low clusters. On the other hand, the Southern part of the Annan District, bordering the North District, displays High-High clusters.
+
+This may suggest that villages in northern part of Annan District might serve as dengue **hotspots** and potentially **transmit** the disease to the villages in Northern part of Annan District which currently have low dengue cases. The movement of people between these villages could potentially facilitate the spread of the disease.
+
+## Rende District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+rende_dengue_map <- tm_shape(rende)+
+  tm_fill("CASE_COUNT", 
+          palette = c("#f3f3f3","#b7dce9", "#c9e3d2","#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Case Count",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Distribution of Dengue Cases in Rende District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+rende_sig_map <- 
+tm_shape(rende_lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(rende_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Village-Level LISA Map\n of Dengue Cases in Rende District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(rende_dengue_map,rende_sig_map, asp=1, ncol=2)
+```
+
+### LISA Interactive Map for Rende District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(rende_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(rende_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+
+tmap_mode("plot")
+```
+
+### Analysis & Discussion
+
+Rende District only observe Low-Low class villages. This result may suggest that while dengue cases are detected in the Rende District, the outbreak is well under control, limiting the rise of any potential High-Low or High-High class villages. This could be due to effective public health interventions, or other underlying factors that limit the breeding grounds for mosquitoes or transmission of the disease.
+
+## Yongkang District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+yongkang_dengue_map <- tm_shape(yongkang)+
+  tm_fill("CASE_COUNT", 
+          palette = c("#f3f3f3","#b7dce9", "#c9e3d2","#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Case Count",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Distribution of Dengue Cases in Yongkang District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+yongkang_sig_map <- 
+tm_shape(yongkang_lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(yongkang_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Village-Level LISA Map\n of Dengue Cases in Yongkang District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(yongkang_dengue_map,yongkang_sig_map, asp=1, ncol=2)
+```
+
+### LISA Interactive Map for Yongkang District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(yongkang_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(yongkang_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+
+tmap_mode("plot")
+```
+
+### Analysis & Discussion
+
+Yongkang District observe a mixture of Low-Low clusters, **Low-High** outliers and **High-High** clusters. Interestingly, all Low-Low class villages are located in the northeast part of Yongkang District. This suggests that these areas have been successful in controlling the spread of dengue.
+
+**Low-High** and **High-High** class are located in close proximity in the western part of Yongkang District. Based on these findings, three **Low-High** class villages observed has high risk of transforming into **High-High** class. This is because they are currently low-value areas surrounded by high-value areas, and the continued spread of dengue could potentially increase their case counts. Given the risk of transformation, these Low-High class villages require proper vector control measures to prevent an increase in dengue cases.
+
+## Anping District
+
+### Analysis & Discussion
+
+No statistically significant LISA classes have been detected in the Anping District. This suggests an absence of discernible spatial autocorrelation patterns in the distribution of dengue cases within this district.
+
+## West Central District
+
+### Analysis & Discussion
+
+No statistically significant LISA classes have been detected in the West Central District. This suggests an absence of discernible spatial autocorrelation patterns in the distribution of dengue cases within this district.
+
+## South District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+south_dengue_map <- tm_shape(south)+
+  tm_fill("CASE_COUNT", 
+          palette = c("#f3f3f3","#b7dce9", "#c9e3d2","#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Case Count",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Distribution of Dengue Cases in South District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+south_sig_map <- 
+tm_shape(south_lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(south_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Village-Level LISA Map\n of Dengue Cases in South District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(south_dengue_map, south_sig_map, asp=1, ncol=2)
+```
+
+### LISA Interactive Map for South District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(south_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(south_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+
+tmap_mode("plot")
+```
+
+### Analysis & Discussion
+
+South District observes the co-existence of both **High-High** class villages and **Low-Low** class villages. Majority of the Low-Low class villages tend to located in the southern part of South District and all High-High class villages are in the northen part. This indicates a significant hotspot of dengue cases in the northern part of the district, while the southern part have been successful in controlling the spread of dengue.
+
+Interestingly, **Xinsheng Village**, which is currently a Low-Low class village, lies in close proximity to the High-High class villages. This suggests that while Xinsheng Village currently has a low number of dengue cases, it is at risk due to its location near high-risk areas. As a result, intervention efforts should indeed be maintained and strengthened to control the spread of dengue cases to this village.
+
+## East District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+east_dengue_map <- tm_shape(east)+
+  tm_fill("CASE_COUNT", 
+          palette = c("#f3f3f3","#b7dce9", "#c9e3d2","#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Case Count",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Distribution of Dengue Cases in East District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+east_sig_map <- 
+tm_shape(east_lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(east_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Village-Level LISA Map\n of Dengue Cases in East District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(east_dengue_map,east_sig_map, asp=1, ncol=2)
+```
+
+### LISA Interactive Map for East District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(east_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(east_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+
+tmap_mode("plot")
+```
+
+### Analysis & Discussion
+
+East District observed a total of 4 **High-High** cluster villages in the southeastern part of the district, bordering Rende District. This suggests a potential risk of dengue spread to neighboring districts like Rende through movement of people or mosquitoes. Given the risk, intervention efforts should indeed be maintained and strengthened in East District.
+
+## North District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+
+north_dengue_map <- tm_shape(north)+
+  tm_fill("CASE_COUNT", 
+          palette = c("#f3f3f3","#b7dce9", "#c9e3d2","#e1ecbb","#f5f3a6", "#f8d887","#ec9a64","#de573e","#d21b1c"),
+          title = "Case Count",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Distribution of Dengue Cases in North District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+north_sig_map <- 
+tm_shape(north_lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(north_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Village-Level LISA Map\n of Dengue Cases in North District",
+            main.title.position = "center",
+            main.title.size = 1.3,
+            main.title.fontface = "bold",
+            legend.title.size = 1,
+            legend.text.size = 0.8,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+tmap_arrange(north_dengue_map,north_sig_map, asp=1, ncol=2)
+```
+
+### LISA Interactive Map for North District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(north_lisa)+
+  tm_polygons(id="label") +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(north_lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#f5f3a6", "#d21b1c"),
+          title = "LISA Class",
+          midpoint = NA,
+          id="label")+
+  tm_borders(col = "black", alpha = 0.6)
+
+tmap_mode("plot")
+```
+
+### Analysis & Discussion
+
+North District observed one High-High cluster and one Low-High outlier right next to each other. The observed High-High cluster is **Wenyuan Village**, and it is neighbouring to other High-High clusters in Annan District. This spatial pattern suggests a potential spread of dengue cases from Annan to North District.
+
+The observed Low-Class outlier, **Huade Village** is also at risk of becoming a dengue hotspot due to its close proximity to numerous **High-High** clusters. Intervention efforts may be strengthened or inter-village movements may be temporarily limited to prevent the village from becoming a hotspot.
+:::
+
+# 8.0 Emerging Hot Spots Analysis (EHSA)
+
+Hot spot and cold spot area analysis is a spatial statistical technique used to identify clusters of high (hot spots) or low (cold spots) values within a geographic dataset.
+
+## 8.1 Local Getis-Ord $G_i^*$ for **Hot Spot and Cold Spot Area Analysis**
+
+Local Getis-Ord $G_i$ and $G_i^∗$ are one of the earliest LISAs. The Gi and Gi\* measures are typically reported as a z-score where high values indicate a high-high cluster, and negative z-scores indicate a low-low cluster. There are no high-low and low-high classifications like the local Moran.
+
+$G_i$ statistic consist of a ratio of the weighted average of the values in the neighbouring locations, to the sum of all values, not including the value at location (\$x_i\$). The $G_i^∗$ statistic includes the focal (or self, or $i^{th}$) observation in the neighbourhood. Spatial weights used in calculating $G_i$ and $G_i^*$ statistics used a distance-based approach - i.e., spatial weights identify locations of statistically significant hot spots and cold spots that are in proximity to one another based on a calculated distance.
+
+In this study, we will To compute local $G_i$ statistic in R, we will use `st_contiguity()` to create a neighbour list, then `include_self()` to include the focal observation in the neighbour list. Then, we use the neighbour list to create a weight list using `st_inverse_distance()` function.
+
+```{r, warning=FALSE, message=FALSE}
+wm_idw <- study_area_sf %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+```
+
+Next, we will calculate local $G_i^∗$ using `local_gstart_perm()` function from **sfdep** package. This function uses a neighbour list `nb` and a weight list `wt` as an input and generate $G_i^∗$ statistics through a Monte Carlo permutation with specified `nsim`. The results will then be stored into a new object called `HCSA`.
+
+```{r}
+HCSA <- wm_idw %>% 
+  mutate(local_Gi_star = local_gstar_perm(
+    CASE_COUNT, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi_star)
+HCSA
+```
+
+Next, we will use relevant `tmap` functions to visualise the result of local $G_i^*$ values for our study area. For visualisation purpose, we will create a new column `label` similar to what we did in Local Moran's I.
+
+```{r}
+HCSA <- HCSA%>%
+  mutate(label = paste(VILLENG,TOWNENG))
+```
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")  
+tm_shape(HCSA)+
+  tm_fill("gi_star", 
+          palette = c("#57bfc0", "#7977f3","#f8d673","#f8b675","#f67774"),
+          title = "Gi*",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = " Hotspots & Coldspots of Dengue Cases in Study Area (Tainan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+Similar to what we have done for LISA, we will only focus on villages with statistically significant Local Getis-Ord $G_i^∗$ values. To achieve this, we will filter out all Local Getis-Ord $G_i^∗$ values with a *p-value* \> 0.05. Subsequently, we will use relevant `tmap` functions to create a statistically significant local spatial autocorrelation map for our study area.
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+HCSA_sig <- HCSA  %>%
+  filter(p_sim < 0.05)
+
+tmap_mode("plot")
+tm_shape(HCSA) +
+  tm_polygons() +
+tm_shape(HCSA_sig)+
+  tm_fill("gi_star", 
+          palette = c("#57bfc0", "#7977f3","#f8d673","#f8b675","#f67774"),
+          title = "Gi*",
+          midpoint = 0,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots \nof Dengue Cases in Study Area (Tainan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(HCSA) +
+  tm_polygons(id="label") +
+tm_shape(HCSA_sig)+
+  tm_fill("gi_star", 
+          palette = c("#57bfc0", "#7977f3","#f8d673","#f8b675","#f67774"),
+          title = "Gi*",
+          midpoint = 0,
+          id="label") +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+::: {.callout-tip title="Analysis & Discussion"}
+The hotspot coldspot map after the exclusion of statistically significant Local Gi\* values result in different coldspot and hotpots with varying levels of Local Gi\* values. The interpretation of the Local Gi\* statistics is very straightforward - a positive value suggests a High-High cluster or hot spot and a negative value indicates a Low-Low cluster or cold spot.
+
+A visual inspection suggests that the majority of the coldspots are situated on the periphery of the study areas, while the hotspots tend to be concentrated in the centre. This observation aligns with the findings from the LISA maps.
+
+![](images/LISA-tainan-01.png){fig-align="center" width="456"}
+:::
+
+Next, we will retrieve three villages with highest local $G_i^∗$ values and lowest local $G_i^∗$ values respectively. These villages will serve as focus areas for Mann-Kendall Trend Test later.
+
+```{r}
+set.seed(123)
+
+three_hotspots <- (head((HCSA_sig[HCSA_sig$gi_star > 4,]), 3)$label)
+three_coldspots <-  (head((HCSA_sig[HCSA_sig$gi_star > -2,]), 3)$label)
+
+three_hotspots
+three_coldspots
+```
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+#| code-fold: true
+#| code-summary: "Show the code"
+
+HCSA_three_hotspots <- HCSA_sig %>% filter(label %in% three_hotspots)
+HCSA_three_coldspots <- HCSA_sig %>% filter(label %in% three_coldspots)
+
+tmap_mode("plot")
+tm_shape(HCSA) +
+  tm_polygons() +
+tm_shape(HCSA_three_hotspots)+
+  tm_fill("gi_star", 
+          palette = c("#f67774")) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_text("label",auto.placement = T)+
+  tm_layout(main.title = "Three Most Significant Hotspots \nof Dengue Cases in Study Area (Tainan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.show = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+
+tm_shape(HCSA) +
+  tm_polygons() +
+tm_shape(HCSA_three_coldspots)+
+  tm_fill("gi_star", 
+          palette = c("#57bfc0")) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_text("label", auto.placement = T)+
+  tm_layout(main.title = "Three Most Significant Coldspots \nof Dengue Cases in Study Area (Tainan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.show = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+::: {.callout-tip title="Analysis & Discussion"}
+Based on the output above, we can draw the following insights
+
+**Highest Local Gi\* Hotspots**: Haidian Village (Annan District), Xiqi Village (Annan District) and Da'an Village (Annan District) are three villages that exhibit highest local Gi\* values and are hence most significant hotspots. Interestingly, all villages are from Annan District. This concentration of hotspots in Annan District suggests a localized outbreak of dengue cases, which warrants immediate attention and intervention.
+
+**Lowest Local Gi\* Coldspots**: Qingcao Village (Annan District), Guo'an Village (Annan District) and Wangliao Village (Yongkang District) are three villages that exhibit lowest local Gi\* values and hence are most significant coldspots. Surprisingly, all villages are from Annan District, similar to hosspots. This concentration of coldspots in Annan District present a stark contrast from what we observed in Hotspots.
+:::
+
+## 8.2 Local Getis-Ord $G_i^*$ for Each Epidemiology Week
+
+In previous section, we calculate local $G_i^*$ values using the overall count of cases for each village. In this section, we are interested to analyse the dynamics of dengue case count over each epidemiology week from 31 to 50. To do so, we will have to calculate the local $G_i^*$ that accounts for both spatial and temporal aspects. To do so, we will make use of the spacetime cube `dengue_tainan_spt` that we created.
+
+```{r, warning=FALSE, message=FALSE}
+dengue_nb <- dengue_tainan_spt %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                  scale = 1,
+                                  alpha = 1),
+         .before = 1) %>%
+    set_nbs("nb") %>%
+    set_wts("wt")
+
+```
+
+```{r}
+head(dengue_nb)
+```
+
+Since we are interested in understanding the spatio-temporal dynamics of dengue cases over each epidemiology week, we will groups the data by the **`Epidemiol_Week`** variable using `group_by()` function. By doing so, subsequent calculation of `gi_star` will be performed separately for each epidemiological week. As a result, `local_gstart_perm()` function will return a list-column fo each epidemiology week, where each element is `gi_star` value for each village in the particular epidemiology week. Hence, we will use `unnest()` function to convert list-column to a regular column.
+
+```{r}
+gi_stars_epiweek <- dengue_nb %>%
+  group_by(Epidemiol_Week) %>%
+  mutate(gi_star = local_gstar_perm(CASE_COUNT, nb, wt)) %>%
+  unnest(gi_star)
+
+head(gi_stars_epiweek)
+```
+
+## 8.3 Mann-Kendall Test for Trends
+
+Next step of our analysis will be Mann-Kendall Trend Test. The Mann-Kendall statistical test for trend is used to assess whether a set of data values is increasing or decreasing over time, and whether the trend in either direction is statistically significant. It is a non-parametric test and compares the relative magnitudes of sample data rather than the data values themselves (Gilbert, 1987).
+
+Mann-Kendall trend test genereate two values - Kendall's Tau `tau` and Kendall Score `S`.
+
+[Kendall's Tau](https://datatab.net/tutorial/kendalls-tau) (τ) is a correlation coefficient and is a measure of the relationship between two variables. The Tau correlation coefficient returns a value of 0 to 1. Kendall's Tau can be calculate by the formula $(C-D/C+D)$ where C is the number of concordant pairs and D is the number of discordant pairs. Kendall's Tau is used to test the following hypotheses.
+
+-   **Null Hypothesis:** the correlation coefficient τ = 0 (There is no correlation.)
+
+-   **Alternative Hypothesis:** the correlation coefficient τ ≠ 0 (There is a correlation.)
+
+Khambhammettu (2005) explained the methodology of Kendall Score `S` as follows. The initial value of the Mann-Kendall statistic, **S**, is assumed to be 0 (e.g., no trend). If a later data point is higher than an earlier one, **S** is incremented. Conversely, if a later data point is lower, **S** is decremented. The final value of **S** indicates the overall trend. A strongly **positive value** of S suggests an **upward trend**, while a deeply **negative value** indicates a **downward trend**. To statistically assess the significance of the trend, the associated p-value is calculated.
+
+To implement Mann-Kendall trend testing in R, `MannKendall()` function from **Kendall** package can be used. In this section, we will run Mann-Kendall Test for three most significant hotspots and three most significant coldspots that we identified in our HCSA analysis.
+
+### 8.3.1 Trend Test of Three Most Significant Hotspots
+
+We will first filter out all $G_i^*$ values for each village.
+
+::: panel-tabset
+## Haidian Village (Annan District)
+
+```{r}
+cbg_hd <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Haidian Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+## Xiqi Village (Annan District)
+
+```{r}
+cbg_xq <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Xiqi Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+## Da'an Village (Annan District)
+
+```{r}
+cbg_da <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Da'an Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+:::
+
+We are now set to visualize the trend of the $G_i^*$ values of three most significant hotspots across epidemiological weeks 31 to 50. To achieve this, we will use relevant `ggplot2` functions to create an interactive plot.
+
+```{r}
+p_hotspots <- ggplot() +
+  geom_line(data = cbg_hd, mapping = aes(x = Epidemiol_Week, y = gi_star, color = "Haidian Village")) +
+  geom_line(data = cbg_xq, mapping = aes(x = Epidemiol_Week, y = gi_star, color = "Xiqi Village")) + 
+  geom_line(data = cbg_da, mapping = aes(x = Epidemiol_Week, y = gi_star, color = "Da'an Village")) +
+  labs(x = "Epi Week", y = "Gi* Value", 
+       title = "Gi* of Three Most Significant Hotspots Over Epidemiology Week 31-50",
+       color = "Village")
+
+plotly::ggplotly(p_hotspots)
+```
+
+We will now calculate the Kendall's tau and Kendall score **S** for each village using `MannKendall()` function from **Kendall** package.
+
+::: panel-tabset
+## Haidian Village (Annan District)
+
+```{r}
+cbg_hd %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+
+## Xiqi Village (Annan District)
+
+```{r}
+cbg_xq %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+
+## Da'an Village (Annan District)
+
+```{r}
+cbg_da %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+:::
+
+### 8.3.2 Trend Test of Three Most Significant Coldspots
+
+We will first filter out all $G_i^*$ values for each village.
+
+::: panel-tabset
+## Qingcao Village (Annan District)
+
+```{r}
+cbg_qc <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Qingcao Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+## Guo'an Village (Annan District)
+
+```{r}
+cbg_ga <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Guo'an Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+## Xuedong Village (Annan District)
+
+```{r}
+cbg_xd <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Xuedong Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+:::
+
+We are now set to visualize the trend of the $G_i^*$ values of three most significant coldspots across epidemiological weeks 31 to 50. To achieve this, we will use relevant `ggplot2` functions to create an interactive plot.
+
+```{r}
+p_coldspots <- ggplot() +
+  geom_line(data = cbg_qc, mapping = aes(x = Epidemiol_Week, y = gi_star, color = "Qingcao Village")) +
+  geom_line(data = cbg_ga, mapping = aes(x = Epidemiol_Week, y = gi_star, color = "Guo'an Village")) + 
+  geom_line(data = cbg_xd, mapping = aes(x = Epidemiol_Week, y = gi_star, color = "Xuedong Village")) +
+  labs(x = "Epi Week", y = "Gi* Value", 
+       title = "Gi* of Three Most Significant Coldspots Over Epidemiology Week 31-50",
+       color = "Village")
+
+plotly::ggplotly(p_coldspots)
+```
+
+We will now calculate the Kendall's tau and Kendall score **S** for each village using `MannKendall()` function from **Kendall** package.
+
+::: panel-tabset
+## Qingcao Village (Annan District)
+
+```{r}
+cbg_qc %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+
+```
+
+## Guo'an Village (Annan District)
+
+```{r}
+cbg_ga %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+
+```
+
+## Xuedong Village (Annan District)
+
+```{r}
+cbg_xd %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+:::
+
+We can replicate the operation of MannKendall test for each location by using `group_by()` function of dplyr package. The results of the MannKendall test will then be stored in a new object called `trend_combined`.
+
+```{r}
+trend_combined <- gi_stars_epiweek %>%
+  group_by(VILLENG) %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+
+trend_combined
+```
+
+As the next step, we will remove the results that are not statistically significant. To do so, we will filter the data frame to include only those rows where the `sl` value is less than 0.05.
+
+```{r}
+trend_combined_sig <- trend_combined %>% filter(sl < 0.05)
+trend_combined_sig
+```
+
+Next, we will identify the top 5 villages with the most significant emerging trends in $G_i^*$ values, either upward or downward.
+
+```{r}
+emerging_vill <- trend_combined_sig %>% 
+  arrange(sl, abs(tau)) %>% 
+  slice(1:5)
+emerging_vill
+```
+
+::: panel-tabset
+## Fuqian Village (West Central District)
+
+```{r}
+cbg_fuqian <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Fuqian Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+```{r}
+p_fuqian <- ggplot() +
+  geom_line(data = cbg_fuqian, mapping = aes(x = Epidemiol_Week, y = gi_star))
+
+plotly::ggplotly(p_fuqian)
+```
+
+### Analysis & Discussion
+
+The local Gi\* values in Fuqian Village exhibit noticeable fluctuations across the epidemiological weeks The Gi\* values tends to fall below zero, indicating a coldspot during the early weeks until Epidemiology Week 41 when it first reaches a positive value. A sharp peak is observed at Week 49 where Gi\* value soared beyond 3. This suggests a strong clustering of high values (hotspot) during this week. It could indicate a sudden outbreak or spread of dengue cases in certain areas. However, by the conclusion of Week 50, the Gi∗ value recedes to approximately 1.4.
+
+## Chongxin Village (East District)
+
+```{r}
+cbg_chongxin <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Chongxin Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+```{r}
+p_chongxin <- ggplot() +
+  geom_line(data = cbg_chongxin, mapping = aes(x = Epidemiol_Week, y = gi_star))
+
+plotly::ggplotly(p_chongxin)
+```
+
+### Analysis & Discussion
+
+The local Gi\* values in Chongxin Village exhibit fluctuations across the epidemiological weeks. There's an initial round of increase and decrease in local Gi\* values between Epidemiology Week 30 to 37, but the values relatively stable between 3 to 5. Starting from Week 37, the trend heads downward gradually, reaching the dip at Week 48 with local Gi\* value of -0.68. This could suggest that the village has effectively managed to control the outbreak, leading to a gradual decline in case count and ultimately transforming into a cold spot.
+
+## Wuwang Village (Yongkang District)
+
+```{r}
+cbg_wuwang <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Wuwang Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+```{r}
+p_wuwang <- ggplot() +
+  geom_line(data = cbg_wuwang, mapping = aes(x = Epidemiol_Week, y = gi_star))
+
+plotly::ggplotly(p_wuwang)
+```
+
+### Analysis & Discussion
+
+The local Gi\* values in Wuwang Village starts at a whopping 10.32 at Epidemiology Week 31, signifying an extremely significant hotspot. However, the local Gi\* values drastically drop over the subsequent weeks and reach at 1.64 by Week 35. From this point forward, the values oscillate between 0 and 2 without any further increase. This could suggest that the village has effectively managed to control the outbreak and prevent any potential second outbreak.
+
+## Chongde Village (East District)
+
+```{r}
+cbg_chongde <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Chongde Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+```{r}
+p_chongde <- ggplot() +
+  geom_line(data = cbg_chongde, mapping = aes(x = Epidemiol_Week, y = gi_star))
+
+plotly::ggplotly(p_chongde)
+```
+
+### Analysis & Discussion
+
+The local Gi\* values in Chongde Village exhibit the peak at 6.55 at Epidemiology Week 32, signifying an significant hotspot. After week 32, there is a decline in the local Gi\* values, followed by subsequent smaller peaks and troughs, indicating fluctuations in the values over the weeks. It eventually goes below 0 at Week 46. The village experience a sudden surge at Week 49 to 1.5, potentially signaling the onset of a second outbreak. Despite this, the value ultimately falls back to -1 by Week 50. This could suggest that the village was successful in averting the second outbreak.
+
+## Chongxue Village (East District)
+
+```{r}
+cbg_chongxue <- gi_stars_epiweek%>%
+  ungroup() %>%
+  filter(VILLENG == "Chongxue Vil.") |>
+  select(VILLENG, Epidemiol_Week, gi_star)
+```
+
+```{r}
+p_chongxue <- ggplot() +
+  geom_line(data = cbg_chongxue, mapping = aes(x = Epidemiol_Week, y = gi_star))
+
+plotly::ggplotly(p_chongxue)
+```
+
+### Analysis & Discussion
+
+The local Gi\* values in Chongxue Village exhibit very similar pattern as Chongde Village. It peaks at 6.37 at Epidemiology Week 32, signifying an significant hotspot. After week 32, there is a decline in the local Gi\* values, followed by subsequent smaller peaks and troughs, indicating fluctuations in the values over the weeks. The value eventually goes below 0 at Week 46. The village experience a sudden surge at Week 49 to 1.8, potentially signaling the onset of a second outbreak. Despite this, the value ultimately falls back to -1.1 by Week 50. This could suggest that the village was successful in averting the second outbreak.
+:::
+
+## 8.4 Performing Emerging Hot Spot Analysis (EHSA)
+
+Lastly, we will perform EHSA analysis by using [`emerging_hotspot_analysis()`](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html) of sfdep package. It takes a spacetime object `dengue_tainan_spt`, and the name of the variable of interest `CASE_COUNT` for .var argument. The k argument is used to specify the number of time lags which is set to 1 by default. Lastly, `nsim` map numbers of simulation to be performed.
+
+```{r}
+#| eval: false
+
+ehsa <- emerging_hotspot_analysis(
+  x = dengue_tainan_spt, 
+  .var = "CASE_COUNT", 
+  k = 1, 
+  nsim = 99
+)
+
+tainan_ehsa <- study_area_sf %>%
+  left_join(ehsa,
+            by = join_by(VILLCODE == location)) %>%
+  mutate(label = paste(VILLENG,TOWNENG))
+```
+
+```{r}
+#| echo: false
+ehsa <- read_rds("~/IS415-GAA/data/rds/ehsa.rds")
+tainan_ehsa <- read_rds("~/IS415-GAA/data/rds/tainan_ehsa.rds" )
+
+```
+
+### 8.4.1 Visualizing Distribution of EHSA Classes
+
+Before creating EHSA maps, we can start by plotting a bar chart to reveal different EHSA classes that have been identified and number of villages in each classification. To do so, we will plot a histogram using `ggplot2` functions.
+
+```{r}
+
+ggplot(data = ehsa,
+       aes(y = classification,fill = classification)) +
+  geom_bar(show.legend = FALSE)
+```
+
+Based on the figure above, the EHSA analysis has identified a total of 8 distinct hotspot and coldspot classes. The identified hotspot classes include **consecutive hotspots**, **new hotspots**, **oscillating hotspots**, and **sporadic hotspots**. The identified coldspot classes include **consecutive coldspots**, **oscillating coldspots**, and **sporadic coldspots**. It is interesting to see that **oscillating hotspots** and **oscillating coldspots** constitute the highest and second highest count of villages respectively, which seems to suggest that a significant number of villages undergo periodic fluctuations in disease incidence.
+
+However, it is imperative to evaluate the statistical significance of these findings. To accomplish this, we will isolate only those EHSA classes that possess a p-value less than 0.05.
+
+```{r}
+tainan_ehsa_sig <- tainan_ehsa  %>%
+  filter(p_value < 0.05)
+```
+
+Next, we will try to plot a new bar chart with `tainan_ehsa_sig` to observe any changes in distribution after the exclusion of statistically insignificant classes.
+
+```{r}
+
+ggplot(data = tainan_ehsa_sig,
+       aes(y = classification, fill = classification))+
+  geom_bar(show.legend = FALSE)
+```
+
+It seems that the count of **oscillating coldspots** has dropped significantly while **oscillating hotspots** remain consistent.
+
+### 8.4.2 Visualizing EHSA Maps
+
+In this section, we will create EHSA maps to identify the geographic distribution of different hotspots and coldspots in our study area. Prior to this, we will formulate two new sf objects, `tainan_ehsa_sig_cold` and `tainan_ehsa_sig_hot` which will respectively represent the statistically significant coldspots and hotspots within our study area.
+
+```{r}
+
+tainan_ehsa_sig_cold <- tainan_ehsa_sig %>% filter(classification %in% c("consecutive coldspot","oscilating coldspot","sporadic coldspot"))
+  
+tainan_ehsa_sig_hot <- tainan_ehsa_sig %>% filter(classification %in% c("consecutive hotspot","new hotspot","oscilating hotspot","sporadic hotspot"))
+```
+
+### 8.4.3 Emerging Hotspots of Dengue Cases in Study Area
+
+In this section, we will employ relevant `tmap` functions to visualize the identified emerging hotspots of dengue cases across the study area.
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")  
+tm_shape(tainan_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(tainan_ehsa_sig_hot)+
+  tm_fill("classification", 
+          palette = c("#de573e","#f67774","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots of Dengue Cases in Study Area (Tainan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(tainan_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(tainan_ehsa_sig_hot)+
+  tm_fill("classification", 
+          palette = c("#de573e","#f67774","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### 8.4.4 Emerging Coldspots of Dengue Cases in Study Area
+
+In this section, we will employ relevant `tmap` functions to visualize the identified emerging coldspots of dengue cases across the study area.
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")  
+tm_shape(tainan_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(tainan_ehsa_sig_cold)+
+  tm_fill("classification", 
+          palette = c("#57bfc0","#b977cb","#7977f3"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Coldspots of Dengue Cases in Study Area (Tainan City)",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(tainan_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(tainan_ehsa_sig_cold)+
+  tm_fill("classification", 
+          palette = c("#57bfc0","#b977cb","#7977f3"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+
+```
+
+### 8.4.5 Emerging Hospots and Coldspots of Dengue Cases in Tainan City
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")  
+tm_shape(tainan_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(tainan_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#57bfc0","#de573e","#f67774","#f2ffff","#b977cb","#f8b675","#7977f3","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in Tainan City",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 3, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(tainan_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(tainan_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#57bfc0","#de573e","#f67774","#f2ffff","#b977cb","#f8b675","#7977f3","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+tmap_mode("plot")
+```
+
+### 8.5.4 Visualising EHSA Map for Each Township
+
+In our previous section, we have prepared and conducted analysis of emerging hotspots and coldspots across the entire study area. In this section, we will further refine our analysis by segmenting the results according to each district/township. This will allow us to delve into a more detailed examination of the hotspots and coldspots within each individual district.
+
+Firstly, we will filter `tainan_ehsa` and `tainan_ehsa_sig` objects to each districts within our study area. Following this, we will generate EHSA for each district. These maps will serve as the basis for our subsequent discussions and analyses of the findings.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+annan_ehsa <- tainan_ehsa %>% filter(TOWNENG == "Annan District")
+rende_ehsa <- tainan_ehsa %>% filter(TOWNENG == "Rende District")
+yongkang_ehsa <- tainan_ehsa %>% filter(TOWNENG == "Yongkang District")
+anping_ehsa <- tainan_ehsa %>% filter(TOWNENG == "Anping District")
+westcentral_ehsa <- tainan_ehsa %>% filter(TOWNENG == "West Central District")
+south_ehsa <- tainan_ehsa %>% filter(TOWNENG == "South District")
+east_ehsa <- tainan_ehsa %>% filter(TOWNENG == "East District")
+north_ehsa <- tainan_ehsa %>% filter(TOWNENG == "North District")
+
+
+annan_ehsa_sig <- tainan_ehsa_sig %>% filter(TOWNENG == "Annan District")
+rende_ehsa_sig <- tainan_ehsa_sig %>% filter(TOWNENG == "Rende District")
+yongkang_ehsa_sig <- tainan_ehsa_sig %>% filter(TOWNENG == "Yongkang District")
+anping_ehsa_sig <- tainan_ehsa_sig %>% filter(TOWNENG == "Anping District")
+westcentral_ehsa_sig <- tainan_ehsa_sig %>% filter(TOWNENG == "West Central District")
+south_ehsa_sig <- tainan_ehsa_sig %>% filter(TOWNENG == "South District")
+east_ehsa_sig <- tainan_ehsa_sig %>% filter(TOWNENG == "East District")
+north_ehsa_sig <- tainan_ehsa_sig %>% filter(TOWNENG == "North District")
+```
+
+::: panel-tabset
+## Annan District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+  
+tm_shape(annan_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(annan_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#f67774","#f2ffff","#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in Annan District",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("RIGHT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+### EHSA Interactive Map for Annan District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(annan_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(annan_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#f67774","#f2ffff","#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+tmap_mode("plot")
+```
+
+### Analysis & Discussion
+
+Annan District is predominantly characterized by hotspots rather than coldspots. A significant number of oscillating hotspots are observed in this district, suggesting that these villages, despite being coldspots at one point, have experienced a rise in case counts. Two new hotspots have been identified - **Chengnan Village** and **Chengbei Village**. Additionally, **Chengxi Village** has been identified as a sporadic hotspot, which may indicate intermittent outbreaks of dengue cases in the village. In close proximity to these hotspots are oscillating coldspots, suggesting that these villages have effectively controlled the spread of cases, reduced the case counts, and eventually transitioned into coldspots.
+
+## Rende District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+  
+tm_shape(rende_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(rende_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#f2ffff","#b977cb","#f8b675","#7977f3"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in Rende District",
+           main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("LEFT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+### EHSA Interactive Map for Rende District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(rende_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(rende_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#f2ffff","#b977cb","#f8b675","#7977f3"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+tmap_mode("plot")
+```
+
+### Analysis & Discussion
+
+Rende district observes a mixture of coldspots, hotspots and villages with no pattern detected. Interestingly, two villages - **Chenggong Village** and **Wenxian Village** - are identified as oscillating hotspots, while two others - **Dajia Village** and **Renyi Village** - are identified as oscillating coldspots. This contrast may suggest a non-uniform spatial distribution of dengue cases, influenced by localized factors that either increase or decrease case counts. Additionally, one village, **Bao'an Village**, is identified as a sporadic coldspot. This could indicate intermittent periods of lower case counts in this area.
+
+## Yongkang District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+  
+tm_shape(yongkang_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(yongkang_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#de573e","#f2ffff","#b977cb","#f8b675","#7977f3","#f8d673"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in Yongkang District",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+### EHSA Interactive Map for Yongkang District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(yongkang_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(yongkang_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#de573e","#f2ffff","#b977cb","#f8b675","#7977f3","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+Yongkand district is predominantly characterised by hotspots. Three villages - Ankang Village, Xishi Village, and Wangxing Village - stand out as consecutive hotspots. This could suggest that these villages have maintained statistically significant dengue clusters over the observed period. Upon closer inspection, it appears that many villages neighboring these consecutive hotspots are identified as oscillating hotspots. This indicates that dengue cases have been spreading from the consecutive hotspots to their neighbors, which were previously coldspots. It is critically important for the local governments to implement more proactive and effective vector control and intervention measures to prevent the outbreak from spreading further.
+
+It is also interesting to see three oscilating coldspots - Erwang Village, Zhongxing Village, Zhengqiang Village - and one sporadic hotspot - Guang Village, despite being surrounded by hotspots. These villages may have implemented localized measures that have effectively prevented the spread of cases from their neighboring hotspots.
+
+## Anping District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")  
+tm_shape(anping_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(anping_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#b977cb","#f8b675","#7977f3"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in Anping District",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+### EHSA Interactive Map for Anping District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(anping_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(anping_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#b977cb","#f8b675","#7977f3"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+
+```
+
+### Analysis & Discussion
+
+Anping District observes a mixture of coldspots and hotspots. Three villages - Yizai Village, Pingtong Village, and Ping'an Village - are identified as oscillating hotspots. In contrast, two villages - Huaping Village and Jianping Village - are identified as oscillating coldspots. Yiping Village is singled out as a sporadic coldspot. Overall, it appears that Anping District has generally low case counts, resulting in a predominance of coldspots over the observed period. However, the presence of three oscillating hotspots signals potential for the spread of outbreaks, necessitating effective containment measures.
+
+## West Central District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")  
+tm_shape(westcentral_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(westcentral_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#f67774","#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in West Central District",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+### EHSA Interactive Map for West Central District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(westcentral_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(westcentral_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#f67774","#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+West Central District is predominantly chracterised by hotspots, evident by one sporatic hotspot - Xihu Village, three oscilating hotspot - Xihe Village, Duiyue Village, Wutiaogang Village and one new hotspot - Chuhkkan Village. It appears that the cases have been spreading eastward from Xihu Village to its neighboring villages. Interestingly, Xixan Village, which is located adjacent to Xihu Village, is classified as an oscillating coldspot. This suggests that Xixan Village has managed to contain the spread from Xihu Village and gradually reduce the case count.
+
+## South District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")  
+tm_shape(south_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(south_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in South District",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            legend.position = c("LEFT", "TOP"),
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("RIGHT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+### EHSA Interactive Map for South District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(south_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(south_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+South District is predominantly characterized by hotspots, either oscilating hotspots or sporadic hotspots. Interestingly, two villages - Zhangnan Village and Wennan Village - located in proximity to these hotspots, are identified as oscillating coldspots. This suggests that these two villages have implemented effective localized measures that have successfully curtailed the spread of cases from their neighboring hotspots, thereby reducing the case count over the observed period.
+
+## East District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")
+tm_shape(east_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(east_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#de573e","#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in East District",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+### EHSA Interactive Map for East District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(east_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(east_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#de573e","#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+
+```
+
+### Analysis & Discussion
+
+East District is predominantly characterised by hotspots, majority of which are either sporadic or oscilating hotspots. Datong Village is classified as consecutive hotspots. There are two oscilating coldspots observed - Quannan Village and Dongzhi Village. Particularly intriguing is the fact that Quannan Village, despite being in immediate proximity to Datong Village, has managed to contain the spread of cases from Datong Village and transition into a coldspot.
+
+## North District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| fig-width: 12
+#| fig-height: 10
+tmap_mode("plot")
+tm_shape(north_ehsa)+
+  tm_polygons()+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(north_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#57bfc0","#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Emerging Hotspots & Coldspots \nof Dengue Cases in North District",
+            main.title.position = "center",
+            main.title.size = 1.7,
+            main.title.fontface = "bold",
+            legend.title.size = 1.8,
+            legend.text.size = 1.3,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 1.5, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=1.2) +
+  tm_grid(labels.size = 1,alpha =0.2)
+
+```
+
+### EHSA Interactive Map for North District
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+tmap_mode("view")
+tm_shape(north_ehsa)+
+  tm_polygons(id = "label")+
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(north_ehsa_sig)+
+  tm_fill("classification", 
+          palette = c("#57bfc0","#b977cb","#f8b675","#f8d673"),
+          title = "classification",
+          midpoint = 0,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### Analysis & Discussion
+
+North District exhibits a blend of oscillating hotspots, sporadic hotspots, and oscillating coldspots. Intriguingly, North District is the only district in our study area that records a consecutive coldspot - Zhonglou Village. Despite its two neighboring villages, Zhangsheng Village and Ren'ai Village, being classified as an oscillating hotspot and a sporadic hotspot respectively, it is remarkable to observe that Zhonglou Village has successfully prevented the spread of cases from these hotspots throughout the entire observed period, maintaining its status as a stable coldspot. This village will be of interest for further investigation to understand the localized factors and measures that might have contributed to this successful containment.
+
+## 
+:::
+
+# 9.0 Conclusions
+
+## References
+
+Griffith, D. (2017). Spatial Autocorrelation. *The Geographic Information Science & Technology Body of Knowledge* (4th Quarter 2017 Edition), John P. Wilson (ed). DOI: [10.22224/gistbok/2017.4.13](https://gistbok.ucgis.org/bok-topics/spatial-autocorrelation)
+
+Khambhammettu, P. (2005). *Mann-Kendall Analysis for the Fort Ord Site* (Report No. OU-1 2004 Annual Groundwater Monitoring Report-Former Fort Ord, California). HydroGeoLogic, Inc.
+
+Gilbert, R.O. (1987). Statistical methods for environmental pollution monitoring. Van Nostrand Reinhold.
+
+Mergenthaler, C., Gurp, M., Rood, E., & Bakker, M. (2022). The study of spatial autocorrelation for infectious disease epidemiology decision-making: A systematized literature review. *CABI Reviews*. https://doi.org/10.1079/cabireviews202217018
+
+Moraga, P. (2024). Spatial neighbourhood matrices. In Spatial statistics for Data Science: Theory and practice with R (pp. 83--94). CRC Press.
+
+Haining, R. P. (2001). Spatial autocorrelation. International Encyclopaedia of the Social & Behavioural Sciences, 14763--14768. https://doi.org/10.1016/b0-08-043076-7/02511-0
+
+Salima, B. A., & Bellefon, M.-P., (2018). Spatial autocorrelation indices. In Handbook of Spatial Analysis: Theory and Application with R (pp. . INSEE.
+
+Anselin, L. (2020). Contiguity-Based Spatial Weights. GeoDa: An Introduction to Spatial Data Science. https://geodacenter.github.io/workbook/4a_contig_weights/lab4a.html
+
+Anselin, L. (2018). Applications of Spatial Weights. GeoDa: An Introduction to Spatial Data Science. https://geodacenter.github.io/workbook/4d_weights_applications/lab4d.html
+
+Getis, A., & Ord, J. K. (1992). The analysis of Spatial Association by use of Distance Statistics. Geographical Analysis, 24(3), 189--206. https://doi.org/10.1111/j.1538-4632.1992.tb00261.x

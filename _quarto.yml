@@ -28,6 +28,8 @@ website:
         menu:
         - href: Take-home_Ex/Take-home_Ex01.qmd
           text: "Take-home Exercise 1"
+        - href: Take-home_Ex/Take-home_Ex02/Take-home_Ex02.qmd
+          text: "Take-home Exercise 2"
 
     right:
       - href: index.qmd
