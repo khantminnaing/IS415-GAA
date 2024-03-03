@@ -164,8 +164,6 @@ st_crs(tainan)
 Next, we will generate a plot of the tainan object to visualise its structure.
 
 ```{r}
-#| echo: false
-#| eval: false
 tmap_mode("plot")
 tm_shape(tainan)+
   tm_fill(col="white")+
