@@ -1,11 +1,11 @@
 ---
-title: "Hands-On Exercise 07"
+title: "In-Class Exercise 06"
 description: |
   Geographical Segmentation with Spatially Constrained Clustering Techniques
 author:
   - name: Khant Min Naing
     url: https://www.linkedin.com/in/khantminnaing/
-date: 03-01-2024
+date: 02-01-2024
 date-modified: "last-modified"
 categories:
   - In-Class Exercise
@@ -65,7 +65,7 @@ The R packages needed for this exercise are as follows:
     -   **ClustGeo**
 
 ```{r}
-pacman::p_load(sp,spdep, tmap, sf, ClustGeo, 
+pacman::p_load(spdep, tmap, sf, ClustGeo, 
                ggpubr, cluster, factoextra, NbClust,
                heatmaply, corrplot, psych, tidyverse, GGally)
 ```
@@ -93,9 +93,9 @@ The imported township boundary object is called *shan_sf*. It is saved in **simp
 shan_sf
 ```
 
-Notice that sf.data.frame is conformed to Hardy Wickham\'s [tidy](https://edzer.github.io/rstudio_conf/#1) framework.
+Notice that sf.data.frame is conformed to Hardy Wickham's [tidy](https://edzer.github.io/rstudio_conf/#1) framework.
 
-Since *shan_sf* is conformed to tidy framework, we can also *glimpse()* to reveal the data type of it\'s fields.
+Since *shan_sf* is conformed to tidy framework, we can also *glimpse()* to reveal the data type of it's fields.
 
 ```{r}
 glimpse(shan_sf)
@@ -109,7 +109,7 @@ The csv file will be import using *read_csv* function of **readr** package.
 ict <- read_csv ("../data/aspatial/Shan-ICT.csv")
 ```
 
-The imported InfoComm variables are extracted from **The 2014 Myanmar Population and Housing Census Myanmar**. The attribute data set is called *ict*. It is saved in R\'s \* tibble data.frame\* format.
+The imported InfoComm variables are extracted from **The 2014 Myanmar Population and Housing Census Myanmar**. The attribute data set is called *ict*. It is saved in R's \* tibble data.frame\* format.
 
 The code chunk below reveal the summary statistics of *ict* data.frame.
 
@@ -505,7 +505,7 @@ ac <- function(x) {
 map_dbl(m, ac)
 ```
 
-With reference to the output above, we can see that Ward\'s method provides the strongest clustering structure among the four methods assessed. Hence, in the subsequent analysis, only Ward\'s method will be used.
+With reference to the output above, we can see that Ward's method provides the strongest clustering structure among the four methods assessed. Hence, in the subsequent analysis, only Ward's method will be used.
 
 ### **6.7 Determining Optimal Clusters**
 
@@ -554,7 +554,7 @@ In the dendrogram displayed above, each leaf corresponds to one observation. As 
 
 The height of the fusion, provided on the vertical axis, indicates the (dis)similarity between two observations. The higher the height of the fusion, the less similar the observations are. Note that, conclusions about the proximity of two observations can be drawn only based on the height where branches containing those two observations first are fused. We cannot use the proximity of two observations along the horizontal axis as a criteria of their similarity.
 
-It\'s also possible to draw the dendrogram with a border around the selected clusters by using [*rect.hclust()*](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/rect.hclust.html) of R stats. The argument *border* is used to specify the border colors for the rectangles.
+It's also possible to draw the dendrogram with a border around the selected clusters by using [*rect.hclust()*](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/rect.hclust.html) of R stats. The argument *border* is used to specify the border colors for the rectangles.
 
 ```{r}
 #| fig-width: 12
@@ -671,6 +671,7 @@ summary(shan.nb)
 We can plot the neighbours list on shan_sp by using the code chunk below. Since we now can plot the community area boundaries as well, we plot this graph on top of the map. The first plot command gives the boundaries. This is followed by the plot of the neighbor list object, with coordinates applied to the original SpatialPolygonDataFrame (Shan state township boundaries) to extract the centroids of the polygons. These are used as the nodes for the graph representation. We also set the color to blue and specify add=TRUE to plot the network on top of the boundaries.
 
 ```{r}
+#| eval: false
 #| fig-width: 10
 
 plot(shan_sp, 
@@ -725,8 +726,8 @@ Note that the dimension is 54 and not 55. This is because the minimum spanning t
 The plot method for the MST include a way to show the observation numbers of the nodes in addition to the edge. As before, we plot this together with the township boundaries. We can see how the initial neighbour list is simplified to just one edge connecting each of the nodes, while passing through all the nodes.
 
 ```{r}
-plot(shan_sp, 
-     border=grey(.5))
+#| eval: false
+plot(shan_sp)
 
 plot.mst(shan.mst, 
          coordinates(shan_sp), 
@@ -760,7 +761,7 @@ The most interesting component of this list structure is the groups vector conta
 Lastly, we can also plot the pruned tree that shows the five clusters on top of the townshop area.
 
 ```{r}
-
+#| eval: false
 plot(shan_sp, border=gray(.5))
 plot(clust6, 
      coordinates(shan_sp), 
