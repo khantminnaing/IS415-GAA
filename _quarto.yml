@@ -24,6 +24,8 @@ website:
           text: "Hands-On Exercise 4"
         - href: Hands-on_Ex/hands_on05.qmd
           text: "Hands-On Exercise 5"
+        - href: Hands-on_Ex/hands_on057.qmd
+          text: "Hands-On Exercise 7"
       - text: "Take-home Exercises"
         menu:
         - href: Take-home_Ex/Take-home_Ex01.qmd
