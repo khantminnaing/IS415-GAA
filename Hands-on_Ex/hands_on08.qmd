@@ -19,6 +19,8 @@ output:
     self_contained: false
 ---
 
+# Geographical Weighted Regression
+
 ## 1.0 Overview
 
 **Geographically weighted regression (GWR)** is a spatial statistical technique that takes non-stationary variables into consideration (e.g., climate; demographic factors; physical environment characteristics) and models the local relationships between these independent variables and an outcome of interest (also known as dependent variable). In this hands-on exercise, we explore how to build `hedonic pricing models` by using GWR methods. The dependent variable is the `resale prices of condominium in 2015`. The independent variables are divided into either structural and locational.

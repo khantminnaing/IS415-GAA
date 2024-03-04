@@ -5,7 +5,7 @@ description: |
 author:
   - name: Khant Min Naing
     url: https://www.linkedin.com/in/khantminnaing/
-date: 02-01-2024
+date: 03-01-2024
 date-modified: "last-modified"
 categories:
   - In-Class Exercise
@@ -18,13 +18,14 @@ execute:
   eval: true
   echo: true
   warning: false
+  freeze: true
 output:
   distill::distill_article:
     toc: true
     self_contained: false
 ---
 
-# Global and Local Measures of Spatial Autocorrelation
+# Geographical Segmentation with Spatially Constrained Clustering Techniques
 
 ## 1.0 Overview
 
@@ -34,9 +35,11 @@ The advantage of spatially constrained methods is that it has a hard requirement
 
 ## 1.1 Analytical Objective
 
-In spatial policy, one of the main development objective of the local government and planners is to ensure equal distribution of development in the province. Our task in this study, hence, is to apply appropriate spatial statistical methods to discover if development are even distributed geographically. If the answer is **No**. Then, our next question will be "is there sign of spatial clustering?". And, if the answer for this question is yes, then our next question will be "where are these clusters?"
+In this hands-on exercise, we are interested in delineating homogeneous region by using geographically referenced multivariate data. There are two major analysis, namely:
 
-In this case study, we are interested to examine the spatial pattern of a selected development indicator (i.e. GDP per capita) of [Hunan Provice](https://en.wikipedia.org/wiki/Hunan), People Republic of China.
+-   hierarchical cluster analysis; and
+
+-   spatially constrained cluster analysis.
 
 ## 2.0 Importing Packages
 
@@ -44,7 +47,7 @@ The R packages needed for this exercise are as follows:
 
 -   Spatial data handling
 
-    -   **sf**, **rgdal** and **spdep**
+    -   **sf**, **sp** and **spdep**
 
 -   Attribute data handling
 
@@ -65,7 +68,7 @@ The R packages needed for this exercise are as follows:
     -   **ClustGeo**
 
 ```{r}
-pacman::p_load(spdep, tmap, sf, ClustGeo, 
+pacman::p_load(sp,spdep, tmap, sf, ClustGeo, 
                ggpubr, cluster, factoextra, NbClust,
                heatmaply, corrplot, psych, tidyverse, GGally)
 ```
@@ -87,11 +90,19 @@ shan_sf <- st_read(dsn = "../data/geospatial",
   select(c(2:7))
 ```
 
+::: callout-tip
+If we look at the data, there are many polygons that belong to other provinces than the study area we are interested in. Hence, it is important to use `filter()` to filter the data to our study area only. We filtered the data to include only the rows where the **`ST`** column matches any of the values in the vector **`c("Shan (East)", "Shan (North)", "Shan (South)")`**. We will select only the columns 2 through 7 of the data. The remaining columns are discarded as they are irrelevant to our study.
+:::
+
 The imported township boundary object is called *shan_sf*. It is saved in **simple feature data.frame** format. We can view the content of the newly created *shan_sf* simple features data.frame by using the code chunk below.
 
 ```{r}
 shan_sf
 ```
+
+::: callout-tip
+Noticed that the CRS for `shan_sf` is in WGS 84. In this study particular, CRS is not relevant, so we are not required to change it to local projection.
+:::
 
 Notice that sf.data.frame is conformed to Hardy Wickham's [tidy](https://edzer.github.io/rstudio_conf/#1) framework.
 
