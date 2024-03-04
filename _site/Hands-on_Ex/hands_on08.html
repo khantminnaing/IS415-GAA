@@ -148,6 +148,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../In-class_Ex/In-class_Ex05.html" rel="" target="">
  <span class="dropdown-text">In-Class Exercise 05</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../In-class_Ex/In-class_Ex06.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 06</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -174,6 +178,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li>
     <a class="dropdown-item" href="../Hands-on_Ex/hands_on05.html" rel="" target="">
  <span class="dropdown-text">Hands-On Exercise 5</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../Hands-on_Ex/hands_on07.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 7</span></a>
   </li>  
     </ul>
   </li>
@@ -218,7 +226,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">1.0 Overview</a></li>
+  <li><a href="#geographical-weighted-regression" id="toc-geographical-weighted-regression" class="nav-link active" data-scroll-target="#geographical-weighted-regression">Geographical Weighted Regression</a>
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">1.0 Overview</a></li>
   <li><a href="#importing-datasets-and-packages" id="toc-importing-datasets-and-packages" class="nav-link" data-scroll-target="#importing-datasets-and-packages">2.0 Importing Datasets and Packages</a></li>
   <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling">3.0 Data Wrangling</a>
   <ul class="collapse">
@@ -246,6 +256,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#computing-bandwidth" id="toc-computing-bandwidth" class="nav-link" data-scroll-target="#computing-bandwidth">6.1 Computing Bandwidth</a></li>
   <li><a href="#building-basic-gwmodel-with-fixed-and-adaptive-bandwidth" id="toc-building-basic-gwmodel-with-fixed-and-adaptive-bandwidth" class="nav-link" data-scroll-target="#building-basic-gwmodel-with-fixed-and-adaptive-bandwidth">6.2 Building Basic GWModel with Fixed and Adaptive Bandwidth</a></li>
   <li><a href="#visualisaing-gwr-output" id="toc-visualisaing-gwr-output" class="nav-link" data-scroll-target="#visualisaing-gwr-output">6.3 Visualisaing GWR Output</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -290,7 +301,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">January 22, 2024</p>
+      <p class="date-modified">March 4, 2024</p>
     </div>
   </div>
     
@@ -299,6 +310,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
+<section id="geographical-weighted-regression" class="level1">
+<h1>Geographical Weighted Regression</h1>
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">1.0 Overview</h2>
 <p><strong>Geographically weighted regression (GWR)</strong> is a spatial statistical technique that takes non-stationary variables into consideration (e.g., climate; demographic factors; physical environment characteristics) and models the local relationships between these independent variables and an outcome of interest (also known as dependent variable). In this hands-on exercise, we explore how to build <code>hedonic pricing models</code> by using GWR methods. The dependent variable is the <code>resale prices of condominium in 2015</code>. The independent variables are divided into either structural and locational.</p>
@@ -1281,7 +1294,7 @@ Projected CRS: SVY21 / Singapore TM
 <div class="cell-output-display">
 
 
-<table class="table_6587 table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="table_7096 table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
 <thead>
 <tr class="header">
 <th id="tableHTML_header_1" data-quarto-table-cell-role="th"></th>
@@ -1679,7 +1692,7 @@ Adaptive bandwidth: 30 CV score: 4.422088e+14 </code></pre>
 <pre><code>   ***********************************************************************
    *                       Package   GWmodel                             *
    ***********************************************************************
-   Program starts at: 2024-03-02 16:17:26.679824 
+   Program starts at: 2024-03-04 09:54:35.430817 
    Call:
    gwr.basic(formula = SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD + 
     PROX_CHILDCARE + PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + 
@@ -1787,14 +1800,14 @@ Adaptive bandwidth: 30 CV score: 4.422088e+14 </code></pre>
    Adjusted R-square value:  0.8430418 
 
    ***********************************************************************
-   Program stops at: 2024-03-02 16:17:28.159495 </code></pre>
+   Program stops at: 2024-03-04 09:54:37.468804 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>gwr.adaptive</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   ***********************************************************************
    *                       Package   GWmodel                             *
    ***********************************************************************
-   Program starts at: 2024-03-02 16:17:28.160216 
+   Program starts at: 2024-03-04 09:54:37.470197 
    Call:
    gwr.basic(formula = SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD + 
     PROX_CHILDCARE + PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + 
@@ -1902,7 +1915,7 @@ Adaptive bandwidth: 30 CV score: 4.422088e+14 </code></pre>
    Adjusted R-square value:  0.8561185 
 
    ***********************************************************************
-   Program stops at: 2024-03-02 16:17:29.80862 </code></pre>
+   Program stops at: 2024-03-04 09:54:39.115772 </code></pre>
 </div>
 </div>
 <p>Based on the results, two conclusions can be made as below.</p>
@@ -2042,6 +2055,7 @@ Warning: The shape mpsz_svy21 is invalid. See sf::st_is_valid</code></pre>
 </div>
 
 
+</section>
 </section>
 </section>
 

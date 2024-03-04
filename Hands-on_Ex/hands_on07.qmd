@@ -34,9 +34,11 @@ The advantage of spatially constrained methods is that it has a hard requirement
 
 ## 1.1 Analytical Objective
 
-In spatial policy, one of the main development objective of the local government and planners is to ensure equal distribution of development in the province. Our task in this study, hence, is to apply appropriate spatial statistical methods to discover if development are even distributed geographically. If the answer is **No**. Then, our next question will be "is there sign of spatial clustering?". And, if the answer for this question is yes, then our next question will be "where are these clusters?"
+In this hands-on exercise, we are interested in delineating homogeneous region by using geographically referenced multivariate data. There are two major analysis, namely:
 
-In this case study, we are interested to examine the spatial pattern of a selected development indicator (i.e. GDP per capita) of [Hunan Provice](https://en.wikipedia.org/wiki/Hunan), People Republic of China.
+-   hierarchical cluster analysis; and
+
+-   spatially constrained cluster analysis.
 
 ## 2.0 Importing Packages
 
