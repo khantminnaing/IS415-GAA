@@ -128,6 +128,10 @@ The code chunk below reveal the summary statistics of *ict* data.frame.
 summary(ict)
 ```
 
+::: callout-tip
+Ranges are different for each indicator variable. To do a proper hierarchical clustering, we need to standardise the range.
+:::
+
 ### 3.3 **Derive new variables using dplyr package**
 
 The unit of measurement of the values are number of household. Using these values directly will be bias by the underlying total number of households. In general, the townships with relatively higher total number of households will also have higher number of households owning radio, TV, etc.
@@ -149,6 +153,10 @@ ict_derived <- ict %>%
          `LLPHONE`=`Land line phone`, `MPHONE`=`Mobile phone`,
          `COMPUTER`=`Computer`, `INTERNET`=`Internet at home`) 
 ```
+
+::: callout-tip
+To make the analysis more intuitive, we rename the column names. It is a good practice in analytics for tidying up the data.
+:::
 
 Let us review the summary statistics of the newly derived penetration rates using the code chunk below.
 
@@ -258,10 +266,18 @@ write_rds(shan_sf, "../data/rds/shan_sf.rds")
 
 The message above shows that *TS_CODE* field is the common field used to perform the left-join.
 
-It is important to note that there is no new output data been created. Instead, the data fields from *ict_derived* data frame are now updated into the data frame of *shan_sf*.
+::: callout-tip
+When we use `left_join()`, if we want the output to be geometric type, the first data.frame should be a `sf` object so that the second data.frame is joint to the first data.frame. `by` is an argument for specifying the unique identifier that is common in both data.frames.
+
+Another function that can be used is `st_join()` but both data.frame should be in `sf` object if we use it.
+:::
+
+It is important to note that there is no new output data been created. Instead, the data fields from *ict_derived* data
+
+pframe are now updated into the data frame of *shan_sf*.
 
 ```{r}
-#shan_sf <- read_rds("../data/rds/shan_sf.rds")
+shan_sf <- read_rds("../data/rds/shan_sf.rds")
 ```
 
 #### 4.2.2 Preparing a choropleth map
@@ -275,7 +291,7 @@ The code chunks below are used to prepare the choroplethby using the *qtm()* fun
 
 tm_shape(shan_sf) +
   tm_fill("RADIO_PR",
-          palette="plasma",
+          palette="viridis",
           n = 5,
           style = "equal") +
   tm_borders(alpha = 0.5)
@@ -288,7 +304,7 @@ In order to reveal the distribution shown in the choropleth map above are bias t
 
 TT_HOUSEHOLDS.map <- tm_shape(shan_sf) + 
   tm_fill(col = "TT_HOUSEHOLDS",
-          palette="plasma",
+          palette="viridis",
           n = 5,
           style = "jenks", 
           title = "Total households") + 
@@ -296,7 +312,7 @@ TT_HOUSEHOLDS.map <- tm_shape(shan_sf) +
 
 RADIO.map <- tm_shape(shan_sf) + 
   tm_fill(col = "RADIO",
-          palette="plasma",
+          palette="viridis",
           n = 5,
           style = "jenks",
           title = "Number Radio ") + 
@@ -315,7 +331,7 @@ Now let us plot the choropleth maps showing the dsitribution of total number of 
 
 tm_shape(shan_sf) +
     tm_polygons(c("TT_HOUSEHOLDS", "RADIO_PR"),
-                palette="plasma",
+                palette="viridis",
                 style="jenks") +
     tm_facets(sync = TRUE, ncol = 2) +
   tm_legend(legend.position = c("right", "bottom"))+
@@ -355,6 +371,10 @@ cluster_vars <- shan_sf %>%
 head(cluster_vars,10)
 ```
 
+::: callout-tip
+`st_set_geometry(NULL)` is used to drop the geometry column from `shan_sf` object, to avoid any potential error when using some analytical packages and functions.
+:::
+
 Notice that the final clustering variables list does not include variable INTERNET_PR because it is highly correlated with variable COMPUTER_PR.
 
 Next, we need to change the rows by township name instead of row number by using the code chunk below
@@ -366,11 +386,20 @@ head(cluster_vars,10)
 
 Notice that the row number has been replaced into the township name.
 
-Now, we will delete the TS.x field by using the code chunk below.
+::: callout-tip
+The code line `row.names(cluster_vars) <- cluster_vars$"TS.x"` is used to set the row names of the `cluster_vars` data frame to be the same as the values in the `TS.x` column of the cluster_vars data frame. This can be useful for identifying rows later on.
+:::
+
+Now, we will delete the `TS.x` field by using the code chunk below.
 
 ```{r}
 shan_ict <- select(cluster_vars, c(2:6))
 head(shan_ict, 10)
+```
+
+```{r}
+write_rds(shan_ict,"../data/rds/shan_ict.rds")
+shan_ict <- read_rds("../data/rds/shan_ict.rds")
 ```
 
 ### **6.2 Data Standardisation**
@@ -472,6 +501,10 @@ The code chunk below is used to compute the proximity matrix using *euclidean* m
 proxmat <- dist(shan_ict, method = 'euclidean')
 ```
 
+::: callout-tip
+`method` argument specify the distance measure to be used. This must be one of **`"euclidean"`**, **`"maximum"`**, **`"manhattan"`**, **`"canberra"`**, **`"binary"`** or **`"minkowski".`**
+:::
+
 The code chunk below can then be used to list the content of *proxmat* for visual inspection.
 
 ```{r}
@@ -490,12 +523,13 @@ The code chunk below performs hierarchical cluster analysis using ward.D method.
 hclust_ward <- hclust(proxmat, method = 'ward.D')
 ```
 
+::: callout-tip
+`method` argument specify the agglomeration method to be used. This should be one of **`"ward.D"`**, **`"ward.D2"`**, **`"single"`**, **`"complete"`**, **`"average"`** (= UPGMA), **`"mcquitty"`** (= WPGMA), **`"median"`** (= WPGMC) or **`"centroid"`** (= UPGMC).
+:::
+
 We can then plot the tree by using *plot()* of R Graphics as shown in the code chunk below.
 
 ```{r}
-#| fig-width: 12
-#| fig-height: 10
-
 plot(hclust_ward, cex = 0.6)
 ```
 
@@ -555,6 +589,10 @@ Next, we can visualise the plot by using [*fviz_gap_stat()*](https://rpkgs.datan
 fviz_gap_stat(gap_stat)
 ```
 
+::: callout-tip
+Local optimization has high chance of producing more disaggregated results with multiple clusters than manageable.
+:::
+
 With reference to the gap statistic graph above, the recommended number of cluster to retain is 1. However, it is not logical to retain only one cluster. By examine the gap statistic graph, the 6-cluster gives the largest gap statistic and should be the next best cluster to pick.
 
 **Note:** In addition to these commonly used approaches, the [NbClust](https://cran.r-project.org/web/packages/NbClust/) package, published by Charrad et al., 2014, provides 30 indices for determining the relevant number of clusters and proposes to users the best clustering scheme from the different results obtained by varying all combinations of number of clusters, distance measures, and clustering methods.
@@ -568,9 +606,6 @@ The height of the fusion, provided on the vertical axis, indicates the (dis)simi
 It's also possible to draw the dendrogram with a border around the selected clusters by using [*rect.hclust()*](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/rect.hclust.html) of R stats. The argument *border* is used to specify the border colors for the rectangles.
 
 ```{r}
-#| fig-width: 12
-#| fig-height: 10
-
 plot(hclust_ward, cex = 0.6)
 rect.hclust(hclust_ward, 
             k = 6, 
@@ -625,6 +660,10 @@ With closed examination of the dendragram above, we have decided to retain six c
 groups <- as.factor(cutree(hclust_ward, k=6))
 ```
 
+::: callout-tip
+`as.factor()` is used to convert numerical to factor variable type.
+:::
+
 The output is called *groups*. It is a *list* object.
 
 In order to visualise the clusters, the *groups* object need to be appended onto *shan_sf* simple feature object.
@@ -641,6 +680,10 @@ The code chunk below form the join in three steps:
 shan_sf_cluster <- cbind(shan_sf, as.matrix(groups)) %>%
   rename(`CLUSTER`=`as.matrix.groups.`)
 ```
+
+::: callout-tip
+`left_join()` require unique identifier to map between two objects to be merged. In this case, we can use `cbind()` to append the new cluser data to `shan.sf`obejct.
+:::
 
 Next, *qtm()* of **tmap** package is used to plot the choropleth map showing the cluster formed.
 
@@ -664,17 +707,12 @@ In this section, you will learn how to derive spatially constrained cluster by u
 
 First, we need to convert `shan_sf` into SpatialPolygonsDataFrame. This is because SKATER function only support **sp** objects such as SpatialPolygonDataFrame.
 
-The code chunk below uses [*as_Spatial()*](https://r-spatial.github.io/sf/reference/coerce-methods.html) of **sf** package to convert *shan_sf* into a SpatialPolygonDataFrame called *shan_sp*.
-
-```{r}
-shan_sp <- as_Spatial(shan_sf)
-```
-
 ### 9.2 **Computing Neighbour List**
 
 Next, [poly2nd()](https://r-spatial.github.io/spdep/reference/poly2nb.html) of **spdep** package will be used to compute the neighbours list from polygon list.
 
 ```{r}
+shan_sp <- as_Spatial(shan_sf)
 shan.nb <- poly2nb(shan_sp)
 summary(shan.nb)
 ```
@@ -685,13 +723,18 @@ We can plot the neighbours list on shan_sp by using the code chunk below. Since 
 #| eval: false
 #| fig-width: 10
 
-plot(shan_sp, 
+plot(st_geometry(shan_sf), 
      border=grey(.5))
+pts <- st_coordinates(st_centroid(shan_sf))
 plot(shan.nb, 
-     coordinates(shan_sp), 
+     pts, 
      col="blue", 
      add=TRUE)
 ```
+
+::: callout-tip
+when using sf, we have to convert from poygon to point using `st_coordinates()` and `st_centroid()` functions. The newly created points are saved in a variable called `pts` before using it ot plot the map.
+:::
 
 Note that if you plot the network first and then the boundaries, some of the areas will be clipped. This is because the plotting area is determined by the characteristics of the first plot. In this example, because the boundary map extends further than the graph, we plot it first.
 
@@ -738,10 +781,11 @@ The plot method for the MST include a way to show the observation numbers of the
 
 ```{r}
 #| eval: false
-plot(shan_sp)
+plot(st_geometry(shan_sf), 
+     border=grey(.5))
 
 plot.mst(shan.mst, 
-         coordinates(shan_sp), 
+         pts, 
          col="blue", 
          cex.lab=0.7, 
          cex.circles=0.005, 
@@ -773,9 +817,11 @@ Lastly, we can also plot the pruned tree that shows the five clusters on top of 
 
 ```{r}
 #| eval: false
-plot(shan_sp, border=gray(.5))
+plot(st_geometry(shan_sf), 
+     border=grey(.5))
+
 plot(clust6, 
-     coordinates(shan_sp), 
+     pts, 
      cex.lab=.7,
      groups.colors=c("red","green","blue", "brown", "pink"),
      cex.circles=0.005, 
@@ -914,12 +960,16 @@ tm_shape(shan_sf_Gcluster) +
   tm_borders(alpha = 0.5)
 ```
 
+::: callout-tip
+Clustering analysis did not end at mapping the clusters. We also need to interpret clusters visually through plots as well.
+:::
+
 ## **12. Visual Interpretation of Clusters**
 
 Past studies shown that parallel coordinate plot can be used to reveal clustering variables by cluster very effectively. In the code chunk below, [`ggparcoord()`](https://ggobi.github.io/ggally/reference/ggparcoord.html) of [**GGally**](https://ggobi.github.io/ggally/) package.
 
 ```{r}
-
+#| fig-width: 10
 ggparcoord(data = shan_sf_ngeo_cluster, 
            columns = c(17:21), 
            scale = "globalminmax",

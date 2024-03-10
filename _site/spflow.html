@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Khant Min Naing">
+<meta name="dcterms.date" content="2024-03-09">
+
+<title>IS415 - Geospatial with Khant - Spatial Econometric Interaction Modelling</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">IS415 - Geospatial with Khant</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-in-class-exercises" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">In-Class Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-in-class-exercises">    
+        <li>
+    <a class="dropdown-item" href="./In-class_Ex/In-class_Ex02.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 02</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./In-class_Ex/In-class_Ex03.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 03</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./In-class_Ex/In-class_Ex03-NKDE.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 03 NKDE</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./In-class_Ex/In-class_Ex04.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 04</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./In-class_Ex/In-class_Ex05.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 05</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./In-class_Ex/In-class_Ex06.html" rel="" target="">
+ <span class="dropdown-text">In-Class Exercise 06</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-hands-on-exercises" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Hands-On Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-hands-on-exercises">    
+        <li>
+    <a class="dropdown-item" href="./Hands-on_Ex/hands_on1.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Hands-on_Ex/hands_on02.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Hands-on_Ex/hands_on03.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 3</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Hands-on_Ex/hands_on04.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 4</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Hands-on_Ex/hands_on05.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 5</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Hands-on_Ex/hands_on07.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 7</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Hands-on_Ex/hands_on08.html" rel="" target="">
+ <span class="dropdown-text">Hands-On Exercise 08</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-take-home-exercises" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Take-home Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercises">    
+        <li>
+    <a class="dropdown-item" href="./Take-home_Ex/Take-home_Ex01.html" rel="" target="">
+ <span class="dropdown-text">Take-home Exercise 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html" rel="" target="">
+ <span class="dropdown-text">Take-home Exercise 2</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#home-to-work-commuting-flows-within-the-municipalities-around-paris" id="toc-home-to-work-commuting-flows-within-the-municipalities-around-paris" class="nav-link active" data-scroll-target="#home-to-work-commuting-flows-within-the-municipalities-around-paris"><strong>Home-to-work commuting flows within the municipalities around Paris</strong></a>
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">1.0 Overview</a></li>
+  <li><a href="#importing-packages-and-datasets" id="toc-importing-packages-and-datasets" class="nav-link" data-scroll-target="#importing-packages-and-datasets">2.0 Importing Packages and Datasets</a></li>
+  <li><a href="#modeling-spatial-interactions-with-spflow" id="toc-modeling-spatial-interactions-with-spflow" class="nav-link" data-scroll-target="#modeling-spatial-interactions-with-spflow"><strong>3.0 Modeling Spatial Interactions with</strong> <code>spflow()</code></a>
+  <ul class="collapse">
+  <li><a href="#creating-spflow-network-objects" id="toc-creating-spflow-network-objects" class="nav-link" data-scroll-target="#creating-spflow-network-objects"><strong>3.1 Creating <code>spflow network</code></strong> objects</a></li>
+  </ul></li>
+  <li><a href="#estimation" id="toc-estimation" class="nav-link" data-scroll-target="#estimation">4.0 Estimation</a>
+  <ul class="collapse">
+  <li><a href="#estimating-with-default-values" id="toc-estimating-with-default-values" class="nav-link" data-scroll-target="#estimating-with-default-values">4.1 <strong>Estimating with default values</strong></a></li>
+  <li><a href="#adjusting-the-formula" id="toc-adjusting-the-formula" class="nav-link" data-scroll-target="#adjusting-the-formula">4.2 <strong>Adjusting the formula</strong></a></li>
+  <li><a href="#fine-grained-control-with-spflow_control" id="toc-fine-grained-control-with-spflow_control" class="nav-link" data-scroll-target="#fine-grained-control-with-spflow_control"><strong>4.3 Fine-grained control with <code>spflow_control()</code></strong></a></li>
+  <li><a href="#visualisations-to-diagnose-the-fit" id="toc-visualisations-to-diagnose-the-fit" class="nav-link" data-scroll-target="#visualisations-to-diagnose-the-fit"><strong>4.4 Visualisations to diagnose the fit</strong></a></li>
+  </ul></li>
+  <li><a href="#evaluating-the-impact-of-changing-the-input-data" id="toc-evaluating-the-impact-of-changing-the-input-data" class="nav-link" data-scroll-target="#evaluating-the-impact-of-changing-the-input-data">5.0 Evaluating t<strong>he impact of changing the input data</strong></a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Spatial Econometric Interaction Modelling</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">R</div>
+    <div class="quarto-category">spflow</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p><a href="https://www.linkedin.com/in/khantminnaing/">Khant Min Naing</a> </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 9, 2024</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">March 10, 2024</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="home-to-work-commuting-flows-within-the-municipalities-around-paris" class="level1">
+<h1><strong>Home-to-work commuting flows within the municipalities around Paris</strong></h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">1.0 Overview</h2>
+<p>This exercise uses <code>spflow</code> package for modeling spatial interactions using the example of home-to-work commuting flows. We will use information on the 71 municipalities that are located closest to the center of Paris. This data is contained in the package and was originally diffused by the French National Institutes of Statistics and Economic Studies (INSEE), and of Geographic and Forest Information (IGN).</p>
+</section>
+<section id="importing-packages-and-datasets" class="level2">
+<h2 class="anchored" data-anchor-id="importing-packages-and-datasets">2.0 Importing Packages and Datasets</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(Matrix,sf,spdep,tmap)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#devtools::install_github("LukeCe/spflow")</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spflow)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"paris10km_municipalities"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"paris10km_commuteflows"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Each municipality is identified by a unique id. Additionally, we have information on the population, the median income and the number of companies.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>paris10km_municipalities</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 71 features and 5 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2.199785 ymin: 48.76454 xmax: 2.499719 ymax: 48.95192
+Geodetic CRS:  WGS 84
+First 10 features:
+   ID_MUN POPULATION MED_INCOME NB_COMPANY AREA                       geometry
+1   75101      17100   31842.56      14333  182 MULTIPOLYGON (((2.344559 48...
+2   75102      22390   30024.50      14478   99 MULTIPOLYGON (((2.347832 48...
+3   75103      35991   30988.00      10696  117 MULTIPOLYGON (((2.350091 48...
+4   75104      27769   30514.67       7412  160 MULTIPOLYGON (((2.344559 48...
+5   75105      60179   32950.00      10290  252 MULTIPOLYGON (((2.344559 48...
+6   75106      43224   38447.69      10620  215 MULTIPOLYGON (((2.344559 48...
+7   75107      57092   41949.00      12602  412 MULTIPOLYGON (((2.320777 48...
+8   75108      38749   39774.00      52237  386 MULTIPOLYGON (((2.327121 48...
+9   75109      59474   32771.00      23687  218 MULTIPOLYGON (((2.325762 48...
+10  75110      94474   25154.00      23996  288 MULTIPOLYGON (((2.364678 48...</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(paris10km_municipalities)<span class="sc">+</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"ID_MUN"</span>, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"#57bfc0"</span>,<span class="st">"#7977f3"</span>, <span class="st">"#ce77b4"</span>,<span class="st">"#f67774"</span>,<span class="st">"#f89974"</span>, <span class="st">"#f8d673"</span>,<span class="st">"#f9f777"</span>)) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">col =</span> <span class="st">"white"</span>)<span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Paris Municipalities"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">2</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.fontface =</span> <span class="st">"bold"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.show =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">text.size =</span> <span class="fl">1.5</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">position=</span><span class="fu">c</span>(<span class="st">"RIGHT"</span>, <span class="st">"TOP"</span>)) <span class="sc">+</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>(<span class="at">position=</span><span class="fu">c</span>(<span class="st">"LEFT"</span>, <span class="st">"BOTTOM"</span>), <span class="at">text.size=</span><span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">labels.size =</span> <span class="dv">1</span>,<span class="at">alpha =</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<p>There are three different neighborhood matrices that can be used to describe the connectivity between the municipalities.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>mid_points <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>({</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">st_point_on_surface</span>(<span class="fu">st_geometry</span>(paris10km_municipalities))})</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>paris10km_nb <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"by_contiguity"</span> <span class="ot">=</span> spdep<span class="sc">::</span><span class="fu">poly2nb</span>(paris10km_municipalities),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"by_distance"</span> <span class="ot">=</span> spdep<span class="sc">::</span><span class="fu">dnearneigh</span>(mid_points,<span class="at">d1 =</span> <span class="dv">0</span>, <span class="at">d2 =</span> <span class="dv">5</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"by_knn"</span> <span class="ot">=</span> spdep<span class="sc">::</span><span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(mid_points,<span class="dv">3</span>))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(paris10km_municipalities))</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(paris10km_nb<span class="sc">$</span>by_contiguity, mid_points, <span class="at">add =</span> T, <span class="at">col =</span> <span class="fu">rgb</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="at">alpha=</span><span class="fl">0.5</span>))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Contiguity"</span>) </span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(paris10km_municipalities))</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(paris10km_nb<span class="sc">$</span>by_distance,mid_points, <span class="at">add =</span> T, <span class="at">col =</span> <span class="fu">rgb</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="at">alpha=</span><span class="fl">0.5</span>)) </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"Distance"</span>) </span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(paris10km_municipalities))</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(paris10km_nb<span class="sc">$</span>by_knn, mid_points, <span class="at">add =</span> T, <span class="at">col =</span> <span class="fu">rgb</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="at">alpha=</span><span class="fl">0.5</span>))</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span>(<span class="st">"3 Nearest Neighbors"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="960"></p>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, there is data on the size of the commuting flows and the distance between all pairs of municipalities</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(paris10km_commuteflows)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ID_ORIG ID_DEST DISTANCE COMMUTE_FLOW
+1   75101   75101    0.000   3771.23556
+2   75101   75102  786.743    294.76899
+3   75101   75103 1729.063     71.25116
+4   75101   75104 1807.294     99.38468
+5   75101   75105 2266.598     98.88915
+6   75101   75106 1512.870     65.15406</code></pre>
+</div>
+</div>
+</section>
+<section id="modeling-spatial-interactions-with-spflow" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-spatial-interactions-with-spflow"><strong>3.0 Modeling Spatial Interactions with</strong> <code>spflow()</code></h2>
+<p>The <strong>spflow</strong> package builds on the idea that flows correspond to pairwise interactions between the nodes of an origin network with the nodes of a destination network.</p>
+<p>In our example, the origin and destination networks are the same because every municipality is both an origin and destination of a flow.</p>
+<p>To estimate the model efficiently, the <strong>spflow</strong> package uses moment-based estimation methods, that exploit the relational structure of flow data. This avoids duplication arising from the fact that each municipality is at the origin and destination of many flows. For more details on the model and the estimation methods see LeSage (2008), Dargel (2021) and Dargel (2022).</p>
+<section id="creating-spflow-network-objects" class="level3">
+<h3 class="anchored" data-anchor-id="creating-spflow-network-objects"><strong>3.1 Creating <code>spflow network</code></strong> objects</h3>
+<p>To describe the nodes of a network the package provides <code>spflow_network-class</code> that combines attributes of the nodes with the chosen network structure. For our model we choose the contiguity based neighborhood structure.</p>
+<p>First, we will create an object <code>paris10km_net</code> using <code>sp_network_nodes()</code> function. This object represents the nodes in our network. Each municipality will serve as a node.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>paris10km_net <span class="ot">&lt;-</span>  <span class="fu">spflow_network</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_net =</span> <span class="st">"paris"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">node_neighborhood =</span> <span class="fu">nb2mat</span>(paris10km_nb<span class="sc">$</span>by_contiguity),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">node_data =</span> paris10km_municipalities,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">node_key_column =</span> <span class="st">"ID_MUN"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>paris10km_net</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Spatial network nodes with id: paris
+--------------------------------------------------
+Number of nodes: 71
+Average number of links per node: 5.239
+Density of the neighborhood matrix: 7.38% (non-zero connections)
+
+Data on nodes:
+    ID_MUN POPULATION MED_INCOME NB_COMPANY AREA COORD_X COORD_Y
+1    75101      17100   31842.56      14333  182    2.34   48.86
+2    75102      22390    30024.5      14478   99    2.34   48.87
+3    75103      35991      30988      10696  117    2.36   48.86
+4    75104      27769   30514.67       7412  160    2.36   48.85
+5    75105      60179      32950      10290  252    2.35   48.85
+6    75106      43224   38447.69      10620  215    2.33   48.85
+---    ---        ---        ---        ---  ---     ---     ---
+66   94046      54186      24329       3385  537    2.44    48.8
+67   94067      21846   31559.38       1763   90    2.42   48.84
+68   94069      14870   25790.65        957  144    2.43   48.82
+69   94076      56504      19447       2690  529    2.36   48.79
+70   94080      49831      30798       4655  191    2.43   48.85
+71   94081      88102    17860.5       4467 1166     2.4   48.79</code></pre>
+</div>
+</div>
+<p>Next, we will create an object <code>paris10km_pairs</code> using <code>sp_network_pair()</code> function. This object represents the edges in our network. Each origin-destination record from <code>paris10km_commuteflows</code> will serve as an edge.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>paris10km_net_pairs <span class="ot">&lt;-</span>  <span class="fu">spflow_network_pair</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_orig_net =</span> <span class="st">"paris"</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dest_net =</span> <span class="st">"paris"</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">pair_data =</span> paris10km_commuteflows,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">orig_key_column =</span> <span class="st">"ID_ORIG"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">dest_key_column =</span> <span class="st">"ID_DEST"</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>paris10km_net_pairs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Spatial network pair with id: paris_paris
+--------------------------------------------------
+Origin network id: paris (with 71 nodes)
+Destination network id: paris (with 71 nodes)
+Number of pairs: 5041
+Completeness of pairs: 100.00% (5041/5041)
+
+Data on node-pairs:
+     ID_DEST ID_ORIG DISTANCE COMMUTE_FLOW
+1      75101   75101        0      3771.24
+2      75102   75101   786.74       294.77
+3      75103   75101  1729.06        71.25
+4      75104   75101  1807.29        99.38
+5      75105   75101   2266.6        98.89
+6      75106   75101  1512.87        65.15
+---      ---     ---      ---          ---
+5036   94046   94081  3742.08       218.66
+5037   94067   94081  6105.73        60.28
+5038   94069   94081  4535.03       102.04
+5039   94076   94081  2567.25      1067.62
+5040   94080   94081  7277.43       120.11
+5041   94081   94081        0      9257.91</code></pre>
+</div>
+</div>
+<p>The function <code>spflow_network_multi()</code> combines information on the nodes and the node-pairs and also ensures that both data sources are consistent.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>paris10km_multinet <span class="ot">&lt;-</span> <span class="fu">spflow_network_multi</span>(paris10km_net,paris10km_net_pairs)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>paris10km_multinet</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Collection of spatial network nodes and pairs
+--------------------------------------------------
+Contains 1 spatial network nodes  
+    With id :  paris
+Contains 1 spatial network pairs  
+    With id :  paris_paris
+
+Availability of origin-destination pair information:
+
+ ID_ORIG_NET ID_DEST_NET ID_NET_PAIR COMPLETENESS   C_PAIRS C_ORIG C_DEST
+       paris       paris paris_paris      100.00% 5041/5041  71/71  71/71</code></pre>
+</div>
+</div>
+<p>Given the information on origins, destinations and OD pairs we can use the <a href="https://lukece.github.io/spflow/reference/spflow_map.html"><code>spflow_map()</code></a> method for a simple geographic representation of the largest flows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(paris10km_municipalities<span class="sc">$</span>geometry) </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spflow_map</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  paris10km_multinet,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">flow_var =</span> <span class="st">"COMMUTE_FLOW"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">add =</span> <span class="cn">TRUE</span>,         </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend_position =</span> <span class="st">"bottomleft"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">filter_lowest =</span> .<span class="dv">95</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">remove_intra =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">cex =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<p>Before estimating a model we should investigate the correlation structure of the input data. The <a href="https://lukece.github.io/spflow/reference/pair_cor.html"><code>pair_cor()</code></a> method creates a correlation matrix, which we can represent using the <a href="https://lukece.github.io/spflow/reference/cor_image.html"><code>cor_image()</code></a>. The formula is used clarify which variables should be included in the correlation matrix.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cor_formula <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> COMMUTE_FLOW) <span class="sc">~</span> . <span class="sc">+</span> <span class="fu">P_</span>(<span class="fu">log</span>( <span class="dv">1</span> <span class="sc">+</span> DISTANCE))</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>cor_mat <span class="ot">&lt;-</span> <span class="fu">pair_cor</span>(paris10km_multinet, <span class="at">spflow_formula =</span> cor_formula, <span class="at">add_lags_x =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cor_mat) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">substr</span>(<span class="fu">colnames</span>(cor_mat),<span class="dv">1</span>,<span class="dv">3</span>),<span class="st">"..."</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cor_image</span>(cor_mat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="estimation" class="level2">
+<h2 class="anchored" data-anchor-id="estimation">4.0 Estimation</h2>
+<p>The core function of the package is <a href="https://lukece.github.io/spflow/reference/spflow.html"><code>spflow()</code></a>, which provides an interface to four different estimators of the spatial econometric interaction model.</p>
+<section id="estimating-with-default-values" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-with-default-values">4.1 <strong>Estimating with default values</strong></h3>
+<p>Estimation with default settings requires two arguments: a <code>spflow_network_multi-class</code> and a <code>spflow_formula</code>. The <code>spflow_formula</code> specifies the model we want to estimate. In this example, the dependent variable is a transformation of commuting flows and we use the do- shortcut to indicate that all available variables should be included in the model. Using the defaults leads to the most comprehensive spatial interaction model, which includes spatial lags of the dependent variable, the exogenous variables and additional attributes for intra-regional observations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>results_default <span class="ot">&lt;-</span> <span class="fu">spflow</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">spflow_formula =</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> COMMUTE_FLOW) <span class="sc">~</span> . <span class="sc">+</span> <span class="fu">P_</span>(<span class="fu">log</span>( <span class="dv">1</span> <span class="sc">+</span> DISTANCE)),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">spflow_networks =</span> paris10km_multinet)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>results_default</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>--------------------------------------------------
+Spatial interaction model estimated by: MLE  
+Spatial correlation structure: SDM (model_9)
+Dependent variable: log(1 + COMMUTE_FLOW)
+
+--------------------------------------------------
+Coefficients:
+                        est     sd   t.stat  p.val
+rho_d                 0.439  0.016   27.834  0.000
+rho_o                 0.796  0.010   82.408  0.000
+rho_w                -0.372  0.020  -18.226  0.000
+(Intercept)          -0.158  0.073   -2.168  0.030
+(Intra)               6.179  0.296   20.908  0.000
+D_POPULATION          0.000  0.000    4.254  0.000
+D_POPULATION.lag1     0.000  0.000   -0.170  0.865
+D_MED_INCOME          0.000  0.000   -2.422  0.015
+D_MED_INCOME.lag1     0.000  0.000    6.300  0.000
+D_NB_COMPANY          0.000  0.000    2.437  0.015
+D_NB_COMPANY.lag1     0.000  0.000    2.542  0.011
+D_AREA                0.000  0.000    6.368  0.000
+D_AREA.lag1           0.000  0.000   -4.319  0.000
+O_POPULATION          0.000  0.000   22.902  0.000
+O_POPULATION.lag1     0.000  0.000   -5.740  0.000
+O_MED_INCOME          0.000  0.000    0.609  0.542
+O_MED_INCOME.lag1     0.000  0.000    0.192  0.848
+O_NB_COMPANY          0.000  0.000   -5.610  0.000
+O_NB_COMPANY.lag1     0.000  0.000    1.050  0.294
+O_AREA                0.000  0.000    6.278  0.000
+O_AREA.lag1           0.000  0.000   -4.951  0.000
+I_POPULATION          0.000  0.000   -3.538  0.000
+I_MED_INCOME          0.000  0.000   -8.722  0.000
+I_NB_COMPANY          0.000  0.000    4.787  0.000
+I_AREA               -0.001  0.000   -5.401  0.000
+P_log(1 + DISTANCE)      NA     NA       NA     NA
+
+--------------------------------------------------
+R2_corr: 0.9110008  
+Observations: 5041  
+Model coherence: Validated</code></pre>
+</div>
+</div>
+</section>
+<section id="adjusting-the-formula" class="level3">
+<h3 class="anchored" data-anchor-id="adjusting-the-formula">4.2 <strong>Adjusting the formula</strong></h3>
+<p>We can adjust how the exogenous variables are to be used by wrapping them into the <code>D_()</code>, <code>O_()</code>, <code>I_()</code> and <code>P_()</code> functions. The variables in <code>P_()</code> are used as OD pair features and those in <code>D_()</code>, <code>O_()</code> and <code>I_()</code> are used as destination, origin and intra-regional features. We can take advantage of the formula interface to specify transformations and expand factor variables to dummies.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>clog <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  log_x <span class="ot">&lt;-</span> <span class="fu">log</span>(x)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  log_x <span class="sc">-</span> <span class="fu">mean</span>(log_x)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>spflow_formula  <span class="ot">&lt;-</span> </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log</span>(COMMUTE_FLOW <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">~</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">D_</span>(<span class="fu">log</span>(NB_COMPANY) <span class="sc">+</span> <span class="fu">clog</span>(MED_INCOME)) <span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">O_</span>(<span class="fu">log</span>(POPULATION) <span class="sc">+</span> <span class="fu">clog</span>(MED_INCOME)) <span class="sc">+</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">I_</span>(<span class="fu">log</span>(POPULATION)) <span class="sc">+</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">P_</span>(<span class="fu">log</span>(DISTANCE <span class="sc">+</span> <span class="dv">1</span>))</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>results_mle  <span class="ot">&lt;-</span> <span class="fu">spflow</span>(</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  spflow_formula,</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  paris10km_multinet)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>results_mle</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>--------------------------------------------------
+Spatial interaction model estimated by: MLE  
+Spatial correlation structure: SDM (model_9)
+Dependent variable: log(COMMUTE_FLOW + 1)
+
+--------------------------------------------------
+Coefficients:
+                            est     sd   t.stat  p.val
+rho_d                     0.213  0.019   11.150  0.000
+rho_o                     0.726  0.012   59.127  0.000
+rho_w                    -0.022  0.024   -0.904  0.366
+(Intercept)              -0.809  0.289   -2.796  0.005
+(Intra)                   6.829  0.893    7.646  0.000
+D_log(NB_COMPANY)         0.285  0.016   18.075  0.000
+D_log(NB_COMPANY).lag1   -0.220  0.022  -10.099  0.000
+D_clog(MED_INCOME)       -0.343  0.051   -6.663  0.000
+D_clog(MED_INCOME).lag1   0.509  0.073    6.959  0.000
+O_log(POPULATION)         0.763  0.021   36.230  0.000
+O_log(POPULATION).lag1   -0.649  0.031  -21.085  0.000
+O_clog(MED_INCOME)       -0.081  0.050   -1.631  0.103
+O_clog(MED_INCOME).lag1  -0.006  0.066   -0.094  0.925
+I_log(POPULATION)        -0.422  0.082   -5.178  0.000
+P_log(DISTANCE + 1)      -0.073  0.022   -3.257  0.001
+
+--------------------------------------------------
+R2_corr: 0.9207571  
+Observations: 5041  
+Model coherence: Validated</code></pre>
+</div>
+</div>
+</section>
+<section id="fine-grained-control-with-spflow_control" class="level3">
+<h3 class="anchored" data-anchor-id="fine-grained-control-with-spflow_control"><strong>4.3 Fine-grained control with <code>spflow_control()</code></strong></h3>
+<p>More fine-grained adjustments are possible via the <code>spflow_control</code> argument. Here we change the estimation method and the way we want to model the spatial autoregression in the flows. To use spatial lags only for certain variables, we need to specify them as a second formula.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sdm_formula <span class="ot">&lt;-</span> <span class="er">~</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">O_</span>(<span class="fu">log</span>(POPULATION) <span class="sc">+</span> <span class="fu">clog</span>(MED_INCOME)) <span class="sc">+</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">D_</span>(<span class="fu">log</span>(NB_COMPANY) <span class="sc">+</span> <span class="fu">clog</span>(MED_INCOME))</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>cntrl <span class="ot">&lt;-</span> <span class="fu">spflow_control</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_method =</span> <span class="st">"mcmc"</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sdm_variables =</span> sdm_formula,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="st">"model_7"</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>results_mcmc  <span class="ot">&lt;-</span> <span class="fu">spflow</span>(</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  spflow_formula,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  paris10km_multinet,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_control =</span> cntrl)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>results_mcmc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>--------------------------------------------------
+Spatial interaction model estimated by: MCMC  
+Spatial correlation structure: SDM (model_7)
+Dependent variable: log(COMMUTE_FLOW + 1)
+
+--------------------------------------------------
+Coefficients:
+                            est  quant_025  quant_975     sd
+rho_d                     0.200      0.171      0.227  0.014
+rho_o                     0.722      0.699      0.745  0.012
+(Intercept)              -0.769     -1.332     -0.199  0.289
+(Intra)                   6.811      5.087      8.592  0.903
+D_log(NB_COMPANY)         0.290      0.260      0.321  0.015
+D_log(NB_COMPANY).lag1   -0.229     -0.266     -0.192  0.019
+D_clog(MED_INCOME)       -0.347     -0.449     -0.247  0.051
+D_clog(MED_INCOME).lag1   0.510      0.373      0.656  0.072
+O_log(POPULATION)         0.775      0.742      0.807  0.016
+O_log(POPULATION).lag1   -0.666     -0.711     -0.621  0.024
+O_clog(MED_INCOME)       -0.083     -0.181      0.015  0.051
+O_clog(MED_INCOME).lag1  -0.001     -0.129      0.125  0.066
+I_log(POPULATION)        -0.419     -0.583     -0.260  0.082
+P_log(DISTANCE + 1)      -0.070     -0.113     -0.029  0.021
+
+--------------------------------------------------
+R2_corr: 0.9205745  
+Observations: 5041  
+Model coherence: Validated</code></pre>
+</div>
+</div>
+</section>
+<section id="visualisations-to-diagnose-the-fit" class="level3">
+<h3 class="anchored" data-anchor-id="visualisations-to-diagnose-the-fit"><strong>4.4 Visualisations to diagnose the fit</strong></h3>
+<p>Calling <code>plot(results_mcmc)</code> would create a whole sequence of graphics that allow to diagnose the fit. Here we concentrate on a selection of these graphics. The pairwise correlations of the model data show, for example, that the residuals and their spatial lags are not correlated with the explanatory variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>res_corr <span class="ot">&lt;-</span> <span class="fu">pair_cor</span>(results_mcmc)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(res_corr) <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">colnames</span>(res_corr),<span class="dv">1</span>,<span class="dv">3</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cor_image</span>(res_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can also create Moran scatter plots to check whether the residuals still exhibit spatial autocorrelation with respect to the three potential neighborhood matrices <span class="math inline">\(W_d\)</span>, <span class="math inline">\(W_o\)</span>, &amp; <span class="math inline">\(W_w\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spflow_moran_plots</span>(results_mcmc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>A quick investigation of the 2% residuals with largest magnitude reveals that long distances seem to be predicted with lower precision.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(paris10km_municipalities<span class="sc">$</span>geometry)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spflow_map</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  results_mcmc,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">add =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend_position =</span> <span class="st">"bottomleft"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">filter_lowest =</span> .<span class="dv">98</span>, <span class="co"># concentrate on the 2% largest (in magnitude)</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">cex =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<p>Looking at the relation between the distances and the error confirms this impression. A more complex model could account for the increasing variance by weighting the observations during the estimation. This could be achieved using the <code>weight_variable</code> option in <a href="https://lukece.github.io/spflow/reference/spflow_control.html"><code>spflow_control()</code></a>, but is left out in this introductory vignette.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">log</span>(<span class="fu">dat</span>(paris10km_multinet, <span class="st">"paris_paris"</span>)[[<span class="st">"DISTANCE"</span>]] <span class="sc">+</span> <span class="dv">1</span>), <span class="fu">resid</span>(results_mcmc))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="evaluating-the-impact-of-changing-the-input-data" class="level2">
+<h2 class="anchored" data-anchor-id="evaluating-the-impact-of-changing-the-input-data">5.0 Evaluating t<strong>he impact of changing the input data</strong></h2>
+<p>Finally we can evaluate the impact certain characteristics have on the outcome. Here we look at a scenario where the population in the central municipality is increased by 10%. As this has diverse effects on all flows we will first look at an image of the effect matrix.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>center_mun <span class="ot">&lt;-</span> <span class="st">"75101"</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> <span class="fu">dat</span>(paris10km_multinet, <span class="st">"paris"</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> change_paris[change_paris<span class="sc">$</span>ID_MUN <span class="sc">==</span> center_mun,]</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>change_paris[,<span class="st">"POPULATION"</span>] <span class="ot">&lt;-</span> change_paris[,<span class="st">"POPULATION"</span>]<span class="sc">*</span><span class="fl">1.1</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> change_paris[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="co"># keep the ID and the variable that changed</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>effect_matrix <span class="ot">&lt;-</span> <span class="fu">predict_effect</span>(</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  results_mcmc,                           <span class="co"># the model</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_dat =</span> <span class="fu">list</span>(<span class="st">"paris"</span> <span class="ot">=</span> change_paris), <span class="co"># changes in network "paris"</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_type =</span> <span class="st">"M"</span>)                      <span class="co"># return in matrix form</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="co"># in the first row are those flows that go to the center</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="co"># in the first column are those flows that start from the center</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(effect_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<p>Here we see that flows starting from the center increase and flows that start from neighbors of the center to the center decrease. All other effects are very small. We can then have a closer look at the flows that start from the center or go to it. Additionally we look at all the internal flows, which decrease for all municipalities except for the center.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"FLOWS_FROM_CENTER"</span> <span class="ot">=</span> effect_matrix[,<span class="dv">1</span>], paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"FLOWS_TO_CENTER"</span> <span class="ot">=</span> effect_matrix[<span class="dv">1</span>,], paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,0 +1,27 @@
+---
+title: "Take-Home Exercise 03: Prototyping Modules for Geospatial Analytics Shiny Application"
+description: |
+author:
+  - name: Khant Min Naing
+    email: mnkhant.2020@scis.smu.edu.sg
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 03-10-2024
+date-modified: "last-modified"
+categories:
+  - r
+  - shiny
+title-block-banner: true
+format:
+  html:  
+    code-fold: false
+    code-summary: "Show the code"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+output:
+  distill::distill_article:
+    toc: true
+    self_contained: false
+---
