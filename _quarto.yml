@@ -13,20 +13,21 @@ website:
         - href: In-class_Ex/In-class_Ex04.qmd
         - href: In-class_Ex/In-class_Ex05.qmd
         - href: In-class_Ex/In-class_Ex06.qmd
+        - href: In-class_Ex/In-class_Ex07.qmd
       - text: "Hands-On Exercises"
         menu:
         - href: Hands-on_Ex/hands_on1.qmd
-          text: "Hands-On Exercise 1"
+          text: "Hands-On Exercise 01"
         - href: Hands-on_Ex/hands_on02.qmd
-          text: "Hands-On Exercise 2"
+          text: "Hands-On Exercise 02"
         - href: Hands-on_Ex/hands_on03.qmd
-          text: "Hands-On Exercise 3"
+          text: "Hands-On Exercise 03"
         - href: Hands-on_Ex/hands_on04.qmd
-          text: "Hands-On Exercise 4"
+          text: "Hands-On Exercise 04"
         - href: Hands-on_Ex/hands_on05.qmd
-          text: "Hands-On Exercise 5"
+          text: "Hands-On Exercise 05"
         - href: Hands-on_Ex/hands_on07.qmd
-          text: "Hands-On Exercise 7"
+          text: "Hands-On Exercise 07"
         - href: Hands-on_Ex/hands_on08.qmd
       - text: "Take-home Exercises"
         menu:

@@ -154,7 +154,7 @@ spflow_map(
   flow_var = "COMMUTE_FLOW",
   add = TRUE,         
   legend_position = "bottomleft",
-  filter_lowest = .95,
+  filter_lowest = .98,
   remove_intra = TRUE,
   cex = 1)
 ```
