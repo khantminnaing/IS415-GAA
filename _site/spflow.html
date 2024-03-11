@@ -279,7 +279,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 10, 2024</p>
+      <p class="date-modified">March 11, 2024</p>
     </div>
   </div>
     
@@ -644,23 +644,23 @@ Dependent variable: log(COMMUTE_FLOW + 1)
 --------------------------------------------------
 Coefficients:
                             est  quant_025  quant_975     sd
-rho_d                     0.200      0.171      0.227  0.014
-rho_o                     0.722      0.699      0.745  0.012
-(Intercept)              -0.769     -1.332     -0.199  0.289
-(Intra)                   6.811      5.087      8.592  0.903
-D_log(NB_COMPANY)         0.290      0.260      0.321  0.015
-D_log(NB_COMPANY).lag1   -0.229     -0.266     -0.192  0.019
-D_clog(MED_INCOME)       -0.347     -0.449     -0.247  0.051
-D_clog(MED_INCOME).lag1   0.510      0.373      0.656  0.072
-O_log(POPULATION)         0.775      0.742      0.807  0.016
-O_log(POPULATION).lag1   -0.666     -0.711     -0.621  0.024
-O_clog(MED_INCOME)       -0.083     -0.181      0.015  0.051
-O_clog(MED_INCOME).lag1  -0.001     -0.129      0.125  0.066
-I_log(POPULATION)        -0.419     -0.583     -0.260  0.082
-P_log(DISTANCE + 1)      -0.070     -0.113     -0.029  0.021
+rho_d                     0.201      0.171      0.229  0.014
+rho_o                     0.721      0.698      0.745  0.012
+(Intercept)              -0.772     -1.349     -0.226  0.284
+(Intra)                   6.816      5.045      8.553  0.903
+D_log(NB_COMPANY)         0.291      0.261      0.320  0.016
+D_log(NB_COMPANY).lag1   -0.231     -0.267     -0.194  0.019
+D_clog(MED_INCOME)       -0.348     -0.448     -0.249  0.051
+D_clog(MED_INCOME).lag1   0.511      0.366      0.649  0.071
+O_log(POPULATION)         0.774      0.741      0.806  0.017
+O_log(POPULATION).lag1   -0.664     -0.710     -0.617  0.024
+O_clog(MED_INCOME)       -0.083     -0.185      0.017  0.051
+O_clog(MED_INCOME).lag1  -0.004     -0.133      0.125  0.066
+I_log(POPULATION)        -0.420     -0.581     -0.259  0.083
+P_log(DISTANCE + 1)      -0.070     -0.112     -0.026  0.022
 
 --------------------------------------------------
-R2_corr: 0.9205745  
+R2_corr: 0.9205607  
 Observations: 5041  
 Model coherence: Validated</code></pre>
 </div>
@@ -699,11 +699,37 @@ Model coherence: Validated</code></pre>
 <p><img src="spflow_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="960"></p>
 </div>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(paris10km_municipalities<span class="sc">$</span>geometry)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spflow_map</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  results_mcmc,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">flow_type =</span> <span class="st">"fitted"</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">add =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend_position =</span> <span class="st">"bottomleft"</span>,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">filter_lowest =</span> .<span class="dv">98</span>, <span class="co"># concentrate on the 2% largest (in magnitude)</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">cex =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(paris10km_municipalities<span class="sc">$</span>geometry)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spflow_map</span>(</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  results_mcmc,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">flow_type =</span> <span class="st">"actual"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">add =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend_position =</span> <span class="st">"bottomleft"</span>,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">filter_lowest =</span> .<span class="dv">98</span>, <span class="co"># concentrate on the 2% largest (in magnitude)</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">cex =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="960"></p>
+</div>
+</div>
 <p>Looking at the relation between the distances and the error confirms this impression. A more complex model could account for the increasing variance by weighting the observations during the estimation. This could be achieved using the <code>weight_variable</code> option in <a href="https://lukece.github.io/spflow/reference/spflow_control.html"><code>spflow_control()</code></a>, but is left out in this introductory vignette.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">log</span>(<span class="fu">dat</span>(paris10km_multinet, <span class="st">"paris_paris"</span>)[[<span class="st">"DISTANCE"</span>]] <span class="sc">+</span> <span class="dv">1</span>), <span class="fu">resid</span>(results_mcmc))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">log</span>(<span class="fu">dat</span>(paris10km_multinet, <span class="st">"paris_paris"</span>)[[<span class="st">"DISTANCE"</span>]] <span class="sc">+</span> <span class="dv">1</span>), <span class="fu">resid</span>(results_mcmc))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="spflow_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+<p><img src="spflow_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
@@ -712,35 +738,56 @@ Model coherence: Validated</code></pre>
 <h2 class="anchored" data-anchor-id="evaluating-the-impact-of-changing-the-input-data">5.0 Evaluating t<strong>he impact of changing the input data</strong></h2>
 <p>Finally we can evaluate the impact certain characteristics have on the outcome. Here we look at a scenario where the population in the central municipality is increased by 10%. As this has diverse effects on all flows we will first look at an image of the effect matrix.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>center_mun <span class="ot">&lt;-</span> <span class="st">"75101"</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> <span class="fu">dat</span>(paris10km_multinet, <span class="st">"paris"</span>)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> change_paris[change_paris<span class="sc">$</span>ID_MUN <span class="sc">==</span> center_mun,]</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>change_paris[,<span class="st">"POPULATION"</span>] <span class="ot">&lt;-</span> change_paris[,<span class="st">"POPULATION"</span>]<span class="sc">*</span><span class="fl">1.1</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> change_paris[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="co"># keep the ID and the variable that changed</span></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>effect_matrix <span class="ot">&lt;-</span> <span class="fu">predict_effect</span>(</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  results_mcmc,                           <span class="co"># the model</span></span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_dat =</span> <span class="fu">list</span>(<span class="st">"paris"</span> <span class="ot">=</span> change_paris), <span class="co"># changes in network "paris"</span></span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_type =</span> <span class="st">"M"</span>)                      <span class="co"># return in matrix form</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="co"># in the first row are those flows that go to the center</span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="co"># in the first column are those flows that start from the center</span></span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(effect_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>center_mun <span class="ot">&lt;-</span> <span class="st">"75101"</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> <span class="fu">dat</span>(paris10km_multinet, <span class="st">"paris"</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> change_paris[change_paris<span class="sc">$</span>ID_MUN <span class="sc">==</span> center_mun,]</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>change_paris[,<span class="st">"POPULATION"</span>] <span class="ot">&lt;-</span> change_paris[,<span class="st">"POPULATION"</span>]<span class="sc">*</span><span class="fl">1.1</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>change_paris <span class="ot">&lt;-</span> change_paris[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="co"># keep the ID and the variable that changed</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>effect_matrix <span class="ot">&lt;-</span> <span class="fu">predict_effect</span>(</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  results_mcmc,                           <span class="co"># the model</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">new_dat =</span> <span class="fu">list</span>(<span class="st">"paris"</span> <span class="ot">=</span> change_paris), <span class="co"># changes in network "paris"</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_type =</span> <span class="st">"M"</span>)                      <span class="co"># return in matrix form</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co"># in the first row are those flows that go to the center</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co"># in the first column are those flows that start from the center</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(effect_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="spflow_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="960"></p>
+<p><img src="spflow_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="960"></p>
 </div>
 </div>
 <p>Here we see that flows starting from the center increase and flows that start from neighbors of the center to the center decrease. All other effects are very small. We can then have a closer look at the flows that start from the center or go to it. Additionally we look at all the internal flows, which decrease for all municipalities except for the center.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"FLOWS_FROM_CENTER"</span> <span class="ot">=</span> effect_matrix[,<span class="dv">1</span>], paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"FLOWS_FROM_CENTER"</span> <span class="ot">=</span> effect_matrix[,<span class="dv">1</span>], paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="spflow_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+<p><img src="spflow_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"FLOWS_TO_CENTER"</span> <span class="ot">=</span> effect_matrix[<span class="dv">1</span>,], paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"FLOWS_TO_CENTER"</span> <span class="ot">=</span> effect_matrix[<span class="dv">1</span>,], paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="spflow_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+<p><img src="spflow_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"INTRA_FLOWS"</span> <span class="ot">=</span> <span class="fu">diag</span>(effect_matrix), paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can then look at the indirect effects on all flows that do not have the central municipality as origin or destination. To summarize these by total inflow and outflow we additionally set the internal flows to zero.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>effect_matrix2 <span class="ot">&lt;-</span> effect_matrix</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(effect_matrix2) <span class="ot">&lt;-</span> effect_matrix2[<span class="dv">1</span>,] <span class="ot">&lt;-</span> effect_matrix2[,<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"TOTAL_OUTFLOWS"</span> <span class="ot">=</span> <span class="fu">rowSums</span>(effect_matrix2), paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">cbind</span>(<span class="st">"TOTAL_INFLOWS"</span> <span class="ot">=</span> <span class="fu">colSums</span>(effect_matrix2), paris10km_municipalities[<span class="st">"geometry"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="spflow_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 

@@ -169,7 +169,7 @@ colnames(cor_mat) <- paste0(substr(colnames(cor_mat),1,3),"...")
 cor_image(cor_mat)
 ```
 
-## 4.0 Estimation 
+## 4.0 Estimation
 
 The core function of the package is [`spflow()`](https://lukece.github.io/spflow/reference/spflow.html), which provides an interface to four different estimators of the spatial econometric interaction model.
 
@@ -256,6 +256,32 @@ A quick investigation of the 2% residuals with largest magnitude reveals that lo
 plot(paris10km_municipalities$geometry)
 spflow_map(
   results_mcmc,
+  add = TRUE,
+  legend_position = "bottomleft",
+  filter_lowest = .98, # concentrate on the 2% largest (in magnitude)
+  cex = 1) 
+```
+
+```{r}
+#| fig-width: 10
+#| fig-height: 10
+plot(paris10km_municipalities$geometry)
+spflow_map(
+  results_mcmc,
+  flow_type = "fitted",
+  add = TRUE,
+  legend_position = "bottomleft",
+  filter_lowest = .98, # concentrate on the 2% largest (in magnitude)
+  cex = 1) 
+```
+
+```{r}
+#| fig-width: 10
+#| fig-height: 10
+plot(paris10km_municipalities$geometry)
+spflow_map(
+  results_mcmc,
+  flow_type = "actual",
   add = TRUE,
   legend_position = "bottomleft",
   filter_lowest = .98, # concentrate on the 2% largest (in magnitude)
