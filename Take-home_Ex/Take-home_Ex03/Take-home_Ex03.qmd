@@ -25,3 +25,918 @@ output:
     toc: true
     self_contained: false
 ---
+
+# Prototyping Modules for Geospatial Analytics Shiny Application
+
+# 1.0 Overview
+
+In the realm of application development, **prototyping** serves as a powerful tool that breathes life into abstract concepts and ideas, transforming them into tangible representations. It is akin to a bridge that connects the realm of theoretical design with the practical world of user interaction.
+
+A prototype, particularly for an application, is primarily a tool for validating design. It provides a platform to test and verify whether the visual elements and user experience (UX) of the application resonate with stakeholders and potential users. This process is crucial as it allows for the refinement of the application's UX before further resources are committed, thereby ensuring efficiency and effectiveness in the development process.
+
+## 1.1 Prototyping for Shiny Application
+
+In the context of developing a **Shiny application** with **R**, prototyping takes on a more specific role. It involves evaluating and determining the necessary R packages that are supported in R CRAN, which forms the backbone of the application. This step ensures that the application is built on a solid and reliable foundation.
+
+Furthermore, prototyping involves preparing and testing specific R codes to ensure they run correctly and return the expected output. This step is akin to a rehearsal before the actual performance, ensuring that the final product runs smoothly and meets the desired objectives.
+
+Another critical aspect of prototyping in Shiny application development is determining the parameters and outputs that will be exposed on the Shiny applications. This process is like setting the stage for user interaction, deciding what the users see and how they interact with the application.
+
+Lastly, prototyping involves selecting the appropriate Shiny UI components for exposing the parameters determined above. This step is where the application starts to take shape, and the user interface begins to reflect the application's functionality and purpose.
+
+In essence, prototyping is a journey of transformation, from abstract ideas to a functional application, ensuring that the final product not only meets design specifications but also provides an engaging and satisfactory user experience. It is the lighthouse that guides the application development process, ensuring that the final product is not just a mere application, but a solution that meets the needs of its users.
+
+This exercise is designed as a comprehensive walk-through of the prototyping process for a Shiny application. It will guide you through each step, starting from the basics of Shiny, moving on to the ideation of a generic design, followed by the analysis of R-packages and testing of R codes, which all will contribute to the proposed **storyboard** of our Shiny application.
+
+# 2.0 Understanding Basics of Shiny
+
+Shiny is an open-source R package that provides a powerful web framework for building interactive web applications using R. The best part? We don't need to dive into all that web design jargon like HTML, CSS, or JavaScript. We just focus on our R analysis, and Shiny turns it into a web app that others can play around with.
+
+## 2.1 Basic Building Blocks of Shiny
+
+When we're working with Shiny, we basically have a folder that contains an R script named **`app.R`**. This script is the heart of our Shiny application. It's made up of two main parts: a user interface **`ui`** object and a `server` function.
+
+One of the cool things about Shiny is that it lets us keep our **`ui`** object and `server` function separate. This means we can clearly split up the code that creates our user interface (that's the front end, what our users see and interact with) from the code that decides how our application behaves (that's the back end, the behind-the-scenes stuff). It's like having a clean, organized workspace, which makes our job a whole lot easier!
+
+## 2.2 UI
+
+When we're building a Shiny application, we work with three main components **`headerPanel`**, **`sidebarPanel`**, and **`mainPanel`**. These are the building blocks for our app's user-interface.
+
+-   **Sidebar Panel (`sidebarPanel`)**: This is a vertical panel on the side of the application. It is displayed with a distinct background color and typically contains input controls.
+
+-   **Main Panel (`mainPanel`)**: This is the primary area of the application and it typically contains outputs. The main panel displays the output (like maps, plots, tables, etc.) based on the input given in the sidebar panel.
+
+-   **Header Panel (`headerPanel`)**: This is the topmost part of the UI where you can place the title of our application. It is not always necessary but can be used to provide a title or brief description of our application.
+
+![](images/building_blocks.png){fig-align="center"}
+
+### Grid Layout System: FluidRow and Column
+
+When we're designing the layout of our Shiny app, we get to play around with two functions `fluidRow()` and `column()`. Rows are created using the `fluidRow()` function. Within these rows, we can add columns - but a thing to note here is that columns can only be included within a row. We can define columns using the `column()` function. The width of these columns is based on the Bootstrap 12-wide grid system. This means we can have up to 12 columns in a single row, giving us a lot of flexibility in how we want to arrange things.
+
+By playing around with **`fluidRow()`** and **`column()`**, we can create a wide variety of layouts. A few examples of different layout grids can be seen below:
+
+![](images/Layout.png){fig-align="center"}
+
+### Header Panel: **Navbar** Pages
+
+To create a Shiny application that consists of multiple distinct sub-components (each with their own sidebar, tabsets, or other layout constructs), Shiny provides `navbarPage()` function to create subsection pages within a single Shiny application. So, no matter how complex our app gets, **`navbarPage()`** helps us keep things organized and user-friendly.
+
+![](images/navbar_pages.png){fig-align="center"}
+
+### **Sidebar Panel**: User Inputs and Controls
+
+To insert the user input specifications and controls, Shiny provides functions like `sliderInput()`, `selectInput()`, `textInput()`, `numericInput()`, `checkboxInput()`, and `checkboxGroupInput()`, among others. Each of these functions helps us create a different user interface widget for input specifications and controls. Below is a summary of how different functions create user interface widgets for input specifications and controls.
+
+![](images/Screenshot%202024-03-20%20at%209.02.23%20PM.png){fig-align="center"}
+
+Here are a few functions that are commonly used!
+
+-   **`sliderInput()`**: This function lets us add a slider bar. It's perfect when we want users to select a value within a range.
+
+-   **`selectInput()`**: This function creates a dropdown list. It's great for when we have a list of options and we want users to select one.
+
+-   **`textInput()`**: This function gives us a text box. It's ideal for when we want users to type in some text.
+
+-   **`numericInput()`**: This function creates a numeric input field. It's useful when we need users to enter a number.
+
+-   **`checkboxInput()`**: This function lets us add a checkbox. It's handy when we want users to make a binary choice.
+
+-   **`checkboxGroupInput()`**: This function creates a group of checkboxes. It's perfect for when we want users to select multiple options from a list.
+
+`submitButton()` can be used to compile the specified inputs and controls and send to the server to refresh and update the main panel contents.
+
+### **Main Panel**: Outputs
+
+In our Shiny app, we can create placeholders in the main panel for outputs. These are later filled in by the server function, which translates our inputs into outputs. There are three main types of output, which correspond to the three things we usually include in a report: text, tables, and plots. Shiny provides functions like `textOutput()`, `tableOutput()`, and `plotOutput()` to define output elements and `renderText()`, `renderTable()` and `renderPlot()` to render and create output elements on user interface. Using `fluidRow()` and `column()`, configurations of the output elements can be customised as well.
+
+![](images/MainPanel_Outputs.png){fig-align="center"}
+
+### **Main Panel**: Tabsets
+
+Shiny provides `tabsetPanel()` function that allows us to subdivide the main panel into multiple sections. Each section can then show different outputs. It's like having different tabs in a browser, each showing a different webpage. This way, we can keep our outputs neat and organized, and our users can easily find what they're looking for.
+
+![](images/tabsets.png){fig-align="center"}
+
+## 2.3 Server
+
+In a Shiny application, the `server` component is responsible for the server-side logic of our application. The `server` object can include one or more functions that take the inputs from our `ui` object and turn them into outputs. A server function usually take in an `input` and an `output` parameter. The `input` parameter allows the server to access the UI inputs, and the `output` parameter is used to define how to display outputs on the UI. An optional parameter `session` can also be inputted to define the session-related logic to the application.
+
+So, how do the `u` and `server` interact to run the app? Well, imagine it like a two-way street. The `ui` sends the inputs to the `server`, and the `server` sends back the outputs to be displayed on the `ui`. It's a continuous loop of interaction that keeps our app running smoothly. A generi diagram of how they interact to run the application has been formulated below:
+
+![](images/Server.png){fig-align="center"}
+
+In actual fact, there are multiple customisation and extensions available in Shiny to improve the look and feel of our application. However, I only covered basic components and certain customisations from my research that I intend to use in my proposed design.
+
+# 3.0 Analysing R-Packages
+
+There are multiple R-packages available
+
+```{r}
+pacman::p_load(tmap, sf, sp, tidyverse, knitr, spflow, Matrix, performance)
+```
+
+# 4.0 Testing Spatial Interaction Modelling
+
+First, import three datasets
+
+-   `flow_data_merged` contains the origin-destination flow data of public bus trajectories for three months (November, December, and January)
+
+-   `od_data_merged` contains the origin-destination pair of bus stops within Singapore and the associated intra-region, and inter-regional flow
+
+-   `hex_grid_pa_sz` contains the analytical hexagon division of Singapore for spatial interaction modelling, with geometric data, associated subzone and planning area of each hexagon.
+
+```{r}
+flow_data_merged <- read_rds("~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/flow_data_merged.rds")
+od_data_merged <- read_rds("~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/od_data.rds")
+hex_grid_pa_sz <- read_rds("~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/hex_grid_pa.rds")
+```
+
+## 4.1 Creating Outflow Map
+
+In this section, we will create outflow map for each hexagon. This map will serve as a visual representation of the total count of outflow movement of people from each hexagon to others.
+
+Our original dataset is quite large, encompassing a vast amount of data. However, for the purpose of prototyping, we will be utilizing only a fragment of this data. This approach allows us to test the functionality of various R packages and assess the types of visualizations and analytical outcomes that can be produced without exhausting computational resources.
+
+For this purpose, I filter the data where **`DAY_TYPE`** is "WEEKDAY" and **`TIME_PER_HOUR`** is 8, which represents 8 AM in the morning. the resultant data stored as `flow_data_weekday_morn`. This filtered data, stored as **`flow_data_weekday_morn`**, will be used for subsequent map creations.
+
+```{r}
+flow_data_weekday_morn <- flow_data_merged %>% filter(DAY_TYPE == "WEEKDAY", TIME_PER_HOUR %in% c(8))
+```
+
+```{r}
+#| echo: false
+flow_data_weekday_morn <- rename(flow_data_weekday_morn, d_biz_count = d_o_biz_count, d_school_count = d_o_school_count , d_fin_count = d_o_fin_count , d_hc_count = d_o_hc_count , d_busstop_count = d_o_busstop_count , d_housing_count = d_o_housing_count , d_leisure_recre_count = d_o_leisure_recre_count , d_retail_count = d_o_retail_count , d_entertn_count = d_o_entertn_count , d_food_bev_count = d_o_food_bev_count)
+```
+
+In our dataset, each origin-destination trajectory is represented as individual row. For map creation, we will aggregate the total trips by origin hexagon. This gives us a summary of the total trips that originated from each hexagon - hence providing outflow volume.
+
+```{r}
+outflow_data_weekday_morn <- aggregate(flow_data_weekday_morn$TOTAL_TRIPS, by=list(Category=flow_data_weekday_morn$ORIGIN_hex), FUN=sum)
+
+colnames(outflow_data_weekday_morn) <- c("index", "TOTAL_TRIPS")
+```
+
+The newly aggregated dataset that we have is of the **`data.frame`** type. While this format is useful for many types of data analysis, it is not directly compatible with mapping functions. Therefore, to facilitate the creation of our outflow maps, we need to join this dataset with the spatial features object **`hex_grid_pa_sz`** which is of the **`sf`** (simple features) type.
+
+To accomplish this, we will use the **`left_join()`** function from the **`dplyr`** package in R. The **`left_join()`** function merges two datasets together based on a common column. In our case, this common column is the **`index`** column. This will result in a new **`sf`** object called `outflow_data_weekday_morn_hex` that contains both the outflow data and the corresponding spatial data for each hexagon.
+
+```{r}
+outflow_data_weekday_morn_hex <- left_join(hex_grid_pa_sz, outflow_data_weekday_morn, by = 'index')
+```
+
+It's crucial to understand that not every hexagon may have an aggregated value, especially considering that we are working with a subset of the original dataset. To address it, any **`NA`** values in the **`TOTAL_TRIPS`** column of the **`outflow_data_weekday_morn_hex`** data frame will be replaced with **`0`**.
+
+```{r}
+outflow_data_weekday_morn_hex$TOTAL_TRIPS <- ifelse(is.na(outflow_data_weekday_morn_hex$TOTAL_TRIPS), 0, outflow_data_weekday_morn_hex$TOTAL_TRIPS)
+```
+
+Finally we can prepare the outflow map using the appropriate `tmap` functions.
+
+```{r}
+tmap_mode("view")
+tm_shape(outflow_data_weekday_morn_hex) +
+  tm_fill(col = "TOTAL_TRIPS",
+          palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Outflow Trip Count") +
+  tm_borders(col = "grey")
+```
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+Notably, **`style`** argument is set to "fixed". This means that the color breaks are manually specified and **`breaks`** argument specifies the boundaries (flow volume count) for the color breaks.
+
+I choose to manually specify these color breaks because it helps the users to have a consistent interpretation of the colors across different maps. By using the same color breaks, I ensure that the same range of data values corresponds to the same color on all my maps. This makes it easier for the users to compare maps and understand trends and patterns. For instance, if one color represents a range of 0-10 on one map and 0-20 on another, it would be difficult to make easy and accurate comparisons between the two maps. By using fixed color breaks, I eliminate this issue and make my maps more intuitive and user-friendly.
+:::
+
+## 4.2 Making Inflow Map
+
+Similar to what we did for outflow map, we will follow the same process for inflow map as well. Instead of aggregating the data by original hexagon `ORIGIN_hex`, we will use `DESTIN_hex` this time, so that we aggregate the total of inflow movement into each hexagon.
+
+```{r}
+inflow_data_weekday_morn <- aggregate(flow_data_weekday_morn$TOTAL_TRIPS, by=list(Category=flow_data_weekday_morn$DESTIN_hex), FUN=sum)
+
+colnames(inflow_data_weekday_morn) <- c("index", "TOTAL_TRIPS")
+```
+
+After aggregation, we implement `left_join()` with `hex_grid_pa_sz` and then replace the `NULL` values with 0.
+
+```{r}
+inflow_data_weekday_morn_hex <- left_join(hex_grid_pa_sz, inflow_data_weekday_morn, by = 'index')
+
+inflow_data_weekday_morn_hex$TOTAL_TRIPS <- ifelse(is.na(inflow_data_weekday_morn_hex$TOTAL_TRIPS), 0, inflow_data_weekday_morn_hex$TOTAL_TRIPS)
+```
+
+Finally we can prepare the inflow map using the appropriate `tmap` functions.
+
+```{r}
+tmap_mode("view")
+tm_shape(inflow_data_weekday_morn_hex) +
+  tm_fill(col = "TOTAL_TRIPS",
+          palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Inflow Trip Count")+
+  tm_borders(col = "grey")+
+  tm_layout(legend.title.size = 1,
+            legend.text.size = 0.6,
+            frame = TRUE)
+```
+
+## 4.3 Making Distribution Graphs
+
+Another visualisation that can be produced to support the maps created above is a distribution graph. Although the map provides the specifica spatial patterns of the flow volumes, it is not striaghtforward to discent the distribution. In this regards, we will create distribution graphs to supplement the maps.
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+When I create distribution graphs to accompany and supplement my maps, I believe it's of utmost importance to maintain a consistent representation. To achieve this, I'll create the histograms using the breaks I specified in the maps as bins and use the same color palette. Essentially, I want users to look at the maps and histograms together and receive a consistent message. This way, they can easily interpret the information and understand the patterns I'm trying to highlight.
+:::
+
+Here, we will define the breaks and labels for our distribution graphs. We use the consistent language with the breaks and labels from the map.
+
+```{r}
+breaks <- c(0,0.9,100,1000,10000,100000,500000,1000000,5000000)
+labels <- c("0", "1 to 100", "100 to 1,000", "1,000 to 10,000", "10,000 to 100,000", "100,000 to 500,00", "500,000 to 1,000,000", "1,000,000 to 5,000,000")
+```
+
+### Outflow Distribution Graph
+
+Using the breaks and labels, we will create a new data column called `TRIPS_BIN` which categorizes the **`TOTAL_TRIPS`** into different bins based on the breaks we defined earlier.
+
+```{r}
+outflow_data_weekday_morn_hex$TRIPS_BIN <- cut(outflow_data_weekday_morn_hex$TOTAL_TRIPS, breaks = breaks, labels=labels, include.lowest = TRUE, right = FALSE)
+head(outflow_data_weekday_morn_hex)
+```
+
+Next, we will create distribution graph for outflow map using relevant `ggplot2` functions.
+
+```{r}
+ggplot(data = outflow_data_weekday_morn_hex,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Outflow Trip Count") +  
+  scale_fill_manual(values=c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0")) +
+  ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin")
+```
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+Looking at the graphs above, I noticed that the number of hexagons with zero flow volume significantly outweighs the overall distribution. This makes the differences in other categories appear less significant. To address this, I decided to create a new graph where I exclude the hexagons with zero outflow trips. This will allow me to focus on the hexagons with non-zero outflow trips and gain a better understanding of their distribution.
+:::
+
+```{r}
+outflow_data_weekday_morn_nozero <- outflow_data_weekday_morn_hex %>% filter(TOTAL_TRIPS != 0)
+```
+
+Next, we will create distribution graph for outflow map using relevant `ggplot2` functions.
+
+```{r}
+ggplot(data = outflow_data_weekday_morn_nozero,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Outflow Trip Count") +  
+  scale_fill_manual(values=c("#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"))+
+  ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin", 
+          subtitle = "(excluding hexagons with zero outflow trip)")
+```
+
+### Inflow Distribution Graph
+
+We will repeat the same procedures for inflow distribution graphs as well.
+
+```{r}
+inflow_data_weekday_morn_hex$TRIPS_BIN <- cut(inflow_data_weekday_morn_hex$TOTAL_TRIPS, breaks = breaks, labels=labels, include.lowest = TRUE, right = FALSE)
+head(inflow_data_weekday_morn_hex)
+```
+
+```{r}
+ggplot(data = inflow_data_weekday_morn_hex,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Inflow Trip Count") +  
+  scale_fill_manual(values=c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0")) +
+  ggtitle("Distribution of Hexagons Per Each Inflow Trip Count Bin")
+```
+
+```{r}
+inflow_data_weekday_morn_nozero <- inflow_data_weekday_morn_hex %>% filter(TOTAL_TRIPS != 0)
+```
+
+```{r}
+ggplot(data = inflow_data_weekday_morn_nozero,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Inflow Trip Count") +  
+  scale_fill_manual(values=c("#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"))+
+  ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin", 
+          subtitle = "(excluding hexagons with zero inflow trip)")
+```
+
+## 4.4 Zooming into Planning Areas and Subzones
+
+In this section, we will further zoom our inflow/outflow map into planning areas and subzones.
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thougths**
+
+In the previous section, my focus was on exploring the inflow and outflow maps for the entirety of Singapore Island. However, I realized that this broad perspective might not be intuitive enough to identify patterns at the local subzone levels.
+
+Especially when we're using analytical hexagons to represent the spatial units, it can pose a real challenge for users to understand the local details. For instance, figuring out which planning area or subzone a hexagon belongs to, or simply pinpointing a planning area or subzone's location in Singapore, can be quite tricky.
+
+Considering this, I thought of a potential enhancement to the user experience. What if I could allow users to specify the subzone they're interested in? This way, they could delve into the details of that particular area, examining the inflow and outflow patterns more closely. Not only would this make the data more relevant and personalized for the user, but it could also reveal unique patterns and trends that might be overlooked in a broader analysis.
+:::
+
+Before we go about testing, let's have a quick look at how the structure of our inflow and outflow dataset looks like.
+
+```{r}
+head(inflow_data_weekday_morn_hex)
+```
+
+From the look of it, it appears that each hexagon has data on their respective planning area and subzone they belong to. This information will be useful when we want to create planning-area specific maps for inflow/outflow. We can simply filter our dataset to smaller, temporary data based on the user specification.
+
+### Planning Area Level Zooming
+
+Firsly, let's try creating inflow/outflow maps for planning area level. The user can specify a planning area, and we can filter the data accordingly before creating maps. We will create two functions, called `inflow_pa_map` and `outflow_pa_map`. Each function is designed to generate a specific type of map - inflow or outflow, respectively.
+
+When a planning area name is provided as input to these functions, they will filter the dataset to only include data relevant to the specified area. Leveraging the **`tmap`** package, these functions will then create an interactive map. It's important to note that these maps will maintain the same color palette and breaks as our previous overall maps, ensuring consistency in our visual representations.
+
+```{r}
+inflow_pa_map <- function(pa_input) { 
+  inflow_pa_temp <- inflow_data_weekday_morn_hex %>% filter(PLN_AREA_N == pa_input)
+  tmap_mode("view")
+  tm <- tm_shape(inflow_pa_temp) +
+    tm_fill(col = "TOTAL_TRIPS",
+            palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Inflow Trip Count",
+          id= "TOTAL_TRIPS")+
+  tm_borders(col = "grey")
+ return(tm)
+}
+```
+
+```{r}
+outflow_pa_map <- function(pa_input) { 
+  outflow_pa_temp <- outflow_data_weekday_morn_hex %>% filter(PLN_AREA_N == pa_input)
+  tmap_mode("view")
+  tm <- tm_shape(outflow_pa_temp) +
+    tm_fill(col = "TOTAL_TRIPS",
+            palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Outflow Trip Count",
+          id= "TOTAL_TRIPS")+
+  tm_borders(col = "grey")
+ return(tm)
+}
+```
+
+As a demonstration, we call the **`inflow_pa_map()`** function with "HOUGANG" and the **`outflow_pa_map()`** function with "BUKIT PANJANG" as inputs. to test whether the functions works well and produce desired outcomes.
+
+```{r}
+inflow_pa_map("HOUGANG")
+outflow_pa_map("BUKIT PANJANG")
+```
+
+### Subzone Level Zooming
+
+Similar to what we did with planning area level zooming, we can create functions for inflow/outflow maps at subzone level. Below, we have create two functions `inflow_sz_map()` and `outflow_sz_map()` using similar approach.
+
+```{r}
+inflow_sz_map <- function(sz_input) { 
+  inflow_sz_temp <- inflow_data_weekday_morn_hex %>% filter(SUBZONE_N == sz_input)
+  tmap_mode("view")
+  tm <- tm_shape(inflow_sz_temp) +
+    tm_fill(col = "TOTAL_TRIPS",
+            palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Inflow Trip Count",
+          id= "TOTAL_TRIPS")+
+  tm_borders(col = "grey")
+ return(tm)
+}
+```
+
+```{r}
+outflow_sz_map <- function(sz_input) { 
+  outflow_sz_temp <- outflow_data_weekday_morn_hex %>% filter(SUBZONE_N == sz_input)
+  tmap_mode("view")
+  tm <- tm_shape(outflow_sz_temp) +
+    tm_fill(col = "TOTAL_TRIPS",
+            palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Outflow Trip Count",
+          id= "TOTAL_TRIPS")+
+  tm_borders(col = "grey")
+ return(tm)
+}
+```
+
+As a demonstration, we call the **`inflow_sz_map()`** function with "CHANGI AIRPORT" and the **`outflow_sz_map()`** function with "KEMBANGAN" as inputs to test whether the functions works well and produce desired outcomes.
+
+```{r}
+inflow_sz_map("CHANGI AIRPORT")
+outflow_sz_map("KEMBANGAN")
+```
+
+### Exploring User Input Options for Shiny Application
+
+From the exercise above, we may include the following user specification and model calibration options for our Shiny application.
+
+| Input            | Options                                                                                                                 |
+|------------------|-------------------------------------------------------------------------------------------------------------------------|
+| Time Period      | `Weekday - Morning Peak` , `Weekday - Evening Peak`, `Weekend/Holiday - Morning Peak`, `Weekend/Holiday - Evening Peak` |
+| Area of Interest | `Singapore (Overall)`, Individual Planning Areas/ Subzones                                                              |
+| Flow Type        | `Inflow`, `Outflow`                                                                                                     |
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+Initially, I had planned to use a slider for the time period, allowing users to specify the specific range of hours they wanted to examine. This seemed like the most viable approach. However, I soon realized that this could lead to heavy computation, especially if a user selected a very wide range (or possibly the entire dataset). This could potentially slow down our Shiny application, which would not be ideal for the user experience.
+
+After some thought, I decided to switch to pre-determined time intervals, specifically focusing on morning and evening peak hours. While it's still important to consider non-peak hours, I've noticed that most policy discussions around transport modeling tend to emphasize peak hours. Therefore, I believe it's more useful and logical to focus on these peak periods.
+
+For the morning peak, I plan to use the time from 6-8 AM, and for the evening peak, I intend to use 5-7 PM. This way, we can analyze the inflow and outflow patterns during the most critical hours of the day, providing valuable insights for transportation planning and policy making.
+:::
+
+## 4.5 Spatial Interaction Modelling
+
+In this section, we will test how we can implement and visualise spatial interaction modelling of origin-destination public bus flow data. In particular, we are planning to test using `glm()` functions from `stats` package to fit generalised linear models.
+
+### Applying `log()` Transformation to Explanatory Variables
+
+Poisson regression is often used in spatial interaction modelling of origin-destination (OD) bus flow due to the nature of the data and the statistical properties of the Poisson distribution. Since Poisson Regression is based on log, log transformation of explanatory variables need to be done before running the model.
+
+Hence, we apply log transformation to all columns in the flow dataset which ends with `_count`. These columns represent the explanatory variables of origin and destination hexagons in our dataset. We intuitively know that these variables need to be transformed because they are count data, which are often skewed and can benefit from a log transformation to meet the assumptions of Poisson regression. We also apply a log transformation to the **`dist`** column, which represents the distance between hexagons. This is done because distance is a continuous variable that can also be skewed and can benefit from a log transformation.
+
+```{r}
+flow_data_weekday_morn_log <- flow_data_weekday_morn %>%
+  mutate_at(vars(ends_with("_count")), log) %>%
+  mutate(dist = log(dist))
+```
+
+The transformed data is stored in a new data frame **`flow_data_weekday_morn_log`**. This data frame is now ready for Poisson regression analysis.
+
+## **4.6 Origin (Production) Constrained Spatial Interaction Model**
+
+In this section, we will fit an origin constrained Spatial Interaction Model (SIM). For origin constrained SIM, only explanatory variables representing the **attractiveness** at the **destinations** will be used. This is because such models emphasize the limitations or capacities of the origins rather than the demand or attractiveness of the destinations. The capacity or limitation at the origin sites determines the potential for generating interactions or flows.
+
+```{r}
+#| eval: false
+orcSIM_weekday_morn <- glm(TOTAL_TRIPS ~ ORIGIN_hex + d_biz_count + d_school_count + d_fin_count + d_hc_count + d_busstop_count + d_housing_count + d_leisure_recre_count + d_retail_count + d_entertn_count + d_food_bev_count + dist - 1,
+              family = poisson(link = "log"),
+              data = flow_data_weekday_morn_log,
+              na.action = na.exclude)
+```
+
+In the formula argument, we specify our response variable **`TOTAL_TRIPS`** and our explanatory variables. The explanatory variables include **`ORIGIN_hex`**, various destination counts (e.g., **`d_biz_count`**, **`d_school_count`**, etc.), and **`dist`**. The **`-1`** at the end of the formula is used to remove the intercept that is inserted by **`glm`** into the model by default. Since the origin has already been constrained, the concept of an intercept would not be relevant.
+
+```{r}
+#| echo: false
+write_rds(orcSIM_weekday_morn, "~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/orcSIM_weekday_morn.rds")
+```
+
+```{r}
+#| echo: false
+orcSIM_weekday_morn <- read_rds("~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/orcSIM_weekday_morn.rds")
+```
+
+We will have a look at the results of the origin constrained spatial interaction model that we have just fitted.
+
+```{r}
+orcSIM_weekday_morn
+```
+
+## 4.7 **Destination Constraint Spatial Interaction Model**
+
+Next, we will fit a destination constrained Spatial Interaction Model (SIM). For destination constrained SIM, only explanatory variables which represent how **propulsive** the **origins** are will be used. This is because such models emphasize the demand or attractiveness of the destinations rather than the limitations or capacities of the origins. The demand or attractiveness of the destination sites determines the potential for generating interactions or flows.
+
+```{r}
+#| eval: false
+desSIM_weekday_morn <- glm(TOTAL_TRIPS ~ DESTIN_hex + o_biz_count + o_school_count + o_fin_count + o_hc_count + o_busstop_count + o_housing_count + o_leisure_recre_count + o_retail_count + o_entertn_count + o_food_bev_count + dist - 1,
+              family = poisson(link = "log"),
+              data = flow_data_weekday_morn_log,
+              na.action = na.exclude)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+write_rds(desSIM_weekday_morn,"~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/desSIM_weekday_morn.rds")
+```
+
+```{r}
+#| echo: false
+desSIM_weekday_morn <- read_rds("~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/desSIM_weekday_morn.rds")
+```
+
+```{r}
+desSIM_weekday_morn
+```
+
+## 4.8 **Doubly Constraint Spatial Interaction Model**
+
+In this section, we will fit a doubly constrained Spatial Interaction Model (SIM). For doubly constrained SIM, both the attractiveness at the destinations and the propulsiveness at the origins are considered. The model is typically expressed in the form of a distance function between the origin and destination.
+
+```{r}
+#| eval: false
+dbcSIM_weekday_morn <- glm(formula = TOTAL_TRIPS ~ 
+                ORIGIN_hex + 
+                DESTIN_hex + 
+                dist,
+              family = poisson(link = "log"),
+              data = flow_data_weekday_morn_log,
+              na.action = na.exclude)
+```
+
+In the formula argument, we specify our response variable **`TOTAL_TRIPS`** and our explanatory variables. The explanatory variables include **`ORIGIN_hex`**, **`DESTIN_hex`**, and **`dist`**.
+
+```{r}
+#| eval: false
+#| echo: false
+write_rds(dbcSIM_weekday_morn,"~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/dbcSIM_weekday_morn.rds")
+```
+
+```{r}
+#| echo: false
+dbcSIM_weekday_morn <- read_rds("~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/dbcSIM_weekday_morn.rds")
+```
+
+```{r}
+dbcSIM_weekday_morn
+```
+
+Now that we have fit three different spatial interaction models, we will now save the fitted values resulted from each model into a new dataset called `fitted_flow_weekday_morn`. These fitted values represent the estimated flows from each model.
+
+```{r}
+orcSIM_fitted <- as.data.frame(orcSIM_weekday_morn$fitted.values)
+colnames(orcSIM_fitted) <- "ORCEstimatedFlow"
+fitted_flow_weekday_morn <- cbind(flow_data_weekday_morn,orcSIM_fitted)
+
+desSIM_fitted <- as.data.frame(desSIM_weekday_morn$fitted.values)
+colnames(desSIM_fitted) <- "DESEstimatedFlow"
+fitted_flow_weekday_morn <- cbind(fitted_flow_weekday_morn,desSIM_fitted)
+
+dbcSIM_fitted <- as.data.frame(dbcSIM_weekday_morn$fitted.values)
+colnames(dbcSIM_fitted) <- "DBCEstimatedFlow"
+fitted_flow_weekday_morn <- cbind(fitted_flow_weekday_morn,dbcSIM_fitted)
+```
+
+## 4.9 Original Constraint Flow Estimation Map
+
+Looking at the model outputs above, the results are not intuitive enough for users, especially those without background to understand and interpret. In this session, we will test and try different visualization approaches to better present the model results.
+
+particularly, we are interested to test a R package called `stplanr` which provides functions for transport modelling such as creating geographic "desire lines" from origin-destination data.
+
+```{r}
+pacman::p_load(stplanr)
+```
+
+Desire lines are a powerful tool for visualizing the flow of movement between different locations. However, they are not suitable for visualizing intra-regional movements, where both the origin and destination belong to a single spatial unit. Therefore, we need to filter out intra-regional trajectories from our dataset first.
+
+```{r}
+od_plot <- fitted_flow_weekday_morn[fitted_flow_weekday_morn$ORIGIN_hex!=fitted_flow_weekday_morn$DESTIN_hex,]
+```
+
+Next, we will create a **`flowLine`** object which compiles all the desire lines from our dataset. This is done using the **`od2line()`** function from the **`stplanr`** package.
+
+```{r}
+flowLine <- od2line(flow = od_plot, 
+                    zones = hex_grid_pa_sz,
+                    zone_code = "index")
+```
+
+Next, we will filter out the desire lines with flow volume less than 5000. This is to ensure that we only visualize the most significant flow lines.
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+During the initial stages of my prototyping, I hadn't considered the idea of filtering the desire lines based on flow volume. However, as I iterated and refined my approach, I realized that having too many lines on a single map could potentially limit its interpretability, making it difficult to discern meaningful patterns. This led me to the conclusion that it might be more effective to focus on flows with significant volume. By doing so, I could reduce the clutter and make the map more readable, allowing for a more detailed and focused analysis.
+:::
+
+```{r}
+orc_flowLine <- flowLine %>% filter(ORCEstimatedFlow > 5000)
+```
+
+Next, we will generate maps for inflow and outflow, akin to our previous approach. However, this time, we will utilize the fitted values derived from the Origin Constrained SIM model. The process involves aggregating the dataset based on either the `ORIGIN_hex` or `DESTIN_hex`. Subsequently, we will integrate this aggregated data with the hexagonal grid data for visualization purposes.
+
+```{r}
+orc_fitted_inflow <- aggregate(fitted_flow_weekday_morn$ORCEstimatedFlow, by=list(Category=fitted_flow_weekday_morn$DESTIN_hex), FUN=sum)
+colnames(orc_fitted_inflow) <- c("index", "Estimated_InFlow")
+orc_fitted_inflow_hex <- left_join(hex_grid_pa_sz, orc_fitted_inflow, by = 'index')
+orc_fitted_inflow_hex$Estimated_InFlow <- ifelse(is.na(orc_fitted_inflow_hex$Estimated_InFlow), 0, orc_fitted_inflow_hex$Estimated_InFlow)
+
+orc_fitted_outflow <- aggregate(fitted_flow_weekday_morn$ORCEstimatedFlow, by=list(Category=fitted_flow_weekday_morn$ORIGIN_hex), FUN=sum)
+colnames(orc_fitted_outflow) <- c("index", "Estimated_OutFlow")
+orc_fitted_outflow_hex <- left_join(hex_grid_pa_sz, orc_fitted_outflow, by = 'index')
+orc_fitted_outflow_hex$Estimated_OutFlow <- ifelse(is.na(orc_fitted_outflow_hex$Estimated_OutFlow), 0, orc_fitted_outflow_hex$Estimated_OutFlow)
+```
+
+Finally, we will use the appropriate **`tmap`** functions to create an interactive map with four layers. Each layer serves a unique purpose and adds a different dimension to our visualization.
+
+1.  `hex_grid_pa_sz`: This layer serves as the base map for the analytical hexagons used in our modeling. It forms the foundation upon which we'll overlay our desire lines and other data.
+
+2.  `orc_fitted_inflow_hex`: This layer represents the estimated volume of inflow for each hexagonal unit, as determined by our Origin Constrained Spatial Interaction Model (SIM). It will give us a visual representation of where people are coming from.
+
+3.  `orc_fitted_outflow_hex`: Similarly, this layer represents the estimated volume of outflow for each hexagonal unit, also based on our Origin Constrained SIM. This will help us understand where people are going.
+
+4.  `orc_flowLine`: This layer represents the estimated desire lines resulting from our Origin Constrained SIM. These lines will be represented in differing colors and line widths based on trip volume, providing a visual representation of the flow between different hexagons.
+
+```{r}
+tmap_mode("view")
+tm_shape(hex_grid_pa_sz) +
+  tm_fill(col="#f2ffff") +
+  tm_borders(col = "grey") +
+tm_shape(orc_fitted_inflow_hex) +
+  tm_fill(col = "Estimated_InFlow",
+          palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Estimated Inflow Volume")+
+  tm_borders(col = "grey") +
+tm_shape(orc_fitted_outflow_hex) +
+  tm_fill(col = "Estimated_OutFlow",
+          palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Estimated Outflow Volume")+
+  tm_borders(col = "grey") +
+tm_shape(orc_flowLine) +
+  tm_lines(lwd = "ORCEstimatedFlow",
+           col = "ORCEstimatedFlow",
+           palette = c("#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "pretty",
+          scale = c(1,2,3,4,5,7,9),
+          n = 6,
+          title.lwd = "Orgin Constrained Flow",
+          id = "ORCEstimatedFlow")
+```
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+During my prototyping process, I've been considering the user experience quite a bit. Even though I've overlaid all four layers in the current stage, I'm contemplating a more interactive approach for our Shiny application by allowing them to choose the layers they want to see. They could select one layer at a time or any combination of layers, depending on what they're interested in. This way, they can customize the map to their preferences and focus on the data that's most relevant to them.
+
+This approach would not only make the application more interactive but also more user-friendly. Users could explore different layers at their own pace, delve deeper into the ones they find interesting, and ultimately gain a more personalized understanding of the data.
+:::
+
+## 4.10 Destination Constraint Flow Estimation Map
+
+Similar to what we did with origin constrained SIM model, we will follow the same procedure for plotting destination constrained SIM model results.
+
+```{r}
+des_flowLine <- flowLine %>% filter(DESEstimatedFlow > 5000)
+```
+
+```{r}
+des_fitted_inflow <- aggregate(fitted_flow_weekday_morn$DESEstimatedFlow, by=list(Category=fitted_flow_weekday_morn$DESTIN_hex), FUN=sum)
+colnames(des_fitted_inflow) <- c("index", "Estimated_InFlow")
+des_fitted_inflow_hex <- left_join(hex_grid_pa_sz, des_fitted_inflow, by = 'index')
+des_fitted_inflow_hex$Estimated_InFlow <- ifelse(is.na(des_fitted_inflow_hex$Estimated_InFlow), 0, des_fitted_inflow_hex$Estimated_InFlow)
+
+des_fitted_outflow <- aggregate(fitted_flow_weekday_morn$DESEstimatedFlow, by=list(Category=fitted_flow_weekday_morn$ORIGIN_hex), FUN=sum)
+colnames(des_fitted_outflow) <- c("index", "Estimated_OutFlow")
+des_fitted_outflow_hex <- left_join(hex_grid_pa_sz, des_fitted_outflow, by = 'index')
+des_fitted_outflow_hex$Estimated_OutFlow <- ifelse(is.na(des_fitted_outflow_hex$Estimated_OutFlow), 0, des_fitted_outflow_hex$Estimated_OutFlow)
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(hex_grid_pa_sz) +
+  tm_fill(col="#f2ffff") +
+  tm_borders(col = "grey") +
+tm_shape(des_fitted_inflow_hex) +
+  tm_fill(col = "Estimated_InFlow",
+          palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Estimated Inflow Volume")+
+  tm_borders(col = "grey") +
+tm_shape(des_fitted_outflow_hex) +
+  tm_fill(col = "Estimated_OutFlow",
+          palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Estimated Outflow Volume")+
+  tm_borders(col = "grey") +
+tm_shape(orc_flowLine) +
+  tm_lines(lwd = "DESEstimatedFlow",
+           col = "DESEstimatedFlow",
+           palette = c("#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "pretty",
+          scale = c(1,2,3,4,5,7,9),
+          n = 6,
+          title.lwd = "Destination Constrained Flow",
+          id = "DESEstimatedFlow")
+```
+
+## 4.11 Doubly Constraint Flow Estimation Map
+
+Similar to what we did with origin constrained SIM model, we will follow the same procedure for plotting doubly constrained SIM model results.
+
+```{r}
+dbc_flowLine <- flowLine %>% filter(DBCEstimatedFlow > 5000)
+```
+
+```{r}
+dbc_fitted_inflow <- aggregate(fitted_flow_weekday_morn$DBCEstimatedFlow, by=list(Category=fitted_flow_weekday_morn$DESTIN_hex), FUN=sum)
+colnames(dbc_fitted_inflow) <- c("index", "Estimated_InFlow")
+dbc_fitted_inflow_hex <- left_join(hex_grid_pa_sz, orc_fitted_inflow, by = 'index')
+dbc_fitted_inflow_hex$Estimated_InFlow <- ifelse(is.na(dbc_fitted_inflow_hex$Estimated_InFlow), 0, dbc_fitted_inflow_hex$Estimated_InFlow)
+
+dbc_fitted_outflow <- aggregate(fitted_flow_weekday_morn$DBCEstimatedFlow, by=list(Category=fitted_flow_weekday_morn$ORIGIN_hex), FUN=sum)
+colnames(dbc_fitted_outflow) <- c("index", "Estimated_OutFlow")
+dbc_fitted_outflow_hex <- left_join(hex_grid_pa_sz, orc_fitted_outflow, by = 'index')
+dbc_fitted_outflow_hex$Estimated_OutFlow <- ifelse(is.na(dbc_fitted_outflow_hex$Estimated_OutFlow), 0, dbc_fitted_outflow_hex$Estimated_OutFlow)
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(hex_grid_pa_sz) +
+  tm_fill(col="#f2ffff") +
+  tm_borders(col = "grey") +
+tm_shape(dbc_fitted_inflow_hex) +
+  tm_fill(col = "Estimated_InFlow",
+          palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Estimated Inflow Volume")+
+  tm_borders(col = "grey") +
+tm_shape(dbc_fitted_outflow_hex) +
+  tm_fill(col = "Estimated_OutFlow",
+          palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "fixed",
+          breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+          title = "Estimated Outflow Volume")+
+  tm_borders(col = "grey") +
+tm_shape(orc_flowLine) +
+  tm_lines(lwd = "DBCEstimatedFlow",
+           col = "DBCEstimatedFlow",
+           palette = c("#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+          style = "pretty",
+          scale = c(1,2,3,4,5,7,9),
+          n = 6,
+          title.lwd = "Destination Constrained Flow",
+          id = "DBCEstimatedFlow")
+```
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+During my prototyping process, I spent some time to think about the organization of the models. Initially, I considered having a separate tabset for each model type. However, upon reflection, I believe it might be more beneficial to have the model type as one of the calibration inputs and combine everything on one page. The advantage of this approach is that it allows users to stack layers not just from one model, but across different models as well. For instance, they could stack desire flows from all three models and analyze the differences in the results. This would be challenging if we have each tabset for each model than the user will have to keep swtiching from one tab to another just to compare the results.
+:::
+
+## 4.12 Zooming to Specific Planning Area & Subzones
+
+## 4.13 Push-Pull Factors
+
+Beyond looking at the estimated flow volumes, spatial interaction modelling also offers valuable insights by providing coefficient estimates for explanatory variables, both at the origin and destination locations.
+
+-   In particular, the origin-constrained SIM is instrumental in identifying the 'pull' factors of the destination. These factors represent conditions or circumstances that draw people from multiple origins towards the destination.
+
+-   Conversely, the destination-constrained SIM sheds light on the 'push' factors at the origin. These factors represent conditions or circumstances that encourage people to leave the origin and move to multiple destinations.
+
+Looking at the coefficient estimates of these push-pull factors, we can find correlation between the flow volume and the increase or decrease in the value of these factors.
+
+To do visualisations and analysis with push-pull factors, we will first extract fitted coefficient values from origin-constrained and destination-constrained SIM models first.
+
+```{r}
+pull_factors <- tibble::rownames_to_column(as.data.frame(orcSIM_weekday_morn$coefficients), "factors")
+colnames(pull_factors) <- c("factors", "coefficients")
+pull_factors <- pull_factors[grep("^(d_)", pull_factors$factors), ]
+```
+
+```{r}
+push_factors <- tibble::rownames_to_column(as.data.frame(desSIM_weekday_morn$coefficients), "factors")
+colnames(push_factors) <- c("factors", "coefficients")
+push_factors <- push_factors[grep("^(o_)", push_factors$factors), ]
+```
+
+Let's look at the data a bit.
+
+```{r}
+pull_factors$factors
+```
+
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+During my prototyping process, I've come to realize the importance of clarity and interpretability. It's not just about presenting the data, but also about making it understandable and meaningful to the user.
+
+While I understand what each of these factor values means, it may not be as clear for everyone else. Especially without the context of the data, terms like **`d_hc_count`** can be confusing - and we cannot assume that they will know `hc` refers to healthcare!
+
+With this in mind, I've decided to update these values to be more explicit and straightforward. Instead of using abbreviations, I'll use clear, descriptive names that accurately represent what each value stands for. This way, users can easily understand what they're looking at, making the application more user-friendly and informative.
+:::
+
+We will now update the `factors` values in `pull_factors` dataset from abbreviations to long form as below.
+
+```{r}
+pull_factors$factors <- c("Business", "School", "Financial Institute","Healthcare","Bus Stop", "Housing", "Leisure/Recreation", "Retail", "Entertainment", "Food & Beverages")
+```
+
+```{r}
+push_factors$factors
+```
+
+We will do the same for `factors` values in `push_factors` dataset.
+
+```{r}
+push_factors$factors <- c("Business", "School", "Financial Institute","Healthcare","Bus Stop", "Housing", "Leisure/Recreation", "Retail", "Entertainment", "Food & Beverages")
+```
+
+Now that we have prepared all the data, we will plot bar graphs using relevant `ggplot2` functions.
+
+```{r}
+ggplot(data = pull_factors,
+       aes(x = coefficients,
+           y = reorder(factors, coefficients),
+       fill = factors)) +
+  geom_bar(stat="identity", show.legend = FALSE) +
+  xlab("Coefficient Estimate") +
+  ylab("Pull Factors of Destination")
+```
+
+```{r}
+ggplot(data = push_factors,
+       aes(x = coefficients,
+           y = reorder(factors, coefficients),
+       fill = factors)) +
+  geom_bar(stat="identity", show.legend = FALSE) +
+  xlab("Coefficient Estimate") +
+  ylab("Push Factors of Origin")
+```
+
+## Exploring User Input Options for Shiny Application
+
+From the exercise above, we may include the following user specification and model calibration options for our Shiny application.
+
+| Input             | Options                                                                                             |
+|-------------------|-----------------------------------------------------------------------------------------------------|
+| Month of Interest | `November 2023`, `December 2023`, `January 2024`                                                    |
+| Time Period       | `Weekday - Morning` , `Weekday - Evening`, `Weekend/Holiday - Morning`, `Weekend/Holiday - Evening` |
+| Area of Interest  | `Singapore (Overall)`, individual subzone/ planning areas                                           |
+| Flow Type         | `Inflow`, `Outflow`                                                                                 |
+| Model Type        | `Origin Constraint`, `Destination Constraint`, `Doubly Constraint`                                  |
+|                   |                                                                                                     |
+
+## Comparison
+
+```{r}
+pacman::p_load(performance)
+```
+
+```{r}
+model_list <- list(originConstrained=orcSIM_weekday_morn,
+                   destinConstrained=desSIM_weekday_morn,
+                   doublyConstrained=dbcSIM_weekday_morn)
+
+compare_performance(model_list, metrics = "RMSE")
+```
+
+```{r}
+ggplot(data = fitted_flow_weekday_morn,
+                aes(x = ORCEstimatedFlow,
+                    y = TOTAL_TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,100000),
+                  ylim=c(0,100000)) + 
+  labs(title = "Observed vs. Fitted Values for Origin Constrained SIM",
+       x = "Fitted Values", y = "Observed Values")
+
+ggplot(data = fitted_flow_weekday_morn,
+                aes(x = DESEstimatedFlow,
+                    y = TOTAL_TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,100000),
+                  ylim=c(0,100000)) + 
+  labs(title = "Observed vs. Fitted Values for Destination Constrained SIM",
+       x = "Fitted Values", y = "Observed Values")
+
+ggplot(data = fitted_flow_weekday_morn,
+                aes(x = DBCEstimatedFlow,
+                    y = TOTAL_TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,100000),
+                  ylim=c(0,100000)) + 
+  labs(title = "Observed vs. Fitted Values for Doubly Constrained SIM",
+       x = "Fitted Values", y = "Observed Values")
+```
+
+# 5.0 Proposed Shiny Application Interface
+
+![](images/Trip%20Count%20Map%20(2).png)

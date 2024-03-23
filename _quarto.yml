@@ -31,6 +31,7 @@ website:
           text: "Hands-On Exercise 07"
         - href: Hands-on_Ex/hands_on08.qmd
         - href: Hands-on_Ex/hands_on09.qmd
+        - href: Hands-on_Ex/hands_on10.qmd
 
       - text: "Take-home Exercises"
         menu:
