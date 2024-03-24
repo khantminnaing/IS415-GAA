@@ -205,7 +205,7 @@ tm_shape(outflow_data_weekday_morn_hex) +
 ```
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 Notably, **`style`** argument is set to "fixed". This means that the color breaks are manually specified and **`breaks`** argument specifies the boundaries (flow volume count) for the color breaks.
 
@@ -251,7 +251,7 @@ tm_shape(inflow_data_weekday_morn_hex) +
 Another visualisation that can be produced to support the maps created above is a distribution graph. Although the map provides the specifica spatial patterns of the flow volumes, it is not striaghtforward to discent the distribution. In this regards, we will create distribution graphs to supplement the maps.
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 When I create distribution graphs to accompany and supplement my maps, I believe it's of utmost importance to maintain a consistent representation. To achieve this, I'll create the histograms using the breaks I specified in the maps as bins and use the same color palette. Essentially, I want users to look at the maps and histograms together and receive a consistent message. This way, they can easily interpret the information and understand the patterns I'm trying to highlight.
 :::
@@ -285,7 +285,7 @@ ggplot(data = outflow_data_weekday_morn_hex,
 ```
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 Looking at the graphs above, I noticed that the number of hexagons with zero flow volume significantly outweighs the overall distribution. This makes the differences in other categories appear less significant. To address this, I decided to create a new graph where I exclude the hexagons with zero outflow trips. This will allow me to focus on the hexagons with non-zero outflow trips and gain a better understanding of their distribution.
 :::
@@ -346,7 +346,7 @@ ggplot(data = inflow_data_weekday_morn_nozero,
 In this section, we will further zoom our inflow/outflow map into planning areas and subzones.
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thougths**
+**Prototyping Thougths**
 
 In the previous section, my focus was on exploring the inflow and outflow maps for the entirety of Singapore Island. However, I realized that this broad perspective might not be intuitive enough to identify patterns at the local subzone levels.
 
@@ -456,13 +456,13 @@ outflow_sz_map("KEMBANGAN")
 From the exercise above, we may include the following user specification and model calibration options for our Shiny application.
 
 | Input            | Options                                                                                                                 |
-|------------------|-------------------------------------------------------------------------------------------------------------------------|
+|-----------------|-------------------------------------------------------|
 | Time Period      | `Weekday - Morning Peak` , `Weekday - Evening Peak`, `Weekend/Holiday - Morning Peak`, `Weekend/Holiday - Evening Peak` |
 | Area of Interest | `Singapore (Overall)`, Individual Planning Areas/ Subzones                                                              |
 | Flow Type        | `Inflow`, `Outflow`                                                                                                     |
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 Initially, I had planned to use a slider for the time period, allowing users to specify the specific range of hours they wanted to examine. This seemed like the most viable approach. However, I soon realized that this could lead to heavy computation, especially if a user selected a very wide range (or possibly the entire dataset). This could potentially slow down our Shiny application, which would not be ideal for the user experience.
 
@@ -504,6 +504,7 @@ orcSIM_weekday_morn <- glm(TOTAL_TRIPS ~ ORIGIN_hex + d_biz_count + d_school_cou
 In the formula argument, we specify our response variable **`TOTAL_TRIPS`** and our explanatory variables. The explanatory variables include **`ORIGIN_hex`**, various destination counts (e.g., **`d_biz_count`**, **`d_school_count`**, etc.), and **`dist`**. The **`-1`** at the end of the formula is used to remove the intercept that is inserted by **`glm`** into the model by default. Since the origin has already been constrained, the concept of an intercept would not be relevant.
 
 ```{r}
+#| eval: false
 #| echo: false
 write_rds(orcSIM_weekday_morn, "~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/orcSIM_weekday_morn.rds")
 ```
@@ -616,12 +617,13 @@ Next, we will create a **`flowLine`** object which compiles all the desire lines
 flowLine <- od2line(flow = od_plot, 
                     zones = hex_grid_pa_sz,
                     zone_code = "index")
+flowLine <- st_join(flowLine, hex_grid_pa_sz,by = "index")
 ```
 
 Next, we will filter out the desire lines with flow volume less than 5000. This is to ensure that we only visualize the most significant flow lines.
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 During the initial stages of my prototyping, I hadn't considered the idea of filtering the desire lines based on flow volume. However, as I iterated and refined my approach, I realized that having too many lines on a single map could potentially limit its interpretability, making it difficult to discern meaningful patterns. This led me to the conclusion that it might be more effective to focus on flows with significant volume. By doing so, I could reduce the clutter and make the map more readable, allowing for a more detailed and focused analysis.
 :::
@@ -685,7 +687,7 @@ tm_shape(orc_flowLine) +
 ```
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 During my prototyping process, I've been considering the user experience quite a bit. Even though I've overlaid all four layers in the current stage, I'm contemplating a more interactive approach for our Shiny application by allowing them to choose the layers they want to see. They could select one layer at a time or any combination of layers, depending on what they're interested in. This way, they can customize the map to their preferences and focus on the data that's most relevant to them.
 
@@ -793,12 +795,112 @@ tm_shape(orc_flowLine) +
 ```
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 During my prototyping process, I spent some time to think about the organization of the models. Initially, I considered having a separate tabset for each model type. However, upon reflection, I believe it might be more beneficial to have the model type as one of the calibration inputs and combine everything on one page. The advantage of this approach is that it allows users to stack layers not just from one model, but across different models as well. For instance, they could stack desire flows from all three models and analyze the differences in the results. This would be challenging if we have each tabset for each model than the user will have to keep swtiching from one tab to another just to compare the results.
 :::
 
 ## 4.12 Zooming to Specific Planning Area & Subzones
+
+Similar to what we did in earlier sections, we can also create planning area and subzone specific maps. In the following example, I tried to prototype using destination constrained SIM model.
+
+::: {.callout-tip title="Reflection"}
+**Prototyping Thoughts**
+
+For the purpose of prototyping, I\'ve been using the destination constrained Spatial Interaction Model (SIM). However, in the actual Shiny application, I plan to give users the flexibility to choose both the model type and the planning/area or subzone they want to use for their analysis.
+
+Additionally, I\'m considering allowing users to specify the time period they\'re interested in - whether it\'s the morning or evening peak, or weekday or weekend/holiday. However, in this exercise we are only using weekday morning dataset, it is not possible to do it here. But the actual application will be designed to handle different time periods.
+:::
+
+```{r}
+des_flowLine_map_pa <- function(pa_input){
+  des_flowLine_temp <- flowLine %>% filter(PLN_AREA_N == pa_input, DBCEstimatedFlow > 1000)
+  des_fitted_inflow_hex <- des_fitted_inflow_hex %>% filter(PLN_AREA_N == pa_input)
+  des_fitted_outflow_hex <- des_fitted_outflow_hex %>% filter(PLN_AREA_N == pa_input)
+
+  
+  tmap_mode("view")
+  tm_shape(hex_grid_pa_sz) +
+    tm_fill(col="#f2ffff") +
+    tm_borders(col = "grey") +
+  tm_shape(des_fitted_inflow_hex) +
+    tm_fill(col = "Estimated_InFlow",
+            palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+            style = "fixed",
+            breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+            title = "Estimated Inflow Volume")+
+    tm_borders(col = "grey") +
+  tm_shape(des_fitted_outflow_hex) +
+    tm_fill(col = "Estimated_OutFlow",
+            palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+            style = "fixed",
+            breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+            title = "Estimated Outflow Volume")+
+    tm_borders(col = "grey") +
+  tm_shape(des_flowLine_temp) +
+    tm_lines(lwd = "DESEstimatedFlow",
+             col = "DESEstimatedFlow",
+             palette = c("#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+            style = "pretty",
+            scale = c(1,2,3,4,5,7,9),
+            n = 6,
+            title.lwd = "Destination Constrained Flow",
+            id = "DESEstimatedFlow")
+}
+```
+
+```{r}
+des_flowLine_map_sz <- function(sz_input){
+  des_flowLine_temp <- flowLine %>% filter(SUBZONE_N == sz_input, DBCEstimatedFlow > 1000)
+  des_fitted_inflow_hex <- des_fitted_inflow_hex %>% filter(SUBZONE_N == sz_input)
+  des_fitted_outflow_hex <- des_fitted_outflow_hex %>% filter(SUBZONE_N == sz_input)
+  
+  tmap_mode("view")
+  tm_shape(hex_grid_pa_sz) +
+    tm_fill(col="#f2ffff") +
+    tm_borders(col = "grey") +
+  tm_shape(des_fitted_inflow_hex) +
+    tm_fill(col = "Estimated_InFlow",
+            palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+            style = "fixed",
+            breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+            title = "Estimated Inflow Volume")+
+    tm_borders(col = "grey") +
+  tm_shape(des_fitted_outflow_hex) +
+    tm_fill(col = "Estimated_OutFlow",
+            palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+            style = "fixed",
+            breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
+            title = "Estimated Outflow Volume")+
+    tm_borders(col = "grey") +
+  tm_shape(des_flowLine_temp) +
+    tm_lines(lwd = "DESEstimatedFlow",
+             col = "DESEstimatedFlow",
+             palette = c("#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
+            style = "pretty",
+            scale = c(1,2,3,4,5,7,9),
+            n = 6,
+            title.lwd = "Destination Constrained Flow",
+            id = "DESEstimatedFlow")
+}
+```
+
+::: {.callout-tip title="Reflection"}
+**Prototyping Thoughts**
+
+During my prototyping process, I\'ve made an adjustment to the filtering based on flow volume. Initially, I was filtering out data with a flow volume less than 5000. However, I realized that some subzones and planning areas might have a lower flow volume, which could lead to errors if the maximum flow is less than this threshold filter.
+
+To avoid such errors, I decided to reduce the threshold to 1000. This allows for a more inclusive analysis, capturing data from areas with lower flow volumes. However, I\'m aware that there could still be instances where the flow is even less than 1000, which could still potentially lead to errors.
+
+While I haven\'t addressed this issue in the current stage, I\'m actively thinking about ways to handle this in the final Shiny app.
+:::
+
+As a demonstration, we call the `des_flowLine_map_pa()` function with "WOODLANDS" and the **`des_flowLine_map_sz()`** function with "NATURE RESERVE" as inputs. to test whether the functions works well and produce desired outcomes.
+
+```{r}
+des_flowLine_map_pa("WOODLANDS")
+des_flowLine_map_sz("NATURE RESERVE")
+```
 
 ## 4.13 Push-Pull Factors
 
@@ -831,7 +933,7 @@ pull_factors$factors
 ```
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 During my prototyping process, I've come to realize the importance of clarity and interpretability. It's not just about presenting the data, but also about making it understandable and meaningful to the user.
 
@@ -878,12 +980,22 @@ ggplot(data = push_factors,
   ylab("Push Factors of Origin")
 ```
 
+::: {.callout-tip title="Reflection"}
+#### **Prototyping Thoughts**
+
+Visualizing the coefficient estimates using bar graphs, instead of simple tables, indeed enhances interpretability. It provides a clear picture of not only the magnitude (absolute value) but also the direction (positive or negative) of each coefficient estimate.
+
+For example, in push factor graph above, we can clearly see that an increase in business establishments corresponds to a decrease in pushing people away, indicating that areas with more businesses tend to attract more people. On the other hand, an increase in financial institutes corresponds to an increase in pushing people away, suggesting that areas with more financial institutes might be less attractive for some reason.
+
+This kind of visual representation makes it much easier to understand and interpret the results of the analysis.
+:::
+
 ## Exploring User Input Options for Shiny Application
 
 From the exercise above, we may include the following user specification and model calibration options for our Shiny application.
 
 | Input             | Options                                                                                             |
-|-------------------|-----------------------------------------------------------------------------------------------------|
+|----------------------|--------------------------------------------------|
 | Month of Interest | `November 2023`, `December 2023`, `January 2024`                                                    |
 | Time Period       | `Weekday - Morning` , `Weekday - Evening`, `Weekend/Holiday - Morning`, `Weekend/Holiday - Evening` |
 | Area of Interest  | `Singapore (Overall)`, individual subzone/ planning areas                                           |
