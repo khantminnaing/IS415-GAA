@@ -200,7 +200,8 @@ tm_shape(outflow_data_weekday_morn_hex) +
           palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
           breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-          title = "Outflow Trip Count") +
+          title = "Outflow Trip Count",
+          id = "TOTAL_TRIPS") +
   tm_borders(col = "grey")
 ```
 
@@ -239,7 +240,8 @@ tm_shape(inflow_data_weekday_morn_hex) +
           palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
           breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-          title = "Inflow Trip Count")+
+          title = "Inflow Trip Count",
+          id = "TOTAL_TRIPS")+
   tm_borders(col = "grey")+
   tm_layout(legend.title.size = 1,
             legend.text.size = 0.6,
@@ -256,11 +258,13 @@ Another visualisation that can be produced to support the maps created above is 
 When I create distribution graphs to accompany and supplement my maps, I believe it's of utmost importance to maintain a consistent representation. To achieve this, I'll create the histograms using the breaks I specified in the maps as bins and use the same color palette. Essentially, I want users to look at the maps and histograms together and receive a consistent message. This way, they can easily interpret the information and understand the patterns I'm trying to highlight.
 :::
 
-Here, we will define the breaks and labels for our distribution graphs. We use the consistent language with the breaks and labels from the map.
+Here, we will define the breaks, labels and color_map for our distribution graphs. We use the consistent language with the breaks and labels and consistent color palette from the previous overall SIngapore map.
 
 ```{r}
 breaks <- c(0,0.9,100,1000,10000,100000,500000,1000000,5000000)
 labels <- c("0", "1 to 100", "100 to 1,000", "1,000 to 10,000", "10,000 to 100,000", "100,000 to 500,00", "500,000 to 1,000,000", "1,000,000 to 5,000,000")
+colors = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0")
+color_map = setNames(colors, labels)
 ```
 
 ### Outflow Distribution Graph
@@ -280,7 +284,7 @@ ggplot(data = outflow_data_weekday_morn_hex,
   geom_bar(show.legend = FALSE)+
   xlab("Count of Analytical Hexagons") +
   ylab("Outflow Trip Count") +  
-  scale_fill_manual(values=c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0")) +
+  scale_fill_manual(values=color_map) +
   ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin")
 ```
 
@@ -302,7 +306,7 @@ ggplot(data = outflow_data_weekday_morn_nozero,
   geom_bar(show.legend = FALSE)+
   xlab("Count of Analytical Hexagons") +
   ylab("Outflow Trip Count") +  
-  scale_fill_manual(values=c("#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"))+
+  scale_fill_manual(values=color_map)+
   ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin", 
           subtitle = "(excluding hexagons with zero outflow trip)")
 ```
@@ -322,7 +326,7 @@ ggplot(data = inflow_data_weekday_morn_hex,
   geom_bar(show.legend = FALSE)+
   xlab("Count of Analytical Hexagons") +
   ylab("Inflow Trip Count") +  
-  scale_fill_manual(values=c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0")) +
+  scale_fill_manual(values=color_map) +
   ggtitle("Distribution of Hexagons Per Each Inflow Trip Count Bin")
 ```
 
@@ -336,8 +340,8 @@ ggplot(data = inflow_data_weekday_morn_nozero,
   geom_bar(show.legend = FALSE)+
   xlab("Count of Analytical Hexagons") +
   ylab("Inflow Trip Count") +  
-  scale_fill_manual(values=c("#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"))+
-  ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin", 
+  scale_fill_manual(values=color_map)+
+  ggtitle("Distribution of Hexagons Per Each Inflow Trip Count Bin", 
           subtitle = "(excluding hexagons with zero inflow trip)")
 ```
 
@@ -363,7 +367,7 @@ head(inflow_data_weekday_morn_hex)
 
 From the look of it, it appears that each hexagon has data on their respective planning area and subzone they belong to. This information will be useful when we want to create planning-area specific maps for inflow/outflow. We can simply filter our dataset to smaller, temporary data based on the user specification.
 
-### Planning Area Level Zooming
+### 4.4.1 Planning Area Level Zooming
 
 Firsly, let's try creating inflow/outflow maps for planning area level. The user can specify a planning area, and we can filter the data accordingly before creating maps. We will create two functions, called `inflow_pa_map` and `outflow_pa_map`. Each function is designed to generate a specific type of map - inflow or outflow, respectively.
 
@@ -373,7 +377,7 @@ When a planning area name is provided as input to these functions, they will fil
 inflow_pa_map <- function(pa_input) { 
   inflow_pa_temp <- inflow_data_weekday_morn_hex %>% filter(PLN_AREA_N == pa_input)
   tmap_mode("view")
-  tm <- tm_shape(inflow_pa_temp) +
+  tm_shape(inflow_pa_temp) +
     tm_fill(col = "TOTAL_TRIPS",
             palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
@@ -381,7 +385,6 @@ inflow_pa_map <- function(pa_input) {
           title = "Inflow Trip Count",
           id= "TOTAL_TRIPS")+
   tm_borders(col = "grey")
- return(tm)
 }
 ```
 
@@ -389,7 +392,7 @@ inflow_pa_map <- function(pa_input) {
 outflow_pa_map <- function(pa_input) { 
   outflow_pa_temp <- outflow_data_weekday_morn_hex %>% filter(PLN_AREA_N == pa_input)
   tmap_mode("view")
-  tm <- tm_shape(outflow_pa_temp) +
+  tm_shape(outflow_pa_temp) +
     tm_fill(col = "TOTAL_TRIPS",
             palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
@@ -397,7 +400,6 @@ outflow_pa_map <- function(pa_input) {
           title = "Outflow Trip Count",
           id= "TOTAL_TRIPS")+
   tm_borders(col = "grey")
- return(tm)
 }
 ```
 
@@ -408,7 +410,66 @@ inflow_pa_map("HOUGANG")
 outflow_pa_map("BUKIT PANJANG")
 ```
 
-### Subzone Level Zooming
+In the similar vein, we will also need to update our distribution graphs to specific planning area. To achieve that, we will create four functions below - `inflow_pa_graph`, `outflow_pa_graph` , `inflow_pa_nozerograph` and `outflow_pa_nozerograph` .
+
+```{r}
+inflow_pa_graph <- function(pa_input) { 
+    inflow_pa_temp <- inflow_data_weekday_morn_hex %>% filter(PLN_AREA_N == pa_input)
+  ggplot(data = inflow_pa_temp,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Inflow Trip Count") +  
+  scale_fill_manual(values=color_map) +
+  ggtitle("Distribution of Hexagons Per Each Inflow Trip Count Bin")
+}
+
+outflow_pa_graph <- function(pa_input) { 
+    outflow_pa_temp <- outflow_data_weekday_morn_hex %>% filter(PLN_AREA_N == pa_input)
+    ggplot(data = outflow_pa_temp,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Outflow Trip Count") +  
+  scale_fill_manual(values=color_map) +
+  ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin")
+}
+
+inflow_pa_nozerograph <- function(pa_input) { 
+    inflow_pa_temp_nozero <- inflow_data_weekday_morn_hex %>% filter(PLN_AREA_N == pa_input, TOTAL_TRIPS != 0)
+  ggplot(data = inflow_pa_temp_nozero,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Inflow Trip Count") +  
+  scale_fill_manual(values=color_map)+
+  ggtitle("Distribution of Hexagons Per Each Inflow Trip Count Bin", 
+          subtitle = "(excluding hexagons with zero inflow trip)")
+}
+
+outflow_pa_nozerograph <- function(pa_input) { 
+    outflow_pa_temp_nozero <- outflow_data_weekday_morn_hex %>% filter(PLN_AREA_N == pa_input, TOTAL_TRIPS != 0)
+  ggplot(data = outflow_pa_temp_nozero,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Outflow Trip Count") +  
+  scale_fill_manual(values=color_map)+
+  ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin", 
+          subtitle = "(excluding hexagons with zero outflow trip)")
+}
+```
+
+As a demonstration, we call the `inflow_pa_graph()` & `inflow_pa_nozerograph()` functions with "HOUGANG" and the `outflow_pa_graph()` & `outflow_pa_nozerograph()` functions with "BUKIT PANJANG" as inputs to test whether the functions works well and produce desired outcomes.
+
+```{r}
+inflow_pa_graph("HOUGANG")
+inflow_pa_nozerograph("HOUGANG")
+outflow_pa_graph("BUKIT PANJANG")
+outflow_pa_nozerograph("BUKIT PANJANG")
+```
+
+### 4.4.2 Subzone Level Zooming
 
 Similar to what we did with planning area level zooming, we can create functions for inflow/outflow maps at subzone level. Below, we have create two functions `inflow_sz_map()` and `outflow_sz_map()` using similar approach.
 
@@ -444,22 +505,91 @@ outflow_sz_map <- function(sz_input) {
 }
 ```
 
-As a demonstration, we call the **`inflow_sz_map()`** function with "CHANGI AIRPORT" and the **`outflow_sz_map()`** function with "KEMBANGAN" as inputs to test whether the functions works well and produce desired outcomes.
+As a demonstration, we call the **`inflow_sz_map()`** function with "CHANGI AIRPORT" and the **`outflow_sz_map()`** function with "TUAS NORTH" as inputs to test whether the functions works well and produce desired outcomes.
 
 ```{r}
 inflow_sz_map("CHANGI AIRPORT")
-outflow_sz_map("KEMBANGAN")
+outflow_sz_map("TUAS NORTH")
 ```
 
-### Exploring User Input Options for Shiny Application
+In the similar vein, we will also need to update our distribution graphs to specific subzone. To achieve that, we will create four functions below - `inflow_sz_graph`, `outflow_sz_graph` , `inflow_sz_nozerograph` and `outflow_sz_nozerograph` .
+
+```{r}
+inflow_sz_graph <- function(sz_input) { 
+    inflow_sz_temp <- inflow_data_weekday_morn_hex %>% filter(SUBZONE_N == sz_input)
+  ggplot(data = inflow_sz_temp,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Inflow Trip Count") +  
+  scale_fill_manual(values=color_map) +
+  ggtitle("Distribution of Hexagons Per Each Inflow Trip Count Bin")
+}
+
+outflow_sz_graph <- function(sz_input) { 
+    outflow_sz_temp <- outflow_data_weekday_morn_hex %>% filter(SUBZONE_N == sz_input)
+    ggplot(data = outflow_sz_temp,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Outflow Trip Count") +  
+  scale_fill_manual(values=color_map) +
+  ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin")
+}
+
+inflow_sz_nozerograph <- function(sz_input) { 
+    inflow_sz_temp_nozero <- inflow_data_weekday_morn_hex %>% filter(SUBZONE_N == sz_input, TOTAL_TRIPS != 0)
+  ggplot(data = inflow_sz_temp_nozero,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Inflow Trip Count") +  
+  scale_fill_manual(values=color_map)+
+  ggtitle("Distribution of Hexagons Per Each Inflow Trip Count Bin", 
+          subtitle = "(excluding hexagons with zero inflow trip)")
+}
+
+outflow_sz_nozerograph <- function(sz_input) { 
+    outflow_sz_temp_nozero <- outflow_data_weekday_morn_hex %>% filter(SUBZONE_N == sz_input, TOTAL_TRIPS != 0)
+  ggplot(data = outflow_sz_temp_nozero,
+       aes(y = TRIPS_BIN,fill = TRIPS_BIN)) +
+  geom_bar(show.legend = FALSE)+
+  xlab("Count of Analytical Hexagons") +
+  ylab("Outflow Trip Count") +  
+  scale_fill_manual(values=color_map)+
+  ggtitle("Distribution of Hexagons Per Each Outflow Trip Count Bin", 
+          subtitle = "(excluding hexagons with zero outflow trip)")
+}
+```
+
+As a demonstration, we call the `inflow_sz_graph()` & `inflow_sz_nozerograph()` functions with "CHANGI AIRPORT" and the `outflow_sz_graph()` & `outflow_sz_nozerograph()` functions with "TUAS NORTH" as inputs to test whether the functions works well and produce desired outcomes.
+
+```{r}
+inflow_sz_graph("CHANGI AIRPORT")
+inflow_sz_nozerograph("CHANGI AIRPORT")
+outflow_sz_graph("TUAS NORTH")
+outflow_sz_nozerograph("TUAS NORTH")
+```
+
+## 4.5 Exploring User Input Options for Shiny Application
 
 From the exercise above, we may include the following user specification and model calibration options for our Shiny application.
 
++------------------+-------------------------------------------------------------------------------------------------------------------------+
 | Input            | Options                                                                                                                 |
-|-----------------|-------------------------------------------------------|
++==================+=========================================================================================================================+
+| Flow Type        | `Incoming Flow`, `Outgoing Flow`                                                                                        |
++------------------+-------------------------------------------------------------------------------------------------------------------------+
 | Time Period      | `Weekday - Morning Peak` , `Weekday - Evening Peak`, `Weekend/Holiday - Morning Peak`, `Weekend/Holiday - Evening Peak` |
-| Area of Interest | `Singapore (Overall)`, Individual Planning Areas/ Subzones                                                              |
-| Flow Type        | `Inflow`, `Outflow`                                                                                                     |
++------------------+-------------------------------------------------------------------------------------------------------------------------+
+| Zooming Level    | `Overall (Singapore)` , `Planning Area`, `Subzone`                                                                      |
++------------------+-------------------------------------------------------------------------------------------------------------------------+
+| Area of Interest | -   `NA` if `Overall (Singapore)` is selected for **Zooming Level**                                                     |
+|                  |                                                                                                                         |
+|                  | -   Planning Area Name if `Planning Area` is selected for **Zooming Level**                                             |
+|                  |                                                                                                                         |
+|                  | -   Subzone Name if `Subzone` is selected for **Zooming Level**                                                         |
++------------------+-------------------------------------------------------------------------------------------------------------------------+
 
 ::: {.callout-tip title="Reflection"}
 **Prototyping Thoughts**
@@ -471,7 +601,11 @@ After some thought, I decided to switch to pre-determined time intervals, specif
 For the morning peak, I plan to use the time from 6-8 AM, and for the evening peak, I intend to use 5-7 PM. This way, we can analyze the inflow and outflow patterns during the most critical hours of the day, providing valuable insights for transportation planning and policy making.
 :::
 
-## 4.5 Spatial Interaction Modelling
+Below is a rough outline of how the user interface for this tabset might look like.
+
+![](images/31.png){fig-align="center"}
+
+## 4.6 Spatial Interaction Modelling
 
 In this section, we will test how we can implement and visualise spatial interaction modelling of origin-destination public bus flow data. In particular, we are planning to test using `glm()` functions from `stats` package to fit generalised linear models.
 
@@ -489,7 +623,7 @@ flow_data_weekday_morn_log <- flow_data_weekday_morn %>%
 
 The transformed data is stored in a new data frame **`flow_data_weekday_morn_log`**. This data frame is now ready for Poisson regression analysis.
 
-## **4.6 Origin (Production) Constrained Spatial Interaction Model**
+## **4.7 Origin (Production) Constrained Spatial Interaction Model**
 
 In this section, we will fit an origin constrained Spatial Interaction Model (SIM). For origin constrained SIM, only explanatory variables representing the **attractiveness** at the **destinations** will be used. This is because such models emphasize the limitations or capacities of the origins rather than the demand or attractiveness of the destinations. The capacity or limitation at the origin sites determines the potential for generating interactions or flows.
 
@@ -520,7 +654,7 @@ We will have a look at the results of the origin constrained spatial interaction
 orcSIM_weekday_morn
 ```
 
-## 4.7 **Destination Constraint Spatial Interaction Model**
+## 4.8 **Destination Constraint Spatial Interaction Model**
 
 Next, we will fit a destination constrained Spatial Interaction Model (SIM). For destination constrained SIM, only explanatory variables which represent how **propulsive** the **origins** are will be used. This is because such models emphasize the demand or attractiveness of the destinations rather than the limitations or capacities of the origins. The demand or attractiveness of the destination sites determines the potential for generating interactions or flows.
 
@@ -547,7 +681,7 @@ desSIM_weekday_morn <- read_rds("~/IS415-GAA/Take-home_Ex/Take-home_Ex03/data/de
 desSIM_weekday_morn
 ```
 
-## 4.8 **Doubly Constraint Spatial Interaction Model**
+## 4.9 **Doubly Constraint Spatial Interaction Model**
 
 In this section, we will fit a doubly constrained Spatial Interaction Model (SIM). For doubly constrained SIM, both the attractiveness at the destinations and the propulsiveness at the origins are considered. The model is typically expressed in the form of a distance function between the origin and destination.
 
@@ -595,7 +729,7 @@ colnames(dbcSIM_fitted) <- "DBCEstimatedFlow"
 fitted_flow_weekday_morn <- cbind(fitted_flow_weekday_morn,dbcSIM_fitted)
 ```
 
-## 4.9 Original Constraint Flow Estimation Map
+## 4.10 Original Constraint Flow Estimation Map
 
 Looking at the model outputs above, the results are not intuitive enough for users, especially those without background to understand and interpret. In this session, we will test and try different visualization approaches to better present the model results.
 
@@ -659,21 +793,24 @@ Finally, we will use the appropriate **`tmap`** functions to create an interacti
 ```{r}
 tmap_mode("view")
 tm_shape(hex_grid_pa_sz) +
-  tm_fill(col="#f2ffff") +
+  tm_fill(col="#f2ffff",
+          id = "PLN_AREA_N") +
   tm_borders(col = "grey") +
 tm_shape(orc_fitted_inflow_hex) +
   tm_fill(col = "Estimated_InFlow",
           palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
           breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-          title = "Estimated Inflow Volume")+
+          title = "Estimated Inflow Volume",
+          id = "Estimated_InFlow")+
   tm_borders(col = "grey") +
 tm_shape(orc_fitted_outflow_hex) +
   tm_fill(col = "Estimated_OutFlow",
           palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
           breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-          title = "Estimated Outflow Volume")+
+          title = "Estimated Outflow Volume",
+          id = "Estimated_OutFlow")+
   tm_borders(col = "grey") +
 tm_shape(orc_flowLine) +
   tm_lines(lwd = "ORCEstimatedFlow",
@@ -694,7 +831,7 @@ During my prototyping process, I've been considering the user experience quite a
 This approach would not only make the application more interactive but also more user-friendly. Users could explore different layers at their own pace, delve deeper into the ones they find interesting, and ultimately gain a more personalized understanding of the data.
 :::
 
-## 4.10 Destination Constraint Flow Estimation Map
+## 4.11 Destination Constraint Flow Estimation Map
 
 Similar to what we did with origin constrained SIM model, we will follow the same procedure for plotting destination constrained SIM model results.
 
@@ -717,21 +854,24 @@ des_fitted_outflow_hex$Estimated_OutFlow <- ifelse(is.na(des_fitted_outflow_hex$
 ```{r}
 tmap_mode("view")
 tm_shape(hex_grid_pa_sz) +
-  tm_fill(col="#f2ffff") +
+  tm_fill(col="#f2ffff",
+          id = "PLN_AREA_N") +
   tm_borders(col = "grey") +
 tm_shape(des_fitted_inflow_hex) +
   tm_fill(col = "Estimated_InFlow",
           palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
           breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-          title = "Estimated Inflow Volume")+
+          title = "Estimated Inflow Volume",
+          id = "Estimated_InFlow")+
   tm_borders(col = "grey") +
 tm_shape(des_fitted_outflow_hex) +
   tm_fill(col = "Estimated_OutFlow",
           palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
           breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-          title = "Estimated Outflow Volume")+
+          title = "Estimated Outflow Volume",
+          id = "Estimated_OutFlow")+
   tm_borders(col = "grey") +
 tm_shape(orc_flowLine) +
   tm_lines(lwd = "DESEstimatedFlow",
@@ -744,7 +884,7 @@ tm_shape(orc_flowLine) +
           id = "DESEstimatedFlow")
 ```
 
-## 4.11 Doubly Constraint Flow Estimation Map
+## 4.12 Doubly Constraint Flow Estimation Map
 
 Similar to what we did with origin constrained SIM model, we will follow the same procedure for plotting doubly constrained SIM model results.
 
@@ -767,21 +907,24 @@ dbc_fitted_outflow_hex$Estimated_OutFlow <- ifelse(is.na(dbc_fitted_outflow_hex$
 ```{r}
 tmap_mode("view")
 tm_shape(hex_grid_pa_sz) +
-  tm_fill(col="#f2ffff") +
+  tm_fill(col="#f2ffff",
+          id = "PLN_AREA_N") +
   tm_borders(col = "grey") +
 tm_shape(dbc_fitted_inflow_hex) +
   tm_fill(col = "Estimated_InFlow",
           palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
           breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-          title = "Estimated Inflow Volume")+
+          title = "Estimated Inflow Volume",
+          id = "Estimated_InFlow")+
   tm_borders(col = "grey") +
 tm_shape(dbc_fitted_outflow_hex) +
   tm_fill(col = "Estimated_OutFlow",
           palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
           style = "fixed",
           breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-          title = "Estimated Outflow Volume")+
+          title = "Estimated Outflow Volume",
+          id = "Estimated_OutFlow")+
   tm_borders(col = "grey") +
 tm_shape(orc_flowLine) +
   tm_lines(lwd = "DBCEstimatedFlow",
@@ -800,16 +943,16 @@ tm_shape(orc_flowLine) +
 During my prototyping process, I spent some time to think about the organization of the models. Initially, I considered having a separate tabset for each model type. However, upon reflection, I believe it might be more beneficial to have the model type as one of the calibration inputs and combine everything on one page. The advantage of this approach is that it allows users to stack layers not just from one model, but across different models as well. For instance, they could stack desire flows from all three models and analyze the differences in the results. This would be challenging if we have each tabset for each model than the user will have to keep swtiching from one tab to another just to compare the results.
 :::
 
-## 4.12 Zooming to Specific Planning Area & Subzones
+## 4.13 Zooming to Specific Planning Area & Subzones
 
 Similar to what we did in earlier sections, we can also create planning area and subzone specific maps. In the following example, I tried to prototype using destination constrained SIM model.
 
 ::: {.callout-tip title="Reflection"}
 **Prototyping Thoughts**
 
-For the purpose of prototyping, I\'ve been using the destination constrained Spatial Interaction Model (SIM). However, in the actual Shiny application, I plan to give users the flexibility to choose both the model type and the planning/area or subzone they want to use for their analysis.
+For the purpose of prototyping, I've been using the destination constrained Spatial Interaction Model (SIM). However, in the actual Shiny application, I plan to give users the flexibility to choose both the model type and the planning/area or subzone they want to use for their analysis.
 
-Additionally, I\'m considering allowing users to specify the time period they\'re interested in - whether it\'s the morning or evening peak, or weekday or weekend/holiday. However, in this exercise we are only using weekday morning dataset, it is not possible to do it here. But the actual application will be designed to handle different time periods.
+Additionally, I'm considering allowing users to specify the time period they're interested in - whether it's the morning or evening peak, or weekday or weekend/holiday. However, in this exercise we are only using weekday morning dataset, it is not possible to do it here. But the actual application will be designed to handle different time periods.
 :::
 
 ```{r}
@@ -828,14 +971,16 @@ des_flowLine_map_pa <- function(pa_input){
             palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
             style = "fixed",
             breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-            title = "Estimated Inflow Volume")+
+            title = "Estimated Inflow Volume",
+          id = "Estimated_InFlow")+
     tm_borders(col = "grey") +
   tm_shape(des_fitted_outflow_hex) +
     tm_fill(col = "Estimated_OutFlow",
             palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
             style = "fixed",
             breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-            title = "Estimated Outflow Volume")+
+            title = "Estimated Outflow Volume",
+          id = "Estimated_OutFlow")+
     tm_borders(col = "grey") +
   tm_shape(des_flowLine_temp) +
     tm_lines(lwd = "DESEstimatedFlow",
@@ -864,14 +1009,16 @@ des_flowLine_map_sz <- function(sz_input){
             palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
             style = "fixed",
             breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-            title = "Estimated Inflow Volume")+
+            title = "Estimated Inflow Volume",
+          id = "Estimated_InFlow")+
     tm_borders(col = "grey") +
   tm_shape(des_fitted_outflow_hex) +
     tm_fill(col = "Estimated_OutFlow",
             palette = c("#f2ffff","#f9f777","#f8d673","#f89974","#D66779","#b977cb","#7977f3","#57bfc0"),
             style = "fixed",
             breaks = c(0,1,100,1000,10000,100000,500000,1000000,5000000),
-            title = "Estimated Outflow Volume")+
+            title = "Estimated Outflow Volume",
+          id = "Estimated_OutFlow")+
     tm_borders(col = "grey") +
   tm_shape(des_flowLine_temp) +
     tm_lines(lwd = "DESEstimatedFlow",
@@ -888,11 +1035,11 @@ des_flowLine_map_sz <- function(sz_input){
 ::: {.callout-tip title="Reflection"}
 **Prototyping Thoughts**
 
-During my prototyping process, I\'ve made an adjustment to the filtering based on flow volume. Initially, I was filtering out data with a flow volume less than 5000. However, I realized that some subzones and planning areas might have a lower flow volume, which could lead to errors if the maximum flow is less than this threshold filter.
+During my prototyping process, I've made an adjustment to the filtering based on flow volume. Initially, I was filtering out data with a flow volume less than 5000. However, I realized that some subzones and planning areas might have a lower flow volume, which could lead to errors if the maximum flow is less than this threshold filter.
 
-To avoid such errors, I decided to reduce the threshold to 1000. This allows for a more inclusive analysis, capturing data from areas with lower flow volumes. However, I\'m aware that there could still be instances where the flow is even less than 1000, which could still potentially lead to errors.
+To avoid such errors, I decided to reduce the threshold to 1000. This allows for a more inclusive analysis, capturing data from areas with lower flow volumes. However, I'm aware that there could still be instances where the flow is even less than 1000, which could still potentially lead to errors.
 
-While I haven\'t addressed this issue in the current stage, I\'m actively thinking about ways to handle this in the final Shiny app.
+While I haven't addressed this issue in the current stage, I'm actively thinking about ways to handle this in the final Shiny app.
 :::
 
 As a demonstration, we call the `des_flowLine_map_pa()` function with "WOODLANDS" and the **`des_flowLine_map_sz()`** function with "NATURE RESERVE" as inputs. to test whether the functions works well and produce desired outcomes.
@@ -902,7 +1049,7 @@ des_flowLine_map_pa("WOODLANDS")
 des_flowLine_map_sz("NATURE RESERVE")
 ```
 
-## 4.13 Push-Pull Factors
+## 4.14 Push-Pull Factors
 
 Beyond looking at the estimated flow volumes, spatial interaction modelling also offers valuable insights by providing coefficient estimates for explanatory variables, both at the origin and destination locations.
 
@@ -981,7 +1128,7 @@ ggplot(data = push_factors,
 ```
 
 ::: {.callout-tip title="Reflection"}
-#### **Prototyping Thoughts**
+**Prototyping Thoughts**
 
 Visualizing the coefficient estimates using bar graphs, instead of simple tables, indeed enhances interpretability. It provides a clear picture of not only the magnitude (absolute value) but also the direction (positive or negative) of each coefficient estimate.
 
@@ -990,24 +1137,69 @@ For example, in push factor graph above, we can clearly see that an increase in 
 This kind of visual representation makes it much easier to understand and interpret the results of the analysis.
 :::
 
-## Exploring User Input Options for Shiny Application
+## 4.15 Exploring User Input Options for Shiny Application
 
-From the exercise above, we may include the following user specification and model calibration options for our Shiny application.
+Reflection on what we explored in the exercise above, we will use two tabset - Flow Estimation Map and Push-Pull Factors to visualise the results.
 
-| Input             | Options                                                                                             |
-|----------------------|--------------------------------------------------|
-| Month of Interest | `November 2023`, `December 2023`, `January 2024`                                                    |
-| Time Period       | `Weekday - Morning` , `Weekday - Evening`, `Weekend/Holiday - Morning`, `Weekend/Holiday - Evening` |
-| Area of Interest  | `Singapore (Overall)`, individual subzone/ planning areas                                           |
-| Flow Type         | `Inflow`, `Outflow`                                                                                 |
-| Model Type        | `Origin Constraint`, `Destination Constraint`, `Doubly Constraint`                                  |
-|                   |                                                                                                     |
+### 4.15.1 Flow Estimation Map
 
-## Comparison
+For Flow Estimation Map tabset, we may include the following user specification and model calibration options for our Shiny application.
+
++------------------+-----------------------------------------------------------------------------------------------------+
+| Input            | Options                                                                                             |
++==================+=====================================================================================================+
+| Model Type       | `Origin-Constrained`, `Destination-Constrained`, `Doubly Constrained`                               |
++------------------+-----------------------------------------------------------------------------------------------------+
+| Time Period      | `Weekday - Morning` , `Weekday - Evening`, `Weekend/Holiday - Morning`, `Weekend/Holiday - Evening` |
++------------------+-----------------------------------------------------------------------------------------------------+
+| Result Layer     | `O-D Desire Line`, `Fitted Inflow Map`, `Fitted Outflow Map`                                        |
++------------------+-----------------------------------------------------------------------------------------------------+
+| Zooming Level    | `Overall (Singapore)` , `Planning Area`, `Subzone`                                                  |
++------------------+-----------------------------------------------------------------------------------------------------+
+| Area of Interest | -   `NA` if `Overall (Singapore)` is selected for **Zooming Level**                                 |
+|                  |                                                                                                     |
+|                  | -   Planning Area Name if `Planning Area` is selected for **Zooming Level**                         |
+|                  |                                                                                                     |
+|                  | -   Subzone Name if `Subzone` is selected for **Zooming Level**                                     |
++------------------+-----------------------------------------------------------------------------------------------------+
+
+Below is a rough outline of how the user interface for this tabset might look like.
+
+![](images/33.png){fig-align="center"}
+
+### 4.15.1 Push-Pull Factors
+
+For Push-Pull Factors tabset, we may include the following user specification and model calibration options for our Shiny application. Note that we remove the specification for Model Type as push-pull factors cannot be derived from a single SIM model.
+
++------------------+-----------------------------------------------------------------------------------------------------+
+| Input            | Options                                                                                             |
++==================+=====================================================================================================+
+| Time Period      | `Weekday - Morning` , `Weekday - Evening`, `Weekend/Holiday - Morning`, `Weekend/Holiday - Evening` |
++------------------+-----------------------------------------------------------------------------------------------------+
+| Zooming Level    | `Overall (Singapore)` , `Planning Area`, `Subzone`                                                  |
++------------------+-----------------------------------------------------------------------------------------------------+
+| Area of Interest | -   `NA` if `Overall (Singapore)` is selected for **Zooming Level**                                 |
+|                  |                                                                                                     |
+|                  | -   Planning Area Name if `Planning Area` is selected for **Zooming Level**                         |
+|                  |                                                                                                     |
+|                  | -   Subzone Name if `Subzone` is selected for **Zooming Level**                                     |
++------------------+-----------------------------------------------------------------------------------------------------+
+
+Below is a rough outline of how the user interface for this tabset might look like.
+
+![](images/32-01.png){fig-align="center"}
+
+## 4.16 Comparing Estimated Flows from Different Models
+
+In this section, we are comparing the performance of the three Spatial Interaction Models (SIMs) we have fitted above: the origin constrained SIM, the destination constrained SIM, and the doubly constrained SIM. To achieve it, we will explore an R packaged called `performance` which provides functions for assessment of model quality and performance.
 
 ```{r}
 pacman::p_load(performance)
 ```
+
+Firstly, we will a list of the three models we have fitted: the origin constrained SIM (**`orcSIM_weekday_morn`**), the destination constrained SIM (**`desSIM_weekday_morn`**), and the doubly constrained SIM (**`dbcSIM_weekday_morn`**).
+
+We will then use the **`compare_performance`** function to compare the models based on the RMSE. The RMSE is a measure of the differences between the values predicted by a model and the values actually observed.
 
 ```{r}
 model_list <- list(originConstrained=orcSIM_weekday_morn,
@@ -1016,6 +1208,8 @@ model_list <- list(originConstrained=orcSIM_weekday_morn,
 
 compare_performance(model_list, metrics = "RMSE")
 ```
+
+Next, we will create scatter plots to compare the observed flows against the estimated flows from each model.
 
 ```{r}
 ggplot(data = fitted_flow_weekday_morn,
@@ -1049,6 +1243,76 @@ ggplot(data = fitted_flow_weekday_morn,
        x = "Fitted Values", y = "Observed Values")
 ```
 
-# 5.0 Proposed Shiny Application Interface
+::: {.callout-tip title="Reflection"}
+**Prototyping Thoughts**
 
-![](images/Trip%20Count%20Map%20(2).png)
+As I've been working on the prototyping process, I've had some thoughts on whether or not to add the section on model comparison. While observed vs fitted value plots are essential in research for validating models, I realized they might not be as relevant or intuitive for everyone when used in a geospatial application. Given that the users of our Shiny application may not have a research background, such plots could potentially confuse them. Therefore, I've decided to focus on features that enhance the interpretability and usability of the application.
+:::
+
+# 5.0 Proposed Shiny Application User Interface Storyboard
+
+Below, I'm excited to present the finalized mock-up storyboard of the Shiny Application. I have focused on three specific tabsets that I have tested and explored throughout this exercise - Inflow/Outflow Map, Flow Estimation Map, and Push/Pull Factors. Not only will I present the user interface layout, but I will also show how different outputs would look like based on various user calibration inputs.
+
+## 5.1 Inflow/Outflow Map
+
+### 5.1.1 Inflow/Outflow Map for Singapore Overall
+
+![Inflow/Outflow Map - (Flow Type) Incoming Flow, (Time Period) Weekday - Morning, (Zooming Level) - Overall Singapore, (Area of Interest) NA](images/Inflow_Outflow%20Map%20(2).png){fig-align="center"}
+
+![Inflow/Outflow Map - (Flow Type) Outgoing Flow, (Time Period) Weekday - Morning, (Zooming Level) - Overall Singapore, (Area of Interest) NA](images/Inflow_Outflow%20Map%20(3).png){fig-align="center"}
+
+### 5.1.2 Inflow/Outflow Map for Planning Area/Subzone Zooming
+
+![Inflow/Outflow Map - (Flow Type) Incoming Flow, (Time Period) Weekday - Morning, (Zooming Level) - Planning Area, (Area of Interest) Bukit Panjang](images/Trip%20Count%20Map-01.png){fig-align="center"}
+
+![Inflow/Outflow Map - (Flow Type) Incoming Flow, (Time Period) Weekday - Morning, (Zooming Level) - Subzone, (Area of Interest) Changi Airport](images/Inflow_Outflow%20Map-02.png){fig-align="center"}
+
+![Inflow/Outflow Map - (Flow Type) Outgoing Flow, (Time Period) Weekday - Morning, (Zooming Level) - Subzone, (Area of Interest) Tuas North](images/Inflow_Outflow%20Map%20(6).png){fig-align="center"}
+
+## 5.2 Flow Estimation Map
+
+### 5.2.1 Origin-Constrained Flow Estimation Maps
+
+![Flow Estimation Map - (Model Type) Origin-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line, Fitted Outflow Map\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Flow%20Estimation%20Map.png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Origin-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Flow%20Estimation%20Map%20(2).png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Origin-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[Fitted Outflow Map\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Flow%20Estimation%20Map%20(3).png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Origin-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[Fitted Inflow Map\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Flow%20Estimation%20Map%20(4).png){fig-align="center"}
+
+### 5.2.2 Destination-Constrained Flow Estimation Maps
+
+![Flow Estimation Map - (Model Type) Destination-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line, Fitted Inflow Map\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Destination-Constrained%201.png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Destination-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Destination-Constrained%202.png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Destination-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line, Fitted Inflow Map\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Destination-Constrained%202.png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Destination-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Destination-Constrained%202.png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Destination-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[Fitted Outflow Map\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Destination-Constrained%203.png){fig-align="center"}
+
+### 5.2.3 Doubly-Constrained Flow Estimation Maps
+
+![Flow Estimation Map - (Model Type) Doubly-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line, Fitted Inflow Map\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Doubly-Constrained%201.png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Doubly-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Doubly-Constrained%202.png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Doubly-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[Fitted Outflow Map\], (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Doubly-Constrained%203.png){fig-align="center"}
+
+### 5.2.4 Flow Estimation Maps for Planning Area/Subzone Zooming
+
+![Flow Estimation Map - (Model Type) Destination-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line, Fitted Inflow Map, Fitted Outflow Map\], (Zooming Level) Planning Area, (Area of Interest) Woodlands](images/Planning%20Area.png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Destination-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[Fitted Inflow Map\], (Zooming Level) Planning Area, (Area of Interest) Woodlands](images/Planning%20Area%20(2).png){fig-align="center"}
+
+![Flow Estimation Map - (Model Type) Destination-Constrained, (Time Period) Weekday - Morning, (Result Layer) \[O-D Desire Line\], (Zooming Level) Subzone, (Area of Interest) Tuas North](images/Subzone-01.png){fig-align="center"}
+
+## 5.3 Push-Pull Factors
+
+![Push-Pull Factors - (Time Period) Weekday - Morning, (Zooming Level) Overall Singapore, (Area of Interest) NA](images/Push-Pull-01.png){fig-align="center"}
+
+# 6.0 Conclusion
+
+Transitioning from research-oriented tasks to an analytical application, as required in this exercise, presented a unique set of challenges. Instead of focusing on the components of research studies, I shifted my attention to the elements of a typical data dashboard and the user\'s perception of the information presented therein. This exercise, while demanding, provided a valuable opportunity for learning through trial and error, significantly enhancing my data visualization skills.
