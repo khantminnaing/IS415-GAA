@@ -88,6 +88,10 @@ hexagons <- st_read(dsn = "../data/geospatial", layer = "hexagons")
 eldercare <- st_read(dsn = "../data/geospatial", layer = "ELDERCARE")
 ```
 
+::: {.callout-tip title="Reflection"}
+The data we\'ve imported have undergone pre-processing using the QGIS software. This procedure can also be executed within the R environment by utilizing the appropriate functions and packages. However, it\'s important to note that this method can be computationally demanding and not advisable to use, especially when the study area and the raw datasets are huge.
+:::
+
 # 3.0 Data Processing & Wrangling
 
 In this session, we will carry out necessary data processing and wrangling steps before conducting the analysis.
@@ -129,7 +133,7 @@ hexagons <- hexagons %>%
 ```
 
 ::: {.callout-tip title="Reflection"}
-For the purpose of this hands-on exercise, a constant value of 100 is used. In practice, actual demand of the hexagon and capacity of the eldercare centre should be used.
+For the purpose of this hands-on exercise, a hypothetical constant value of 100 is used. In practice, actual demand of the hexagon and capacity of the eldercare centre should be used to achieve realistic and accurate results. This remains a significant challenge in real-world urban planning due to the limited on-ground data and infrequent survey works.
 :::
 
 ## 3.2 Aspatial Data Wrangling
@@ -148,16 +152,28 @@ ODMatrix <- read_csv("../data/aspatial/OD_Matrix.csv", skip = 0)
 head(ODMatrix)
 ```
 
-Looking at the data structure of `ODMatrix` as above, it organised the distance matrix columnwise. Such a structure is often termed as **thin** format. On the other hands, most of the modelling packages in R is expecting a matrix look similar to the figure below. The rows represent **origins** (i.e. also know as **from** field) and the columns represent **destination** (i.e. also known as **to** field.)
+::: {.callout-tip title="Reflection"}
+In the context of network analytics, particularly in Origin-Destination (OD) matrix computations, the terms `entry_cost`, `network_cost`, and `exit_cost` are used to describe different components of the total cost associated with a network route.
+
+-   **Entry Cost**: This is the cost associated with entering the network from a specific point or node. It could be thought of as the initial cost to start the journey on the network from a given origin.
+
+-   **Network Cost**: This is the cost incurred while traveling within the network. It represents the cost of moving from one node to another within the network, considering factors such as distance, time, or other relevant metrics.
+
+-   **Exit Cost**: This is the cost associated with leaving the network to reach a specific destination point or node. It could be thought of as the final cost to end the journey on the network at a given destination.
+
+The total cost of a network route is typically the sum of the Entry Cost, Network Cost, and Exit Cost. These costs are crucial in network analysis as they help in determining the most efficient or optimal paths between various points in a network.
+:::
+
+Looking at the data structure of `ODMatrix` as above, it organised the distance matrix columnwise. Such a structure is often termed as **thin** format. On the other hands, most of the modelling packages in R (including `SpatialAcc` that we are exploring in this exercise) expects a matrix look similar to the figure below. The rows represent **origins** (i.e. also know as **from** field) and the columns represent **destination** (i.e. also known as **to** field.)
 
 ![](images/image2.jpeg){fig-align="center"}
 
-To achieve a dataset similar to the example above, we will use `spread()` function of **tidyr** package to transform the `ODMatrix` object from a thin format to a wide format.
+To achieve a dataset similar to the example above, we will use `pivot_wider()` function of **tidyr** package to transform the `ODMatrix` object from a thin format to a wide format using `total_cost`.
 
 ```{r}
 distmat <- ODMatrix %>%
   select(origin_id, destination_id, total_cost) %>%
-  spread(destination_id, total_cost)%>%
+  pivot_wider(names_from = destination_id, values_from = total_cost)%>%
   select(c(-c('origin_id')))
 ```
 
@@ -169,7 +185,7 @@ distmat_km <- as.matrix(distmat/1000)
 
 # 4.0 **Modelling and Visualising Accessibility using Hansen Method**
 
-## 4.1 Computing Hansen's Accessibility 
+## 4.1 Computing Hansen's Accessibility
 
 In this section, we will compute Hansen's accessibility by using `ac()` function from **SpatialAcc** package.
 
@@ -177,10 +193,18 @@ In this section, we will compute Hansen's accessibility by using `ac()` function
 acc_Hansen <- data.frame(ac(hexagons$demand,
                             eldercare$capacity,
                             distmat_km, 
-                            #d0 = 50,
+                            d0 = 50,
                             power = 2, 
                             family = "Hansen"))
 ```
+
+::: {.callout-tip title="Reflection"}
+`power` = 1 argument refers to the choice of distance decay function. This is often expressed through a mathematical function where the accessibility decreases with increasing distance.
+
+In the context of spatial accessibility to services, for example, a larger distance-decay parameter indicates a stronger distance-decay effect on accessibility. This means that facilities located further away are less likely to be used than those closer.
+
+![](images/Screenshot 2024-03-25 at 10.40.37 AM.png){fig-align="center"}
+:::
 
 ```{r}
 head(acc_Hansen)
@@ -210,7 +234,7 @@ head(hexagon_Hansen)
 
 We notice that hexagon_Hansen is a simple feature data frame and not a typical tibble data frame.
 
-## 4.2 Visualising Hansen's Accessibility 
+## 4.2 Visualising Hansen's Accessibility
 
 ### 4.2.1 Extracting Map Extent
 
@@ -251,7 +275,7 @@ tm_shape(eldercare) +
 
 ## 4.3 Statistical Graphic Visualization
 
-In this section, we are going to compare the distribution of Hansen\'s accessibility values by URA Planning Region.
+In this section, we are going to compare the distribution of Hansen's accessibility values by URA Planning Region.
 
 Firstly, we need to add the planning region field into `hexagon_Hansen` sf data frame by using the code chunk below.
 

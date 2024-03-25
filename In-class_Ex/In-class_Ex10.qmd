@@ -1,0 +1,23 @@
+---
+title: "In-Class Exercise 10"
+description: |
+ Modelling Geographical Accessibility 
+author:
+  - name: Khant Min Naing
+    url: https://www.linkedin.com/in/khantminnaing/
+date: 03-25-2024
+date-modified: "last-modified"
+categories:
+  - Hands-On Exercise
+  - R
+  - sf
+  - GWmodel
+  - SpatialML
+output:
+  distill::distill_article:
+    code_folding: false
+    toc: true
+    self_contained: false
+---
+
+# Modelling Geographical Accessibility
